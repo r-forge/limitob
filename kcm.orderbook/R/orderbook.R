@@ -184,7 +184,7 @@ setMethod("add.order",
               
               
               ob.names = object@ob.names
-              new.time = object@current.time + 1
+              new.time = object@current.time
               if(is.null(id) & nrow(x) != 0){
                   id = max(as.numeric(x[[ob.names[5]]])) + 1
               } else if(is.null(id)){

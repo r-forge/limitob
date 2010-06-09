@@ -20,8 +20,8 @@ orderbook <- function(x,
 
     ## Make sure the user inputted correct names for the columns, ie the
     ## columns named actually exist in data frame x.
-
-    if(!(id %in% names(x) &
+    if(nrow(x) != 0){
+            if(!(id %in% names(x) &
          price %in% names(x) &
          size %in% names(x) &
          type %in% names(x) &
@@ -66,4 +66,14 @@ orderbook <- function(x,
                   current.time = end,
                   ob.names = ob.names
                   ))
+    } else {
+    
+    ob.names = c(price, size, type, time, id, ask, bid)
+    invisible(new("orderbook", 
+    current.ob = data.frame(price = c(), size = c(), type = c(), time = c(), id = c()),
+    current.time = 0,
+    ob.names = ob.names
+    ))
+    }
+    
 }

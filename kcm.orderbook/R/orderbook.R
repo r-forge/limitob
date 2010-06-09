@@ -181,18 +181,17 @@ setMethod("add.order",
 
               x = object@current.ob
               ob.names = object@ob.names
-              new.time = max(x[[ob.names[4]]]) + 1
-              if(is.null(id)){
+              new.time = object@current.time + 1
+              if(is.null(id) & nrow(x) != 0){
                   id = max(as.numeric(x[[ob.names[5]]])) + 1
+              } else if(is.null(id)){
+                  id = 1
               }
-
-              x = rbind(x, x[1,])
-              x[[ob.names[1]]][nrow(x)] = price
-              x[[ob.names[2]]][nrow(x)] = size
-              x[[ob.names[3]]][nrow(x)] = type
-              x[[ob.names[4]]][nrow(x)] = new.time
-              x[[ob.names[5]]][nrow(x)] = id
-
+              
+              new.order = data.frame(price, size, type, new.time, id)
+              names(new.order) = c(ob.names[1], ob.names[2], ob.names[3], ob.names[4], ob.names[5])
+              
+                x = rbind(x, new.order)
 
               invisible(new("orderbook", current.ob = x,
                             current.time = new.time, ob.names = ob.names))

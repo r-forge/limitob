@@ -15,6 +15,7 @@ exportMethods(
 
 		  "best.bid",
 		  "best.ask",
+          "get.order.info",
 
    	      "bid.price.levels",
 	      "ask.price.levels",

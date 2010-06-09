@@ -15,6 +15,9 @@ setClass("orderbook", representation(current.ob = "data.frame",
 if(!isGeneric("spread"))
     setGeneric("spread", function(object, ...) standardGeneric("spread"))
 
+if(!isGeneric("get.order.info"))
+    setGeneric("get.order.info", function(object, id, ...) standardGeneric("get.order.info"))
+
 if(!isGeneric("snapshot"))
     setGeneric("snapshot", function(object, new.time,...)
                standardGeneric("snapshot"))

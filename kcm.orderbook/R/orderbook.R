@@ -102,6 +102,21 @@ setMethod("plot",
           }
           )
 
+## Takes ID as input, returns vector of price and size for that ID.
+          
+setMethod("get.order.info",
+          signature(object = "orderbook"),
+          function(object, id, ...){
+              x = object@current.ob
+              ob.names = object@ob.names
+              tmp.price = x[[ob.names[1]]][x[[ob.names[5]]] == id]
+              tmp.size = x[[ob.names[2]]][x[[ob.names[5]]] == id]
+              
+              return(c(price = tmp.price, size = tmp.size))
+              
+          }
+          )
+
 ## Displays summary information.
 
 setMethod("summary",

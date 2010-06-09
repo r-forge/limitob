@@ -11,6 +11,7 @@
 \alias{total.price.levels,orderbook-method}
 \alias{bid.orders,orderbook-method}
 \alias{ask.orders,orderbook-method}
+\alias{get.order.info,orderbook-method}
 \alias{total.orders,orderbook-method}
 \alias{mid.point,orderbook-method}
 \alias{inside.market,orderbook-method}
@@ -30,6 +31,7 @@
 \alias{ask.orders}
 \alias{total.orders}
 \alias{mid.point}
+\alias{get.order.info}
 \alias{inside.market}
 \alias{spread}
 \alias{snapshot}
@@ -74,6 +76,9 @@
    }
    \item{summary}{\code{signature(object="orderbook")}: Prints the summary 
      of the orderbook
+   }
+   \item{get.order.info}{\code{signature(object = "orderbook")}: Returns the price
+        and size of the order with specified ID.
    }
    \item{plot}{\code{signature(x = "orderbook")}: Plots the orderbook
    }

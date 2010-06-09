@@ -1,0 +1,11 @@
+Package: kcm.orderbook
+Type: Package
+Title: Orderbook visualization/Charting software
+Depends: R (>= 2.8.0), methods, graphics, lattice
+Version: 0.0.0.1
+Date: 2010-01-15
+Author: Andrew Liu, Khanh Nguyen
+Maintainer: Khanh Nguyen <knguyen@cs.umb.edu>
+Description: orderbook simulation
+License: GPL (>= 2)
+LazyLoad: yes

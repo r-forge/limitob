@@ -178,8 +178,11 @@ setMethod("add.order",
               
               stopifnot(price>0 & size > 0)
               stopifnot(type == ob.names[6] | type == ob.names[7])
+              
 
               x = object@current.ob
+              
+              
               ob.names = object@ob.names
               new.time = object@current.time + 1
               if(is.null(id) & nrow(x) != 0){
@@ -207,17 +210,19 @@ setMethod("replace.order",
               x = object@current.ob
               ob.names = object@ob.names
 
-              stopifnot(id %in% x[[ob.names[5]]] & size > 0)
+              stopifnot(size > 0)
 
               tmp.size = x[[ob.names[2]]][x[[ob.names[5]]] == id]
               if(tmp.size < size){
                   print("Warning size greater than current size")
-              }
-
+              } else if(tmp.size == size){
+                    invisible(remove.order(object, id))
+              } else {
               x[[ob.names[2]]][x[[ob.names[5]]] == id] = min(size, tmp.size)
               invisible(new("orderbook", current.ob = x,
                             current.time = object@current.time,
                             ob.names = ob.names))
+              }
           }
           )
 
@@ -423,19 +428,24 @@ setMethod("spread",
               ob.names = object@ob.names
 
               by.type = split(x, x[[ob.names[3]]])
-
+              
               tmp.ask = by.type[[ob.names[6]]]
-              tmp.ask = tmp.ask[order(tmp.ask[[ob.names[1]]]),]
               tmp.bid = by.type[[ob.names[7]]]
-              tmp.bid = tmp.bid[order(tmp.bid[[ob.names[1]]],
-              decreasing = TRUE),]
-
+              
               if(nrow(tmp.ask) == 0 | nrow(tmp.bid) == 0){
                   return(0)
               } else {
+
+                
+                tmp.ask = tmp.ask[order(tmp.ask[[ob.names[1]]]),]
+                
+                tmp.bid = tmp.bid[order(tmp.bid[[ob.names[1]]],
+                decreasing = TRUE),]
+
+              
                   return(tmp.ask[[ob.names[1]]][1] -
                          tmp.bid[[ob.names[1]]][1])
-              }
+             }  
 
           }
           )
@@ -469,9 +479,7 @@ setMethod("remove.order",
           function(object, id, ...){
               x = object@current.ob
               ob.names = object@ob.names
-              if(!(id %in% x[[ob.names[5]]])){
-                  print(id)
-              }
+              
 
               x = x[x[[ob.names[5]]] != id,]
 

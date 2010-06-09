@@ -1,0 +1,51 @@
+\documentclass[a4paper]{report}
+\usepackage[round]{natbib}
+
+
+\usepackage{Rnews}
+\usepackage{fancyvrb}
+\usepackage{Sweave}  
+
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\small,fontshape=sl}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{fontsize=\small,fontshape=sl}
+
+%% \SweaveOpts{prefix.string=graphics/portfolio}
+
+\bibliographystyle{abbrvnat}
+
+\begin{document}
+\begin{article}
+
+
+\title{orderbook}
+\author{Authors}
+
+%%\VignetteIndexEntry{Using the orderbook package}
+%%\VignetteDepends{kcm.orderbook}
+
+<<echo = FALSE>>=
+options(width = 50, digits = 2, scipen = 5)
+set.seed(1)
+cat.df.without.rownames <- function (d, file = ""){
+  stopifnot(is.data.frame(d))
+  row.names(d) <- 1:nrow(d)
+  x <- NULL
+  conn <- textConnection("x", "w", local = TRUE)
+  capture.output(print(d), file = conn)
+  close(conn)
+  cat(substring(x, first = max(nchar(row.names(d))) + 2), sep = "\n", 
+      file = file)
+}
+@ 
+
+\maketitle
+
+
+\setkeys{Gin}{width=0.95\textwidth}
+
+\section*{Introduction}
+\section*{Background}
+\section*{Conclusion}
+\end{article}
+\end{document}

@@ -16,7 +16,8 @@ if(!isGeneric("spread"))
     setGeneric("spread", function(object, ...) standardGeneric("spread"))
 
 if(!isGeneric("get.order.info"))
-    setGeneric("get.order.info", function(object, id, ...) standardGeneric("get.order.info"))
+    setGeneric("get.order.info", function(object, id, ...)
+               standardGeneric("get.order.info"))
 
 if(!isGeneric("snapshot"))
     setGeneric("snapshot", function(object, new.time,...)
@@ -63,11 +64,11 @@ if(!isGeneric("add.order"))
                standardGeneric("add.order"))
 
 if(!isGeneric("best.bid"))
-    setGeneric("best.bid", function(object, ...) 
+    setGeneric("best.bid", function(object, ...)
 			   standardGeneric("best.bid"))
 
 if(!isGeneric("best.ask"))
-    setGeneric("best.ask", function(object, ...) 
+    setGeneric("best.ask", function(object, ...)
 	           standardGeneric("best.ask"))
 
 if(!isGeneric("remove.order"))

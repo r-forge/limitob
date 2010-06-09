@@ -123,5 +123,9 @@
   }
 }
 
-
+\examples{
+data(sample)
+summary(ob)
+plot(ob)
+}
 \keyword{classes}

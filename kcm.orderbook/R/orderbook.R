@@ -187,7 +187,7 @@ setMethod("display",
 
 setMethod("add.order",
           signature(object = "orderbook"),
-          function(object, price, size, type, id = NULL, ...){
+          function(object, price, size, type, id = NULL, time = NULL, ...){
 
               ob.names = object@ob.names
 
@@ -199,7 +199,13 @@ setMethod("add.order",
 
 
               ob.names = object@ob.names
-              new.time = object@current.time
+              
+              if(is.null(time)){
+                  new.time = object@current.time
+              } else {
+                  new.time = time
+              }
+              
               if(is.null(id) & nrow(x) != 0){
                   id = max(as.numeric(x[[ob.names[5]]])) + 1
               } else if(is.null(id)){

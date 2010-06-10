@@ -419,15 +419,19 @@ setMethod("mid.point",
 setMethod("inside.market",
           signature(object = "orderbook"),
           function(object, invis = FALSE, ...) {
-              x = .combine.size(object, 0.1)
+              x = .combine.size(object, Inf)
               ob.names = object@ob.names
               by.type = split(x, x[[ob.names[3]]])
-
-              tmp.ask = by.type[[ob.names[6]]]
-              tmp.ask = tmp.ask[order(tmp.ask[[ob.names[1]]]),]
-              tmp.bid = by.type[[ob.names[7]]]
-              tmp.bid = tmp.bid[order(tmp.bid[[ob.names[1]]],
-              decreasing = TRUE),]
+			  
+			  tmp.ask = by.type[[ob.names[6]]]
+			  if(max(0, nrow(tmp.ask)) > 0){
+              	 
+                  tmp.ask = tmp.ask[order(tmp.ask[[ob.names[1]]]),]
+			  }
+			  tmp.bid = by.type[[ob.names[7]]]
+			  if (max(0, nrow(tmp.bid)) > 0){              	  
+              	  tmp.bid = tmp.bid[order(tmp.bid[[ob.names[1]]], decreasing = TRUE),]
+			  }
 
               if(invis == FALSE){
                   cat("Top Bid:           ",
@@ -461,14 +465,12 @@ setMethod("spread",
               } else {
 
 
-                  tmp.ask = tmp.ask[order(tmp.ask[[ob.names[1]]]),]
+                  tmp.ask = min(tmp.ask[[ob.names[1]]])
 
-                  tmp.bid = tmp.bid[order(tmp.bid[[ob.names[1]]],
-                  decreasing = TRUE),]
+                  tmp.bid = max(tmp.bid[[ob.names[1]]])                  
 
 
-                  return(tmp.ask[[ob.names[1]]][1] -
-                         tmp.bid[[ob.names[1]]][1])
+                  return(tmp.ask -  tmp.bid)
               }
 
           }

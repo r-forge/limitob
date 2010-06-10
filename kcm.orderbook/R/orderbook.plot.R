@@ -18,6 +18,11 @@
     x = .combine.size(object, bounds)
     ob.names = object@ob.names
 
+	## If there is nothing on the orderbook, stop
+	stopifnot(nrow(x)>0)	
+
+
+
 
     ## Maximum size, max/min price. and difference between the max
     ## and min price for purposes of drawing the axes.

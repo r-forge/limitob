@@ -60,8 +60,8 @@ if(!isGeneric("inside.market"))
                standardGeneric("inside.market"))
 
 if(!isGeneric("add.order"))
-    setGeneric("add.order", function(object, price, size, type, id=NULL, 
-               time = NULL, ...) standardGeneric("add.order"))
+    setGeneric("add.order", function(object, price, size, type, time=NULL, 
+               id = NULL, ...) standardGeneric("add.order"))
 
 if(!isGeneric("best.bid"))
     setGeneric("best.bid", function(object, ...)

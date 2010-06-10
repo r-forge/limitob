@@ -26,7 +26,7 @@
 ## Takes an orderbook object as input. Returns orderbook object with price,
 ## size, and type. Mainly needed for plotting.
 
-.combine.size <- function(object, bounds = 0.1){
+.combine.size <- function(object, bounds){
 
     ## Pull out the current.ob and ob.names.
 

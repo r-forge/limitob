@@ -97,8 +97,8 @@ setMethod("show",
 
 setMethod("plot",
           signature(x = "orderbook"),
-          function(x, ...){
-              .plot.lattice.order.book(x)
+          function(x, bounds = 0.1, ...){
+              .plot.lattice.order.book(x, bounds)
           }
           )
 
@@ -187,7 +187,7 @@ setMethod("display",
 
 setMethod("add.order",
           signature(object = "orderbook"),
-          function(object, price, size, type, id = NULL, time = NULL, ...){
+          function(object, price, size, type, time = NULL, id = NULL, ...){
 
               ob.names = object@ob.names
 
@@ -229,22 +229,24 @@ setMethod("add.order",
 setMethod("replace.order",
           signature(object = "orderbook"),
           function(object, id, size, ...){
-              x = object@current.ob
-              ob.names = object@ob.names
-
-              stopifnot(size > 0)
-
-              tmp.size = x[[ob.names[2]]][x[[ob.names[5]]] == id]
-              if(tmp.size < size){
-                  print("Warning size greater than current size")
-              } else if(tmp.size == size){
-                  invisible(remove.order(object, id))
+              if(size == 0){
+                    invisible(remove.order(object, id))
               } else {
-                  x[[ob.names[2]]][x[[ob.names[5]]] == id] = min(size, tmp.size)
-                  invisible(new("orderbook", current.ob = x,
-                                current.time = object@current.time,
-                                ob.names = ob.names))
-              }
+                   x = object@current.ob     
+                   ob.names = object@ob.names
+
+                   stopifnot(size > 0)
+
+                   tmp.size = x[[ob.names[2]]][x[[ob.names[5]]] == id]
+                   if(tmp.size < size){
+                       print("Warning size greater than current size")
+                   } else {
+                       x[[ob.names[2]]][x[[ob.names[5]]] == id] = min(size, tmp.size)
+                       invisible(new("orderbook", current.ob = x,
+                                     current.time = object@current.time,
+                                     ob.names = ob.names))
+                   }
+             }
           }
           )
 
@@ -343,7 +345,7 @@ setMethod("bid.price.levels",
               ob.names = object@ob.names
               x = x[x[[ob.names[3]]]==ob.names[7],]
               by.type = split(x, x[[ob.names[1]]])
-              return(length(by.type))
+              return(max(0, length(by.type)))
           }
           )
 
@@ -356,7 +358,7 @@ setMethod("ask.price.levels",
               ob.names = object@ob.names
               x = x[x[[ob.names[3]]]==ob.names[6],]
               by.type = split(x, x[[ob.names[1]]])
-              return(length(by.type))
+              return(max(0, length(by.type)))
           }
           )
 
@@ -377,7 +379,7 @@ setMethod("bid.orders",
               x = object@current.ob
               ob.names = object@ob.names
               by.type = split(x, x[[ob.names[3]]])
-              return(nrow(by.type[[ob.names[7]]]))
+              return(max(0, nrow(by.type[[ob.names[7]]])))
           }
           )
 
@@ -389,7 +391,7 @@ setMethod("ask.orders",
               x = object@current.ob
               ob.names = object@ob.names
               by.type = split(x, x[[ob.names[3]]])
-              return(nrow(by.type[[ob.names[6]]]))
+              return(max(0, nrow(by.type[[ob.names[6]]])))
           }
           )
 
@@ -417,7 +419,7 @@ setMethod("mid.point",
 setMethod("inside.market",
           signature(object = "orderbook"),
           function(object, invis = FALSE, ...) {
-              x = .combine.size(object)
+              x = .combine.size(object, 0.1)
               ob.names = object@ob.names
               by.type = split(x, x[[ob.names[3]]])
 

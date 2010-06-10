@@ -10,12 +10,12 @@
 ## Asks on the right with Price and Size on the Y- and X-axes, respectively.
 ## Only prices within 10% above and below the midpoint value are shown.
 
-.plot.lattice.order.book <-function(object){
+.plot.lattice.order.book <-function(object, bounds){
 
     ## Use combine size to find the total size at each price level. This
     ## function returns a data frame. Also get the names for the columns.
 
-    x = .combine.size(object)
+    x = .combine.size(object, bounds)
     ob.names = object@ob.names
 
 
@@ -25,26 +25,26 @@
     max.size = signif(max(x[[ob.names[2]]]), 2)
     min.price = signif(min(x[ob.names[[1]]])-.05,3)
     max.price = round(max(x[ob.names[[1]]])+0.5)
-    diff = max.price - min.price
+    midpoint = mid.point(object)
 
     ## Panel functions that display the best bid and best ask.
 
-    panel.bestbid<- function(x = panel.args$x[panel.args$y == max(y)] +
-                             max.size/10,
-                             y = panel.args$y + diff/10 ,
+    panel.bestbid<- function(x = max.size/2,
+                             y = panel.args$y,
                              panel.args = trellis.panelArgs())
     {
-        panel.text(x = x, y = formatC(max(y), format = "f", digits = 2),
-                   labels = max(y), cex = 0.75, col = "red")
+        panel.text(x = x, y = max(y) + midpoint * bounds/20,
+                   labels = formatC(max(y), format = "f", digits = 2),
+                   cex = 0.75, col = "red")
     }
 
-    panel.bestask<- function(x = panel.args$x[panel.args$y == min(y)]
-                             + max.size/10,
-                             y = panel.args$y + diff/10,
+    panel.bestask<- function(x = max.size/2,
+                             y = panel.args$y,
                              panel.args = trellis.panelArgs())
     {
-        panel.text(x = x, y = formatC(min(y), format = "f", digits = 2),
-                   labels = min(y), cex = 0.75, col = "blue")
+        panel.text(x = x, y = min(y) - midpoint * bounds/20,
+                   labels = formatC(min(y), format = "f", digits = 2),
+                   cex = 0.75, col = "blue")
     }
 
     ## Creating the x axis values.
@@ -107,12 +107,10 @@
 
     trellis.focus("panel", 1, 1)
     panel.bestbid()
-    Sys.sleep(0.01)
     trellis.unfocus()
 
     trellis.focus("panel", 2,1)
     panel.bestask()
-    Sys.sleep(0.01)
     trellis.unfocus()
 }
 

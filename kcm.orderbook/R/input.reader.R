@@ -1,42 +1,39 @@
 read.orders <- function(ob, input){
 
     filecon <- file(input, open="r")
-	pos <- seek(filecon, rw="r")
+    pos <- seek(filecon, rw="r")
 
-	.time  = 2
-	.id	   = 3
-	.price = 4
-	.size  = 5
-	.type  = 6
+    line <- readLines(filecon, n=1)
 
-	e.o.f = FALSE 
 
-	while(!e.o.f){
-		tt <- readLines(filecon, n=1)
-		if (!(e.o.f = (length(tt) < 2))){
-		   tt <- unlist(strsplit(tt, ","))		   
-		   
-		   if (tt[1]=="A"){		   
-		   	  ob <- add.order(ob, time  = as.numeric(tt[.time]), 
-								  id	= as.numeric(tt[.id]),
-			  	 				  price = as.numeric(tt[.price]),
-								  size	= as.numeric(tt[.size]),
-								  type 	= tt[.type])								  
-		   }
+    while(length(line) != 0){
 
-		   if (tt[2]=="R"){
-		   	  ob <- remove.order(ob, id = as.numeric(tt[.id]))			  			  
-		   }
+        line <- unlist(strsplit(line, ","))
 
-		   if (tt[3]=="C"){
-		   	  ob <- replace.order(ob, id = as.numeric(tt[.id]),
-			  	 					  size = as.numeric(tt[.size]))
-		   }
-		   
-		   pos <- seek(filecon, rw="r")
-		}
-	}
-	close.connection(filecon)
 
-	return (ob)
+        if (line[1]=="A"){
+            ob <- add.order(ob, time  = as.numeric(line[2]),
+                            id	= as.numeric(line[3]),
+                            price = as.numeric(line[4]),
+                            size	= as.numeric(line[5]),
+                            type 	= line[6])
+        }
+
+        if (line[1]=="C"){
+            ob <- remove.order(ob, id = as.numeric(line[3]))
+        }
+
+        if (line[1]=="R"){
+            ob <- replace.order(ob, id = as.numeric(line[3]),
+                                size = as.numeric(line[4]))
+        }
+
+        pos <- seek(filecon, rw="r")
+        line <- readLines(filecon, n=1)
+    }
+
+
+    close.connection(filecon)
+
+    invisible(ob)
 }

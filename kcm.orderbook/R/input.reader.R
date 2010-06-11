@@ -3,11 +3,11 @@ read.orders <- function(ob, input){
     filecon <- file(input, open="r")
 	pos <- seek(filecon, rw="r")
 
-	.time  = 1
-	.id	   = 2
-	.price = 3
-	.size  = 4
-	.type  = 5
+	.time  = 2
+	.id	   = 3
+	.price = 4
+	.size  = 5
+	.type  = 6
 
 	e.o.f = FALSE 
 
@@ -16,7 +16,7 @@ read.orders <- function(ob, input){
 		if (!(e.o.f = (length(tt) < 2))){
 		   tt <- unlist(strsplit(tt, ","))		   
 		   
-		   if (length(tt)==5){		   
+		   if (tt[1]=="A"){		   
 		   	  ob <- add.order(ob, time  = as.numeric(tt[.time]), 
 								  id	= as.numeric(tt[.id]),
 			  	 				  price = as.numeric(tt[.price]),
@@ -24,11 +24,11 @@ read.orders <- function(ob, input){
 								  type 	= tt[.type])								  
 		   }
 
-		   if (length(tt)==2){
+		   if (tt[2]=="R"){
 		   	  ob <- remove.order(ob, id = as.numeric(tt[.id]))			  			  
 		   }
 
-		   if (length(tt)==3){
+		   if (tt[3]=="C"){
 		   	  ob <- replace.order(ob, id = as.numeric(tt[.id]),
 			  	 					  size = as.numeric(tt[.size]))
 		   }

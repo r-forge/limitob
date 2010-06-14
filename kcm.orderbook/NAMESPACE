@@ -1,8 +1,12 @@
+useDynLib(kcm.orderbook)
 importFrom("graphics", plot)
 
 export(
 		"orderbook"
 	  )
+export(
+	    "rows.num"
+		)
 exportClasses(
 	"orderbook"
 	)

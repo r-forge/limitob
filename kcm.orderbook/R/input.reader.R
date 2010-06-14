@@ -6,11 +6,8 @@ read.orders <- function(ob, input){
     line <- readLines(filecon, n=1)
 
 
+
     while(length(line) != 0){
-
-        line <- unlist(strsplit(line, ","))
-
-
         if (line[1]=="A"){
             ob <- add.order(ob, time  = as.numeric(line[2]),
                             id	= as.numeric(line[3]),

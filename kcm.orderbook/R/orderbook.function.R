@@ -14,9 +14,10 @@ orderbook <- function(x,
                       size = "size",
                       type = "type",
                       time = "time",
-                      id = "id",
+                      id = "id",					  
                       ask = "ASK",
-                      bid = "BID"){
+                      bid = "BID", 
+					  feed){
 
     ## Make sure the user inputted correct names for the columns, ie the
     ## columns named actually exist in data frame x.
@@ -73,7 +74,8 @@ orderbook <- function(x,
                       current.ob = data.frame(price = c(), size = c(),
                       type = c(), time = c(), id = c()),
                       current.time = 0,
-                      ob.names = ob.names
+                      ob.names = ob.names,
+					  feed = feed
                       ))
     }
 

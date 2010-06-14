@@ -8,11 +8,16 @@
 
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
-                                     ob.names     = "character"),
+                                     ob.names     = "character",
+									 feed		  = "character",
+									 current.pos  = "numeric"
+									 ),
 
          prototype(current.ob   = data.frame(),
                    current.time = numeric(),
-                   ob.names     = character())
+                   ob.names     = character(),
+				   feed			= character(),
+				   current.pos  = numeric())
          )
 
 ## Returns a vector with the price and size of the best bid order at top
@@ -516,4 +521,36 @@ setMethod("remove.order",
 
           }
           )
+
+setMethod("next.trade",
+		signature(object="orderbook"),
+		function(object, ...){
+			 
+			 #find the next immediate next trade pos
+
+			 #read to the desired location
+			 ob <- .read.to.row(ob, row)
+		}
+)
+
+setMethod("orderbook.at",
+		signature(object="orderbook"),
+		function(object, time, ...){
+			ob <- .read.to.time(ob, time)
+		}
+) 
+
+setMethod("back.by",
+		signature(object="orderbook"),
+		function(object, step, ...){
+			ob <- .read.to.row(ob, ob@current.pos - step)
+		}
+)
+
+setMethod("forward.by", 
+		signature(object="orderbook"),
+		function(object, step, ...){
+			ob <- read.to.row(ob, ob@current.pos + step)
+		}
+)
 

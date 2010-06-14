@@ -77,3 +77,90 @@
 
     return(x)
 }
+
+
+
+.read.to.time <- function(object, time){
+
+	x = object@current.ob
+	ob.names = object@ob.names
+
+	#reset the orderbook to its original state
+
+	#begin reading the orders
+	filecon = file(input, open="r")
+
+	not.at.time = TRUE
+    while (not.at.time){
+		
+		 line <- readLines(filecon, n=1)
+		
+        if (line[1]=="A"){
+            ob <- add.order(ob, time  = as.numeric(line[2]),
+                            id	= as.numeric(line[3]),
+                            price = as.numeric(line[4]),
+                            size	= as.numeric(line[5]),
+                            type 	= line[6])
+        }
+
+        if (line[1]=="C"){
+            ob <- remove.order(ob, id = as.numeric(line[3]))
+        }
+
+        if (line[1]=="R"){
+            ob <- replace.order(ob, id = as.numeric(line[3]),
+                                size = as.numeric(line[4]))
+        }
+
+
+
+		if (as.numeric(line[2]) >= time){
+		   not.at.time=FALSE
+		}
+        pos <- seek(filecon, rw="r")
+
+    }
+
+	ob@current.pos <- row	
+
+	close.connection(filecon)	
+	invisible(ob)		
+}
+
+
+.read.to.rows <- function(object, row){
+	x = object@current.ob
+	ob.names = object@ob.names
+
+	#reset the orderbook to its original state
+
+	#begin reading the orders
+	filecon = file(input, open="r")
+
+    for (i in 1:row){
+		 line <- readLines(filecon, n=1)
+        if (line[1]=="A"){
+            ob <- add.order(ob, time  = as.numeric(line[2]),
+                            id	= as.numeric(line[3]),
+                            price = as.numeric(line[4]),
+                            size	= as.numeric(line[5]),
+                            type 	= line[6])
+        }
+
+        if (line[1]=="C"){
+            ob <- remove.order(ob, id = as.numeric(line[3]))
+        }
+
+        if (line[1]=="R"){
+            ob <- replace.order(ob, id = as.numeric(line[3]),
+                                size = as.numeric(line[4]))
+        }
+
+        pos <- seek(filecon, rw="r")
+       
+    }
+	ob@current.pos <- row
+
+	close.connection(filecon)	
+	invisible(ob)		
+}

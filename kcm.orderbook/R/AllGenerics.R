@@ -90,3 +90,22 @@ if (!isGeneric("market.order.price"))
 if (!isGeneric("snapshot"))
     setGeneric("snapshot", function(object, new.time, show = TRUE, ...)
                standardGeneric("snapshot"))
+
+if (!isGeneric("next.trade"))
+    setGeneric("next.trade", function(object, ...)
+               standardGeneric("next.trade"))
+
+if (!isGeneric("orderbook.at"))
+    setGeneric("orderbook.at", function(object, time, ...)
+               standardGeneric("orderbook.at"))
+
+if (!isGeneric("back.by"))
+    setGeneric("back.by", function(object, step, ...)
+               standardGeneric("back.by"))
+
+if (!isGeneric("forward.by"))
+    setGeneric("forward.by", function(object, step, ...)
+               standardGeneric("forward.by"))
+
+
+

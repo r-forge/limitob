@@ -8,9 +8,17 @@
 
 .onLoad <- function(lib, pkg) require(methods)
 
-setClass("orderbook", representation(current.ob = "data.frame",
+setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
-                                     ob.names = "character"))
+                                     ob.names     = "character",
+                                     feed         = "character",
+                                     feed.index   = "numeric",
+                                     ob.data      = "data.frame",
+                                     current.pos  = "numeric",
+                                     trade.data   = "numeric",
+                                     trade.index =  "numeric",
+                                     ids = "list"
+                                     ))
 
 if(!isGeneric("spread"))
     setGeneric("spread", function(object, ...) standardGeneric("spread"))
@@ -60,7 +68,7 @@ if(!isGeneric("inside.market"))
                standardGeneric("inside.market"))
 
 if(!isGeneric("add.order"))
-    setGeneric("add.order", function(object, price, size, type, time=NULL, 
+    setGeneric("add.order", function(object, price, size, type, time=NULL,
                id = NULL, ...) standardGeneric("add.order"))
 
 if(!isGeneric("best.bid"))
@@ -90,22 +98,6 @@ if (!isGeneric("market.order.price"))
 if (!isGeneric("snapshot"))
     setGeneric("snapshot", function(object, new.time, show = TRUE, ...)
                standardGeneric("snapshot"))
-
-if (!isGeneric("next.trade"))
-    setGeneric("next.trade", function(object, ...)
-               standardGeneric("next.trade"))
-
-if (!isGeneric("orderbook.at"))
-    setGeneric("orderbook.at", function(object, time, ...)
-               standardGeneric("orderbook.at"))
-
-if (!isGeneric("back.by"))
-    setGeneric("back.by", function(object, step, ...)
-               standardGeneric("back.by"))
-
-if (!isGeneric("forward.by"))
-    setGeneric("forward.by", function(object, step, ...)
-               standardGeneric("forward.by"))
 
 
 

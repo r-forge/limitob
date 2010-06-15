@@ -9,15 +9,26 @@
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
                                      ob.names     = "character",
-									 feed		  = "character",
-									 current.pos  = "numeric"
-									 ),
+                                     feed         = "character",
+                                     feed.index   = "numeric",
+                                     ob.data      = "data.frame",
+                                     current.pos  = "numeric",
+                                     trade.data   = "numeric",
+                                     trade.index  = "numeric",
+                                     ids = "list"
+                                     ),
 
          prototype(current.ob   = data.frame(),
                    current.time = numeric(),
                    ob.names     = character(),
-				   feed			= character(),
-				   current.pos  = numeric())
+                   feed		= character(),
+                   feed.index   = 1,
+                   ob.data      = data.frame(),
+                   current.pos  = numeric(),
+                   trade.data   = vector("numeric"),
+                   trade.index  = 1,
+                   ids = list()
+                   )
          )
 
 ## Returns a vector with the price and size of the best bid order at top
@@ -204,13 +215,13 @@ setMethod("add.order",
 
 
               ob.names = object@ob.names
-              
+
               if(is.null(time)){
                   new.time = object@current.time
               } else {
                   new.time = time
               }
-              
+
               if(is.null(id) & nrow(x) != 0){
                   id = max(as.numeric(x[[ob.names[5]]])) + 1
               } else if(is.null(id)){
@@ -223,8 +234,12 @@ setMethod("add.order",
 
               x = rbind(x, new.order)
 
-              invisible(new("orderbook", current.ob = x,
-                            current.time = new.time, ob.names = ob.names))
+              ## Adding new data frame
+
+              object@current.ob <- x
+              object@current.time <- new.time
+
+              invisible(object)
 
           }
           )
@@ -237,7 +252,7 @@ setMethod("replace.order",
               if(size == 0){
                     invisible(remove.order(object, id))
               } else {
-                   x = object@current.ob     
+                   x = object@current.ob
                    ob.names = object@ob.names
 
                    stopifnot(size > 0)
@@ -247,9 +262,10 @@ setMethod("replace.order",
                        print("Warning size greater than current size")
                    } else {
                        x[[ob.names[2]]][x[[ob.names[5]]] == id] = min(size, tmp.size)
-                       invisible(new("orderbook", current.ob = x,
-                                     current.time = object@current.time,
-                                     ob.names = ob.names))
+
+                       object@current.ob <- x
+                       invisible(object)
+
                    }
              }
           }
@@ -301,44 +317,14 @@ setMethod("market.order",
               }
 
               x = rbind(tmp.ask, tmp.bid)
-              invisible(new("orderbook", current.ob = x,
-                            current.time = object@current.time,
-                            ob.names = ob.names))
-          }
-          )
 
-## Not sure if we need this, but it should work...
-
-setMethod("market.order.price",
-          signature(object = "orderbook"),
-          function(object, size, price, ...){
-
-              x = object@current.ob
-              ob.names = object@ob.names
-
-              tmp.ask = x[x[[ob.names[3]]] == ob.names[6],]
-              tmp.bid = x[x[[ob.names[3]]] == ob.names[7],]
-
-              if(mid.point(object)> price){
-
-                  tmp.bid = tmp.bid[(tmp.bid[[ob.names[1]]] <= price),]
-
-              } else if(mid.point(object)< price){
-
-                  tmp.ask = tmp.ask[(tmp.ask[[ob.names[1]]] >= price),]
-
-              }
-
-              x = rbind(tmp.ask, tmp.bid)
-
-
-
-              invisible(new("orderbook", current.ob = x,
-                            current.time = object@current.time,
-                            ob.names = ob.names))
+              object@current.ob <- x
+              invisible(object)
 
           }
           )
+
+
 
 
 ## Returns the number of bid price levels.
@@ -427,14 +413,14 @@ setMethod("inside.market",
               x = .combine.size(object, Inf)
               ob.names = object@ob.names
               by.type = split(x, x[[ob.names[3]]])
-			  
+
 			  tmp.ask = by.type[[ob.names[6]]]
 			  if(max(0, nrow(tmp.ask)) > 0){
-              	 
+
                   tmp.ask = tmp.ask[order(tmp.ask[[ob.names[1]]]),]
 			  }
 			  tmp.bid = by.type[[ob.names[7]]]
-			  if (max(0, nrow(tmp.bid)) > 0){              	  
+			  if (max(0, nrow(tmp.bid)) > 0){
               	  tmp.bid = tmp.bid[order(tmp.bid[[ob.names[1]]], decreasing = TRUE),]
 			  }
 
@@ -472,7 +458,7 @@ setMethod("spread",
 
                   tmp.ask = min(tmp.ask[[ob.names[1]]])
 
-                  tmp.bid = max(tmp.bid[[ob.names[1]]])                  
+                  tmp.bid = max(tmp.bid[[ob.names[1]]])
 
 
                   return(tmp.ask -  tmp.bid)
@@ -514,43 +500,9 @@ setMethod("remove.order",
 
               x = x[x[[ob.names[5]]] != id,]
 
-              invisible(new("orderbook",
-                            current.ob = x,
-                            current.time = object@current.time,
-                            ob.names = object@ob.names))
+              object@current.ob <- x
+
+              invisible(object)
 
           }
           )
-
-setMethod("next.trade",
-		signature(object="orderbook"),
-		function(object, ...){
-			 
-			 #find the next immediate next trade pos
-
-			 #read to the desired location
-			 ob <- .read.to.row(ob, row)
-		}
-)
-
-setMethod("orderbook.at",
-		signature(object="orderbook"),
-		function(object, time, ...){
-			ob <- .read.to.time(ob, time)
-		}
-) 
-
-setMethod("back.by",
-		signature(object="orderbook"),
-		function(object, step, ...){
-			ob <- .read.to.row(ob, ob@current.pos - step)
-		}
-)
-
-setMethod("forward.by", 
-		signature(object="orderbook"),
-		function(object, step, ...){
-			ob <- read.to.row(ob, ob@current.pos + step)
-		}
-)
-

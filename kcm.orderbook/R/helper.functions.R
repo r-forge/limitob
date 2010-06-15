@@ -27,14 +27,14 @@
 ## size, and type. Mainly needed for plotting.
 
 .combine.size <- function(object, bounds){
-		
+
 
     ## Pull out the current.ob and ob.names.
 
     x = object@current.ob
     ob.names = object@ob.names
 
-    
+
     ## Removes rows 10% above and below the midpoint.
 
     x = x[x[[ob.names[1]]] < mid.point(object)*(1 + bounds) &
@@ -54,7 +54,7 @@
 			ask <- data.frame(ask, type = rep(ob.names[6], nrow(ask)))
 	}
 
-	if(nrow(bid) > 0){	
+	if(nrow(bid) > 0){
 			bid = aggregate(bid[[ob.names[2]]], by = list(bid[[ob.names[1]]]), sum)
 			bid <- data.frame(bid, type = rep(ob.names[7], nrow(bid)))
 	}
@@ -78,89 +78,30 @@
     return(x)
 }
 
+## Creates a new current.ob from the ob.data.
 
+.update <- function(ob)
 
-.read.to.time <- function(object, time){
+{
+    x <- ob@ob.data
+    ob.names <- ob@ob.names
 
-	x = object@current.ob
-	ob.names = object@ob.names
+    current.ob = x[!is.na(x[1]),]
 
-	#reset the orderbook to its original state
-
-	#begin reading the orders
-	filecon = file(input, open="r")
-
-	not.at.time = TRUE
-    while (not.at.time){
-		
-		 line <- readLines(filecon, n=1)
-		
-        if (line[1]=="A"){
-            ob <- add.order(ob, time  = as.numeric(line[2]),
-                            id	= as.numeric(line[3]),
-                            price = as.numeric(line[4]),
-                            size	= as.numeric(line[5]),
-                            type 	= line[6])
-        }
-
-        if (line[1]=="C"){
-            ob <- remove.order(ob, id = as.numeric(line[3]))
-        }
-
-        if (line[1]=="R"){
-            ob <- replace.order(ob, id = as.numeric(line[3]),
-                                size = as.numeric(line[4]))
-        }
-
-
-
-		if (as.numeric(line[2]) >= time){
-		   not.at.time=FALSE
-		}
-        pos <- seek(filecon, rw="r")
-
+    ids = list()
+    for(i in 1:nrow(current.ob)){
+        ids[current.ob[i,][5]] = i
     }
 
-	ob@current.pos <- row	
+    ob.data = rbind(current.ob, data.frame(rep(NA, 10000),rep(NA, 10000),rep(NA, 10000),
+    rep(NA, 10000),rep(NA, 10000)))
 
-	close.connection(filecon)	
-	invisible(ob)		
-}
+    ob@current.ob <- current.ob
+    ob@current.time <- max(current.ob[[ob.names[4]]])
+    ob@ob.data <- ob.data
+    ob@current.pos <- nrow(current.ob) + 1
+    ob@ids <- ids
 
+    invisible(ob)
 
-.read.to.rows <- function(object, row){
-	x = object@current.ob
-	ob.names = object@ob.names
-
-	#reset the orderbook to its original state
-
-	#begin reading the orders
-	filecon = file(input, open="r")
-
-    for (i in 1:row){
-		 line <- readLines(filecon, n=1)
-        if (line[1]=="A"){
-            ob <- add.order(ob, time  = as.numeric(line[2]),
-                            id	= as.numeric(line[3]),
-                            price = as.numeric(line[4]),
-                            size	= as.numeric(line[5]),
-                            type 	= line[6])
-        }
-
-        if (line[1]=="C"){
-            ob <- remove.order(ob, id = as.numeric(line[3]))
-        }
-
-        if (line[1]=="R"){
-            ob <- replace.order(ob, id = as.numeric(line[3]),
-                                size = as.numeric(line[4]))
-        }
-
-        pos <- seek(filecon, rw="r")
-       
-    }
-	ob@current.pos <- row
-
-	close.connection(filecon)	
-	invisible(ob)		
 }

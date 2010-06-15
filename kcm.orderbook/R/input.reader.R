@@ -1,23 +1,32 @@
-read.orders <- function(ob, input){
+## Takes in object and number of lines to be read, 0 means read to end.
 
-    filecon <- file(input, open="r")
-    pos <- seek(filecon, rw="r")
+read.orders <- function(ob, n = 0)
 
-    line <- readLines(filecon, n=1)
+    ob = .update(ob)
+    feed = ob@feed
+    feed.index = ob@feed.index
+
+    ob.data = ob@ob.data
+    current.pos = ob@current.pos
+
+    ids = ob@ids
+
+    feed <- file(feed, open="r")
+
+
+    x <- scan(feed, nline = 1, sep = ",", what = "character")
 
 
 
     while(length(line) != 0){
         if (line[1]=="A"){
-            ob <- add.order(ob, time  = as.numeric(line[2]),
-                            id	= as.numeric(line[3]),
-                            price = as.numeric(line[4]),
-                            size	= as.numeric(line[5]),
-                            type 	= line[6])
+            ob.data[current.pos,] = c(x[4], x[5], x[6], x[2], x[3])
+            ids[x[3]] = current.pos
+            current.pos = current.pos + 1
         }
 
         if (line[1]=="C"){
-            ob <- remove.order(ob, id = as.numeric(line[3]))
+            ob.data[ids[x[3]],][1] = NA
         }
 
         if (line[1]=="R"){
@@ -25,7 +34,6 @@ read.orders <- function(ob, input){
                                 size = as.numeric(line[4]))
         }
 
-        pos <- seek(filecon, rw="r")
         line <- readLines(filecon, n=1)
     }
 

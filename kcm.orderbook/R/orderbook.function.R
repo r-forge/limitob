@@ -11,13 +11,14 @@
 
 orderbook <- function(x,
                       price = "price",
-                      size = "size",
-                      type = "type",
-                      time = "time",
-                      id = "id",					  
-                      ask = "ASK",
-                      bid = "BID", 
-					  feed){
+                      size  = "size",
+                      type  = "type",
+                      time  = "time",
+                      id    = "id",
+                      ask   = "ASK",
+                      bid   = "BID",
+                      feed  = NULL)
+{
 
     ## Make sure the user inputted correct names for the columns, ie the
     ## columns named actually exist in data frame x.
@@ -60,23 +61,22 @@ orderbook <- function(x,
 
         end = max(x[[time]]) + 1
 
+        ## Create ob.data
+
+        ob.data = data.frame(rep(NA, 10000),rep(NA, 10000),rep(NA, 10000),
+        rep(NA, 10000),rep(NA, 10000))
+
+        ob.data = rbind(current.ob, ob.data)
+
         ## Return a new orderbook object.
 
         invisible(new("orderbook",
-                      current.ob = current.ob,
+                      current.ob   = current.ob,
                       current.time = end,
-                      ob.names = ob.names
-                      ))
-    } else {
-
-        ob.names = c(price, size, type, time, id, ask, bid)
-        invisible(new("orderbook",
-                      current.ob = data.frame(price = c(), size = c(),
-                      type = c(), time = c(), id = c()),
-                      current.time = 0,
-                      ob.names = ob.names,
-					  feed = feed
+                      ob.names     = ob.names,
+                      feed         = feed,
+                      ob.data      = ob.data,
+                      current.pos  = nrow(current.ob) + 1
                       ))
     }
-
 }

@@ -212,3 +212,19 @@
 
     invisible(ob)
 }
+
+.ms.to.date <- function(x, origin=Sys.Date()){
+    invisible(as.POSIXct(x / 1000, origin=origin))
+}
+
+.ms.to.date.str <- function(x, origin=Sys.Date()){
+    r <- as.POSIXct(x / 1000, origin=origin)
+
+    aux <- function(y){
+        r <- strsplit(y, " ")
+        r[2]
+    }
+    r <- sapply(r, FUN=
+}
+
+

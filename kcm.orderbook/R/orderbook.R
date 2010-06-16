@@ -31,8 +31,8 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                    )
          )
 
-## Reads orders from the feed. Use negative n to go backwards, but
-## this really just reads everything over again.
+## Reads the next n orders from the feed. Use negative n to go
+## backwards, but this really just reads everything over again.
 
 setMethod("read.orders",
           signature(object = "orderbook"),
@@ -47,6 +47,34 @@ setMethod("read.orders",
 
           }
           )
+
+## Reads orders from the feed until the time specified.
+
+setMethod("read.time",
+           signature(object = "orderbook"),
+           function(object, n, ...){
+
+               ## If the time you are reading is greater than current
+               ## time there is no reason to start from the beginning.
+               ## This takes care of that.
+
+               if(.to.ms(n) > object@current.time){
+                   n = .get.time.row(object@feed, .to.ms(n),
+                   object@feed.index)
+
+                   n = n - object@feed.index
+
+                   invisible(read.orders(object, n))
+               } else {
+                   n = .get.time.row(object@feed, .to.ms(n))
+                   object = reset(object)
+                   invisible(read.orders(object, n))
+               }
+           }
+           )
+
+
+
 
 ## Returns a vector with the price and size of the best bid order at top
 ## priority.
@@ -115,7 +143,8 @@ setMethod("show",
           function(object){
               cat("An object of class limitob\n")
               cat("--------------------------\n")
-              cat("Current orderbook time:   ", object@current.time, "\n")
+              cat("Current orderbook time:   ", .to.time(object@current.time), "\n")
+              cat("Feed Index:               ", object@feed.index, "\n")
               cat("Number of Bids:           ",
                   .prettify(bid.orders(object), "s"), "\n")
               cat("Number of Asks:           ",
@@ -155,6 +184,8 @@ setMethod("get.order.info",
 setMethod("summary",
           signature(object = "orderbook"),
           function(object){
+              cat("\nCurrent time is",
+                      .to.time(object@current.time), "\n\n")
               cat("ASK price levels:  ", ask.price.levels(object), "\n")
               cat("BID price levels:  ", bid.price.levels(object), "\n")
               cat("Total price levels:", total.price.levels(object), "\n\n")
@@ -186,7 +217,7 @@ setMethod("display",
                   ask = x[x[[ob.names[3]]] == ob.names[6],]
                   bid = x[x[[ob.names[3]]] == ob.names[7],]
                   cat("\nCurrent time is",
-                      formatC(object@current.time, format = "d"), "\n\n")
+                      .to.time(object@current.time), "\n\n")
                   cat("\t\t Price \t\t Ask Size\n")
                   cat("---------------------------------------------\n")
                   for(i in rev(1:min(n, nrow(ask)))){

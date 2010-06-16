@@ -112,4 +112,9 @@ if(!isGeneric("read.orders"))
     setGeneric("read.orders", function(object, n = 1000, ...)
                standardGeneric("read.orders"))
 
+if(!isGeneric("read.time"))
+    setGeneric("read.time", function(object, n, ...)
+               standardGeneric("read.time"))
+
+
 

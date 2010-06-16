@@ -62,7 +62,7 @@ Calling the summary on the resulting object of class limitob gives a quick peak 
 
 To plot the orderbook, 
 \section*{Examing orderbook}
-Most of the time, we want to be able to look at the state of the orderbook before an interesting events occur (e.d large trade, or before important news, etc..). limitob provides three method for 'walking' the book. forward.by, back.by, ob.at, and next.trade
+Most of the time, we want to be able to look at the state of the orderbook before an interesting events occur (e.g large trade, or before important news, etc..). limitob provides three method for 'walking' the book. forward.by, back.by, ob.at, and next.trade
 
 (show the forward.by, back.by, ob.at, next.trade)
 

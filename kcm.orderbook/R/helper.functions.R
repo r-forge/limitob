@@ -137,33 +137,27 @@
 
 
 
-## this returns the row number whose time is closest to 't
-## that means, if 't' is bigger than the last order timestamp, 
-## it returns the rows number of 
-## the last order
-.get.rows.by.time <- function(fname, t){
+## Returns the row number of the first order after the specified time.
 
-    feed <- file(fname, open="r")
+.get.time.row <- function(feed, n, skip = 0){
+
+    feed <- file(feed, open="r")
 
 
     x <- scan(feed, nline = 1, sep = ",", what = "character",
-              quiet = TRUE, skip = feed.index)
+              quiet = TRUE, skip = skip)
 
-    i = 1
+    i = skip
 
-	found = FALSE
-    while(length(x) != 0){
-		if (x[2] >= t) {
+    while(length(x) != 0 & as.numeric(x[2]) < n){
 
-		   break
-		}
        	i = i + 1
         x <- scan(feed, nline = 1, sep = ",", what = "character", quiet = TRUE)
-	}
+    }
 
-	close(feed)	
+    close(feed)
 
-	return(i-1)		
+    return(i-1)
 }
 
 
@@ -245,24 +239,31 @@
     invisible(ob)
 }
 
-.ms.to.date <- function(x, origin=Sys.Date()){
-    invisible(as.POSIXct(x / 1000, origin=origin))
+## Make sure conversions are correct, need to convert from EDT to UTC for .to.ms. Need
+## to convert from UTC to EDT for .to.time.
+
+## Converts x to a time. x should be milliseconds since midnight UTC. Returns as
+## "H:M:S".
+
+.to.time <- function(x){
+    x = as.POSIXct(x/1000, origin = Sys.Date(),  "America/New_York")
+
+    return(format(x, format = "%H:%M:%S"))
+
 }
 
-.ms.to.date.str <- function(x, origin=Sys.Date()){
-    r <- as.POSIXct(x / 1000, origin=origin)
+## Converts x to milliseconds. x should be a string, e.g. "5:01:02" means
+## 5AM, 1 minute, 2 seconds.
 
-    aux <- function(y){
-        r <- strsplit(y, " ")
-        r[2]
-    }
-    r <- sapply(r, FUN=
-}
-## both d, and midnight must be POSIX
-## example of difftime difftime(Sys.time(), Sys.Date(), units="secs") * 1000
+.to.ms <- function(x){
 
-.date.to.ms <- function(d, midnight){
-	difftime(d, midnight, units="secs") * 1000
+    x = strsplit(x, split = ":")[[1]]
+    x = ((as.numeric(x[1])+4) * 3600000
+         + as.numeric(x[2]) * 60000
+         + as.numeric(x[3]) * 1000)
+
+    return(signif(x, 8))
+
 }
 
 

@@ -135,6 +135,38 @@
 
 }
 
+
+
+## this returns the row number whose time is closest to 't
+## that means, if 't' is bigger than the last order timestamp, 
+## it returns the rows number of 
+## the last order
+.get.rows.by.time <- function(fname, t){
+
+    feed <- file(fname, open="r")
+
+
+    x <- scan(feed, nline = 1, sep = ",", what = "character",
+              quiet = TRUE, skip = feed.index)
+
+    i = 1
+
+	found = FALSE
+    while(length(x) != 0){
+		if (x[2] >= t) {
+
+		   break
+		}
+       	i = i + 1
+        x <- scan(feed, nline = 1, sep = ",", what = "character", quiet = TRUE)
+	}
+
+	close(feed)	
+
+	return(i-1)		
+}
+
+
 ## Takes in object and number of lines to be read, 0 means read to end.
 
 .read.orders <- function(ob, n)
@@ -226,5 +258,12 @@
     }
     r <- sapply(r, FUN=
 }
+## both d, and midnight must be POSIX
+## example of difftime difftime(Sys.time(), Sys.Date(), units="secs") * 1000
+
+.date.to.ms <- function(d, midnight){
+	difftime(d, midnight, units="secs") * 1000
+}
+
 
 

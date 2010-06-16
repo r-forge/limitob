@@ -39,5 +39,5 @@ exportMethods(
           "market.order",
 		  
 		  "read.orders",
-		  "next.trade",
+		  "view.trade",
 		  "reset")

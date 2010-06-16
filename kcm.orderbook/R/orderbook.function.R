@@ -95,7 +95,7 @@ orderbook <- function(x = data.frame(),
                       current.time = 0,
                       ob.names     = ob.names,
                       feed         = feed,
-                      ob.data      = current.ob,
+                      ob.data      = as.matrix(current.ob),
                       current.pos  = 1
                       ))
     }

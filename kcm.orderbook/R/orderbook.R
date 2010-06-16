@@ -11,7 +11,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      ob.names     = "character",
                                      feed         = "character",
                                      feed.index   = "numeric",
-                                     ob.data      = "data.frame",
+                                     ob.data      = "matrix",
                                      current.pos  = "numeric",
                                      trade.data   = "hash",
                                      trade.index  = "numeric",
@@ -23,7 +23,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                    ob.names     = character(),
                    feed		= character(),
                    feed.index   = 0,
-                   ob.data      = data.frame(),
+                   ob.data      = matrix(),
                    current.pos  = numeric(),
                    trade.data   = hash(),
                    trade.index  = 1,
@@ -36,13 +36,13 @@ setClass("orderbook", representation(current.ob   = "data.frame",
 
 setMethod("read.orders",
           signature(object = "orderbook"),
-          function(object, n = Inf, ...){
+          function(object, n = 1000, ...){
               if(n > 0){
-                  invisible(read.orders(object, n))
+                  invisible(.read.orders(object, n))
               } else {
-                  feed.index = as.numeric(object@feed.index)
+                  n = object@feed.index + n
                   object = reset(object)
-                  invisible(read.orders(object, feed.index - n))
+                  invisible(.read.orders(object, n))
               }
 
           }
@@ -521,45 +521,23 @@ setMethod("remove.order",
           }
           )
 
-## Jump to next trade. Need to read in the entire orderbook first though
+## Jump to trade index. Need to read in the entire orderbook first though
 ## to build trade.data.
 
-setMethod("next.trade",
+setMethod("view.trade",
           signature(object = "orderbook"),
-          function(object, ...){
+          function(object, n = 1, ...){
               x = object@trade.data
               y = object@trade.index
 
               currentindex = object@feed.index
-              nextindex = names(x)[y]
+              nextindex = sort(as.numeric(names(x)))[n]
 
-              n = as.numeric(nextindex) - currentindex
-              object@trade.index <- y + 1
-
-              invisible(read.orders(object, n))
-
-
-          }
-          )
-
-## Jump to previous trade
-
-setMethod("previous.trade",
-          signature(object = "orderbook"),
-          function(object, ...){
-              x = object@trade.data
-              y = object@trade.index
-
-              previousindex = names(x)[y - 1]
-              n = as.numeric(previousindex)
-
-              object = reset(object)
-              object@trade.index <- y - 1
+              n = nextindex - currentindex
 
               invisible(read.orders(object, n))
           }
           )
-
 
 
 ## Reset to beginning.
@@ -577,7 +555,7 @@ setMethod("reset",
                             ob.names = ob.names,
                             feed = object@feed,
                             feed.index = 0,
-                            ob.data = current.ob,
+                            ob.data = as.matrix(current.ob),
                             current.pos = 1,
                             trade.data = object@trade.data,
                             trade.index = 1))

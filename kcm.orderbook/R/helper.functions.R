@@ -50,13 +50,13 @@
     ## Aggregate sizes by price level.
 
 	if(nrow(ask) > 0){
-			ask = aggregate(ask[[ob.names[2]]], by = list(ask[[ob.names[1]]]), sum)
-			ask <- data.frame(ask, type = rep(ob.names[6], nrow(ask)))
+            ask = aggregate(ask[[ob.names[2]]], by = list(ask[[ob.names[1]]]), sum)
+            ask <- data.frame(ask, type = rep(ob.names[6], nrow(ask)))
 	}
 
 	if(nrow(bid) > 0){
-			bid = aggregate(bid[[ob.names[2]]], by = list(bid[[ob.names[1]]]), sum)
-			bid <- data.frame(bid, type = rep(ob.names[7], nrow(bid)))
+            bid = aggregate(bid[[ob.names[2]]], by = list(bid[[ob.names[1]]]), sum)
+            bid <- data.frame(bid, type = rep(ob.names[7], nrow(bid)))
 	}
 
     x  = rbind(ask, bid)
@@ -80,21 +80,43 @@
 
 ## Creates a new current.ob from the ob.data.
 
-.update <- function(ob)
+.update <- function(ob, n)
 
 {
     x <- ob@ob.data
     ob.names <- ob@ob.names
 
+    ## Remove anything with NA in the price column, because thats how we cancel orders.
+
     current.ob = x[!is.na(x[1]),]
 
-    ids = list()
+
+    ## Casting everything to make sure it is the desired data type. For some
+    ## reason ID doesn't really get casted so I'll cast it again later.
+
+    current.ob[1] = as.numeric(current.ob[,1])
+    current.ob[2] = as.numeric(current.ob[,2])
+    current.ob[3] = as.factor(current.ob[,3])
+    current.ob[4] = as.numeric(current.ob[,4])
+    current.ob[5] = as.character(current.ob[,5])
+
+    ## Reupdate the list of ids.
+
+    ids = hash()
     for(i in 1:nrow(current.ob)){
-        ids[current.ob[i,][5]] = i
+        ids[current.ob[i,][[5]]] = i
     }
 
-    ob.data = rbind(current.ob, data.frame(rep(NA, 10000),rep(NA, 10000),rep(NA, 10000),
-    rep(NA, 10000),rep(NA, 10000)))
+    ## Reupdate ob.data.
+
+    ob.data = data.frame(rep(NA, n),rep(NA, n),rep(NA, n),
+    rep(NA, n),rep(NA, n))
+
+    names(ob.data) = names(current.ob)
+
+    ob.data = rbind(current.ob, ob.data)
+
+    ## Set new variables then return.
 
     ob@current.ob <- current.ob
     ob@current.time <- max(current.ob[[ob.names[4]]])

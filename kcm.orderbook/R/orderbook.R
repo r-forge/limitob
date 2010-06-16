@@ -13,23 +13,40 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      feed.index   = "numeric",
                                      ob.data      = "data.frame",
                                      current.pos  = "numeric",
-                                     trade.data   = "numeric",
+                                     trade.data   = "hash",
                                      trade.index  = "numeric",
-                                     ids = "list"
+                                     ids = "hash"
                                      ),
 
          prototype(current.ob   = data.frame(),
                    current.time = numeric(),
                    ob.names     = character(),
                    feed		= character(),
-                   feed.index   = 1,
+                   feed.index   = 0,
                    ob.data      = data.frame(),
                    current.pos  = numeric(),
-                   trade.data   = vector("numeric"),
+                   trade.data   = hash(),
                    trade.index  = 1,
-                   ids = list()
+                   ids          = hash()
                    )
          )
+
+## Reads orders from the feed. Use negative n to go backwards, but
+## this really just reads everything over again.
+
+setMethod("read.orders",
+          signature(object = "orderbook"),
+          function(object, n = Inf, ...){
+              if(n > 0){
+                  invisible(read.orders(object, n))
+              } else {
+                  feed.index = as.numeric(object@feed.index)
+                  object = reset(object)
+                  invisible(read.orders(object, feed.index - n))
+              }
+
+          }
+          )
 
 ## Returns a vector with the price and size of the best bid order at top
 ## priority.
@@ -494,15 +511,78 @@ setMethod("snapshot",
 setMethod("remove.order",
           signature(object = "orderbook"),
           function(object, id, ...){
+
               x = object@current.ob
               ob.names = object@ob.names
-
-
               x = x[x[[ob.names[5]]] != id,]
-
               object@current.ob <- x
-
               invisible(object)
 
           }
           )
+
+## Jump to next trade. Need to read in the entire orderbook first though
+## to build trade.data.
+
+setMethod("next.trade",
+          signature(object = "orderbook"),
+          function(object, ...){
+              x = object@trade.data
+              y = object@trade.index
+
+              currentindex = object@feed.index
+              nextindex = names(x)[y]
+
+              n = as.numeric(nextindex) - currentindex
+              object@trade.index <- y + 1
+
+              invisible(read.orders(object, n))
+
+
+          }
+          )
+
+## Jump to previous trade
+
+setMethod("previous.trade",
+          signature(object = "orderbook"),
+          function(object, ...){
+              x = object@trade.data
+              y = object@trade.index
+
+              previousindex = names(x)[y - 1]
+              n = as.numeric(previousindex)
+
+              object = reset(object)
+              object@trade.index <- y - 1
+
+              invisible(read.orders(object, n))
+          }
+          )
+
+
+
+## Reset to beginning.
+
+setMethod("reset",
+          signature(object = "orderbook"),
+          function(object, ...){
+
+              ob.names = object@ob.names
+              current.ob = data.frame(NA, NA, NA, NA, NA)
+              names(current.ob) = ob.names[1:5]
+
+              invisible(new("orderbook",
+                            current.ob = current.ob,
+                            ob.names = ob.names,
+                            feed = object@feed,
+                            feed.index = 0,
+                            ob.data = current.ob,
+                            current.pos = 1,
+                            trade.data = object@trade.data,
+                            trade.index = 1))
+
+          }
+          )
+
+

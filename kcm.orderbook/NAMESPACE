@@ -1,12 +1,10 @@
-useDynLib(kcm.orderbook)
+
 importFrom("graphics", plot)
 
 export(
 		"orderbook"
 	  )
-export(
-	    "rows.num"
-		)
+
 exportClasses(
 	"orderbook"
 	)
@@ -38,4 +36,8 @@ exportMethods(
           "add.order",
           "remove.order",
           "replace.order",
-          "market.order")
+          "market.order",
+		  
+		  "read.orders",
+		  "next.trade",
+		  "reset")

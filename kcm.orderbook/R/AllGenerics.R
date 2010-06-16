@@ -15,9 +15,9 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      feed.index   = "numeric",
                                      ob.data      = "data.frame",
                                      current.pos  = "numeric",
-                                     trade.data   = "numeric",
-                                     trade.index =  "numeric",
-                                     ids = "list"
+                                     trade.data   = "hash",
+                                     trade.index  = "numeric",
+                                     ids          = "hash"
                                      ))
 
 if(!isGeneric("spread"))
@@ -99,5 +99,21 @@ if (!isGeneric("snapshot"))
     setGeneric("snapshot", function(object, new.time, show = TRUE, ...)
                standardGeneric("snapshot"))
 
+if (!isGeneric("next.trade"))
+    setGeneric("next.trade", function(object, ...)
+               standardGeneric("next.trade"))
+
+if (!isGeneric("previous.trade"))
+    setGeneric("previous.trade", function(object, ...)
+               standardGeneric("previous.trade"))
+
+
+if(!isGeneric("reset"))
+    setGeneric("reset", function(object, ...)
+               standardGeneric("reset"))
+
+if(!isGeneric("read.orders"))
+    setGeneric("read.orders", function(object, n = Inf, ...)
+               standardGeneric("read.orders"))
 
 

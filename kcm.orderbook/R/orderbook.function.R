@@ -9,7 +9,7 @@
 ## Returns an orderbook object. For input it takes a data frame, and names for
 ## price, size, type, time, id, as well as what ASK and BID are denoted as.
 
-orderbook <- function(x,
+orderbook <- function(x = data.frame(),
                       price = "price",
                       size  = "size",
                       type  = "type",
@@ -21,7 +21,9 @@ orderbook <- function(x,
 {
 
     ## Make sure the user inputted correct names for the columns, ie the
-    ## columns named actually exist in data frame x.
+    ## columns named actually exist in data frame x. If x isn't empty do the
+    ## following.
+
     if(nrow(x) != 0){
         if(!(id %in% names(x) &
              price %in% names(x) &
@@ -33,7 +35,8 @@ orderbook <- function(x,
 
 
 
-        ## Casting everything to make sure it is the desired data type.
+        ## Casting everything to make sure it is the desired data type. For some
+        ## reason ID doesn't really get casted so I'll cast it again later.
 
         x[price] = as.numeric(x[,price])
         x[size] = as.numeric(x[,size])
@@ -54,19 +57,19 @@ orderbook <- function(x,
         ## package and here is where we assign the names!
 
         ob.names = c(price, size, type, time, id, ask, bid)
-        current.ob = x[,which(names(x) %in% ob.names)]
+
+        ## Rearrange the rows of the current.ob data frame.
+
+        current.ob = data.frame(x[[price]], x[[size]], x[[type]],
+        x[[time]], x[[id]])
+
+        names(current.ob) = c(price, size, type, time, id)
+
 
         ## Put a time on the order book. We assume that it is the last timestamp
         ## in the order book.
 
         end = max(x[[time]]) + 1
-
-        ## Create ob.data
-
-        ob.data = data.frame(rep(NA, 10000),rep(NA, 10000),rep(NA, 10000),
-        rep(NA, 10000),rep(NA, 10000))
-
-        ob.data = rbind(current.ob, ob.data)
 
         ## Return a new orderbook object.
 
@@ -75,8 +78,27 @@ orderbook <- function(x,
                       current.time = end,
                       ob.names     = ob.names,
                       feed         = feed,
-                      ob.data      = ob.data,
+                      ob.data      = current.ob,
                       current.pos  = nrow(current.ob) + 1
                       ))
+    } else {
+
+        ## x was empty so just create an ``empty'' orderbook object.
+        ob.names = c(price, size, type, time, id, ask, bid)
+
+        current.ob = data.frame(NA, NA, NA, NA, NA)
+
+        names(current.ob) = ob.names[1:5]
+
+        invisible(new("orderbook",
+                      current.ob   = current.ob,
+                      current.time = 0,
+                      ob.names     = ob.names,
+                      feed         = feed,
+                      ob.data      = current.ob,
+                      current.pos  = 1
+                      ))
     }
+
 }
+

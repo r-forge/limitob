@@ -1,9 +1,22 @@
 ################################################################################
 ##
-## $Id: AllGenerics.R 1300 2010-06-08 21:01:11Z zhao $
 ##
-## Generic functions for the limitob class
+## orderbook.R: Generic functions for the limitob class
 ##
+##
+## limitob is free software: you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 2 of the License, or
+## (at your option) any later version.
+##
+## limitob is distributed in the hope that it will be useful, but
+## WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with limitob.  If not, see <http://www.gnu.org/licenses/>.
+
 ################################################################################
 
 .onLoad <- function(lib, pkg) require(methods)

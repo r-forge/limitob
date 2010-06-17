@@ -1,9 +1,20 @@
 ################################################################################
 ##
-## $Id: orderbook.plot.R 1300 2008-08-27 21:01:11Z zhao $
 ##
-## Helper function for the plot method
+## orderbook.plot.R: Helper function for the plot method
 ##
+## limitob is free software: you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 2 of the License, or
+## (at your option) any later version.
+##
+## limitob is distributed in the hope that it will be useful, but
+## WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with limitob.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
 ## Plots the orderbook object at current time. Displays Bids on the left and

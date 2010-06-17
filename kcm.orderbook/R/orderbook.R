@@ -1,10 +1,18 @@
-################################################################################
+## orderbook.R: functions of the orderbook object
 ##
-## $Id: orderbook.R 1622 2010-02-18 17:50:34Z enos $
+## limitob is free software: you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 2 of the License, or
+## (at your option) any later version.
 ##
-## Result object for an orderbook
+## limitob is distributed in the hope that it will be useful, but
+## WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
 ##
-################################################################################
+## You should have received a copy of the GNU General Public License
+## along with limitob.  If not, see <http://www.gnu.org/licenses/>.
+
 
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",

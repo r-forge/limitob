@@ -90,7 +90,7 @@
     ## then use ob.names to assign names.
 
     x = data.frame(as.numeric(x[,1]), as.numeric(x[,2]), as.factor(x[,3]),
-    as.numeric(x[,4]), as.character(x[,5]))
+    as.numeric(x[,4]), as.character(x[,5]), stringsAsFactors = FALSE)
 
     names(x) = ob.names[1:5]
 

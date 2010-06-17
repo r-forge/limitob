@@ -255,7 +255,7 @@ setMethod("add.order",
 
               ob.names = object@ob.names
 
-              stopifnot(price>0 & size > 0)
+              stopifnot(price > 0 & size > 0)
               stopifnot(type == ob.names[6] | type == ob.names[7])
 
 

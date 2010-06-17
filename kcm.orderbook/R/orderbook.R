@@ -44,7 +44,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
 
 setMethod("read.orders",
           signature(object = "orderbook"),
-          function(object, n = 1000, ...){
+          function(object, n = 1000){
               if(n > 0){
                   invisible(.read.orders(object, n))
               } else {
@@ -60,7 +60,7 @@ setMethod("read.orders",
 
 setMethod("read.time",
            signature(object = "orderbook"),
-           function(object, n, ...){
+           function(object, n){
 
                ## If the time you are reading is greater than current
                ## time there is no reason to start from the beginning.
@@ -565,7 +565,7 @@ setMethod("remove.order",
 
 setMethod("view.trade",
           signature(object = "orderbook"),
-          function(object, n = 1, ...){
+          function(object, n = 1){
               x = object@trade.data
               y = object@trade.index
 
@@ -583,7 +583,7 @@ setMethod("view.trade",
 
 setMethod("reset",
           signature(object = "orderbook"),
-          function(object, ...){
+          function(object){
 
               ob.names = object@ob.names
               current.ob = data.frame(NA, NA, NA, NA, NA)

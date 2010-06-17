@@ -23,6 +23,7 @@
 \alias{market.order,orderbook-method}
 \alias{display,orderbook-method}
 \alias{plot,orderbook-method}
+\alias{reset,orderbook-method}
 
 \alias{bid.price.levels}
 \alias{ask.price.levels}
@@ -43,6 +44,7 @@
 \alias{plot}
 \alias{best.ask}
 \alias{best.bid}
+\alias{reset}
 
 \title{Class "orderbook"}
 \description{Contains representation of an orderbook}
@@ -149,6 +151,14 @@
    \item{snapshot}{\code{signature(object="orderbook")}: Returns the snapshot of the
      orderbook at a point in time.
    }
+   \item{read.orders}{\code{signature(object="orderbook")}: Read the next n orders from the input feed from the feed's current position.
+   }
+   \item{read.time}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at time t.
+   }
+   \item{reset}{\code{signature(object="orderbook")}: Reset the orderbook to its initial state the first time the orderbook object is created.
+   }
+   \item{view.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the nth trade occurs.
+   }                    
   }
 }
 

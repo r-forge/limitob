@@ -113,20 +113,20 @@ if (!isGeneric("snapshot"))
                standardGeneric("snapshot"))
 
 if (!isGeneric("view.trade"))
-    setGeneric("view.trade", function(object, n = 1, ...)
+    setGeneric("view.trade", function(object, n = 1)
                standardGeneric("view.trade"))
 
 
 if(!isGeneric("reset"))
-    setGeneric("reset", function(object, ...)
+    setGeneric("reset", function(object)
                standardGeneric("reset"))
 
 if(!isGeneric("read.orders"))
-    setGeneric("read.orders", function(object, n = 1000, ...)
+    setGeneric("read.orders", function(object, n = 1000)
                standardGeneric("read.orders"))
 
 if(!isGeneric("read.time"))
-    setGeneric("read.time", function(object, n, ...)
+    setGeneric("read.time", function(object, n)
                standardGeneric("read.time"))
 
 

@@ -52,13 +52,37 @@
 
 \section{Slots}{
   \describe{
-	\item{\code{current.ob}:}{A data frame containing the orders of this orderbook.
-	}
-	\item{\code{current.time}:}{A numeric value that indicates the time of this orderbook.
-	}
-	\item{\code{ob.names}:}{A character vector which indicates the names of the columns
-	  in  \code{current.ob} to be used as input variables.
-	}
+    \item{\code{current.ob}:}{A data frame containing the orders of this orderbook.
+    }
+    \item{\code{current.time}:}{A numeric value that indicates the time of this orderbook.
+    }
+    \item{\code{ob.names}:}{A character vector which indicates the names of the columns
+      in  \code{current.ob} to be used as input variables.
+    }
+    \item{\code{feed}:}{A character string which specifies the
+      location of the file containing formatted orders.
+    }
+    \item{\code{feed.index}:}{A numeric value that indicates the
+      current position of the feed. Basically, this is the row number of the
+      input feed.
+    }
+    \item{\code{ob.data}:}{A matrix that contains all order information
+      for manipulation of the orderbook.
+    }
+    \item{\code{current.pos}:}{A numeric value which indicates the
+      current position in the orderbook
+    }
+    \item{\code{trade.data}:}{A hash table that contains the position of
+      the trade in the feed input. This helps the next.trade function to
+      quickly calculate the row number of trade order.
+    }
+    \item{\code{trade.index}:}{A numeric value that indicates the index
+      of the current looked trade. This help the next.trade function to
+      figure out where to jump to when it is called.
+    }
+    \item{\code{ids}:}{A hash table that contains the (id,
+      row_number_in_the_feed) of the orders.
+    }
   }
 }
 

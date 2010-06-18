@@ -19,11 +19,9 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      ob.names     = "character",
                                      feed         = "character",
                                      feed.index   = "numeric",
-                                     ob.data      = "matrix",
-                                     current.pos  = "numeric",
+                                     ob.data      = "hash",
                                      trade.data   = "hash",
-                                     trade.index  = "numeric",
-                                     ids = "hash"
+                                     trade.index  = "numeric"
                                      ),
 
          prototype(current.ob   = data.frame(),
@@ -31,11 +29,9 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                    ob.names     = character(),
                    feed		= character(),
                    feed.index   = 0,
-                   ob.data      = matrix(),
-                   current.pos  = numeric(),
+                   ob.data      = hash(),
                    trade.data   = hash(),
-                   trade.index  = 1,
-                   ids          = hash()
+                   trade.index  = 1
                    )
          )
 
@@ -268,9 +264,7 @@ setMethod("add.order",
 
 
               x = object@current.ob
-
-
-              ob.names = object@ob.names
+              y = object@ob.data
 
               if(is.null(time)){
                   new.time = object@current.time
@@ -289,11 +283,13 @@ setMethod("add.order",
                    ob.names[4], ob.names[5])
 
               x = rbind(x, new.order)
+              y[id] = c(time, id, price, size, type)
 
               ## Adding new data frame
 
               object@current.ob <- x
               object@current.time <- new.time
+              object@ob.data <- y
 
               invisible(object)
 
@@ -309,6 +305,7 @@ setMethod("replace.order",
                     invisible(remove.order(object, id))
               } else {
                    x = object@current.ob
+                   y = object@ob.data
                    ob.names = object@ob.names
 
                    stopifnot(size > 0)
@@ -318,8 +315,10 @@ setMethod("replace.order",
                        print("Warning size greater than current size")
                    } else {
                        x[[ob.names[2]]][x[[ob.names[5]]] == id] = min(size, tmp.size)
+                       y[[id]][4] = size
 
                        object@current.ob <- x
+                       object@ob.data <- y
                        invisible(object)
 
                    }
@@ -523,27 +522,6 @@ setMethod("spread",
           }
           )
 
-## Returns a snapshot of the orderbook at a point in time. Does not work yet.
-
-setMethod("snapshot",
-          signature(object = "orderbook"),
-          function(object, new.time, show = TRUE, ...){
-              ob.names = object@ob.names
-              x = orderbook(object@ob.data,
-              price = ob.names[1],
-              size = ob.names[2],
-              type = ob.names[3],
-              time = ob.names[4],
-              id = ob.names[5],
-              ask = ob.names[6],
-              bid = ob.names[7],
-              end = new.time)
-              if(show == TRUE){
-                  display(x, short = TRUE)
-              }
-              invisible(x)
-          }
-          )
 
 ## Remove an order by ID.
 
@@ -552,9 +530,14 @@ setMethod("remove.order",
           function(object, id, ...){
 
               x = object@current.ob
+              y = object@ob.data
               ob.names = object@ob.names
+
               x = x[x[[ob.names[5]]] != id,]
+              y[id] = NULL
+
               object@current.ob <- x
+              object@ob.data <- y
               invisible(object)
 
           }

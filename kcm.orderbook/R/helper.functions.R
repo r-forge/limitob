@@ -41,23 +41,23 @@
     x[[ob.names[1]]] > mid.point(object)*(1 - bounds),]
 
     ## Splits x into ask and bid data frames.
-	x <- split(x, x[[ob.names[3]]])
-	ask <- x[[ob.names[6]]]
-	bid <- x[[ob.names[7]]]
-    #ask = x[x[[ob.names[3]]] == ob.names[6],]
-	#bid = x[x[[ob.names[3]]] == ob.names[7],]
+    x <- split(x, x[[ob.names[3]]])
+    ask <- x[[ob.names[6]]]
+    bid <- x[[ob.names[7]]]
+    ## ask = x[x[[ob.names[3]]] == ob.names[6],]
+    ## bid = x[x[[ob.names[3]]] == ob.names[7],]
 
     ## Aggregate sizes by price level.
 
-	if(nrow(ask) > 0){
-            ask = aggregate(ask[[ob.names[2]]], by = list(ask[[ob.names[1]]]), sum)
-            ask <- data.frame(ask, type = rep(ob.names[6], nrow(ask)))
-	}
+    if(nrow(ask) > 0){
+        ask = aggregate(ask[[ob.names[2]]], by = list(ask[[ob.names[1]]]), sum)
+        ask <- data.frame(ask, type = rep(ob.names[6], nrow(ask)))
+    }
 
-	if(nrow(bid) > 0){
-            bid = aggregate(bid[[ob.names[2]]], by = list(bid[[ob.names[1]]]), sum)
-            bid <- data.frame(bid, type = rep(ob.names[7], nrow(bid)))
-	}
+    if(nrow(bid) > 0){
+        bid = aggregate(bid[[ob.names[2]]], by = list(bid[[ob.names[1]]]), sum)
+        bid <- data.frame(bid, type = rep(ob.names[7], nrow(bid)))
+    }
 
     x  = rbind(ask, bid)
 
@@ -80,57 +80,38 @@
 
 ## Creates a new current.ob from the ob.data.
 
-.update <- function(ob, n)
+.update <- function(ob)
 
 {
+
     x <- ob@ob.data
     ob.names <- ob@ob.names
 
-    ## Create a data frame out of the matrix, we cast during the creation and
-    ## then use ob.names to assign names.
+    ## Turn hash into a list. Unlist into a vector. Remove names.
 
-    x = data.frame(as.numeric(x[,1]), as.numeric(x[,2]), as.factor(x[,3]),
-    as.numeric(x[,4]), as.character(x[,5]), stringsAsFactors = FALSE)
+    x = as.list(x)
+    x = unlist(x, use.names = FALSE)
+
+
+    ## Get out length, use it to create data frame.
+
+    len = length(x)
+
+
+
+    price = as.numeric(x[seq(3, len, 5)])
+    size  = as.numeric(x[seq(4, len, 5)])
+    type  = as.factor(x[seq(5, len, 5)])
+    time  = as.numeric(x[seq(1, len, 5)])
+    id    = as.character(x[seq(2, len, 5)])
+
+
+    x = data.frame(price, size, type, time, id, stringsAsFactors = FALSE)
 
     names(x) = ob.names[1:5]
 
-    ## Remove anything with NA in the price column, because thats how we cancel orders.
-
-    current.ob = x[!is.na(x[1]),]
-
-
-    ## Reupdate the list of ids if there are IDs in the orderbook. Also update
-    ## the current time if there are orders in the book.
-
-    if(nrow(current.ob) > 1){
-        ids = hash()
-
-        for(i in 1:nrow(current.ob)){
-            ids[current.ob[i,][[5]]] = i
-        }
-
-        ob@current.time <- max(current.ob[[ob.names[4]]])
-    } else {
-        ids = hash()
-
-        ob@current.time <- 0
-    }
-
-    ## Reupdate ob.data.
-
-    ob.data = matrix(ncol = 5, nrow = n)
-
-    colnames(ob.data) = names(current.ob)
-
-    ob.data = rbind(as.matrix(current.ob), ob.data)
-
-    ## Set new variables then return.
-
-    ob@current.ob <- current.ob
-    ob@ob.data <- ob.data
-    ob@current.pos <- nrow(current.ob) + 1
-    ob@ids <- ids
-
+    ob@current.ob <- x
+    ob@current.time <- max(x[[ob.names[4]]])
     invisible(ob)
 
 }
@@ -166,16 +147,10 @@
 .read.orders <- function(ob, n)
 {
 
-    ob = .update(ob, n)
-
-
     feed = ob@feed
     feed.index = ob@feed.index
 
     ob.data = ob@ob.data
-    current.pos = ob@current.pos
-
-    ids = ob@ids
 
     trade.data = ob@trade.data
 
@@ -190,34 +165,33 @@
 
     i = 1
 
-    while(length(x) != 0 & i <= n){
+    while(length(x) != 0 && i <= n){
 
         ## If there is an add change current position, add something into ID, and
         ## increment current position.
 
-        if (x[1]=="A"){
-            ob.data[current.pos,] = c(x[4], x[5], x[6], x[2], x[3])
-            ids[x[3]] = current.pos
-            current.pos = current.pos + 1
+        if (isTRUE(x[1] %in% "A")){
+
+            ob.data[x[3]] <- x[2:6]
+
         }
 
         ## For a cancel remove the row from ob.data, remove the ID from list.
 
         if (x[1]=="C"){
-            ob.data[ids[[x[3]]],][1] = NA
-            ids[x[3]] = NULL
+            ob.data[x[3]] = NULL
         }
 
         ## For a replace find the right row and replace it with the new size.
 
         if (x[1]=="R"){
-            ob.data[ids[[x[3]]],][2] = x[4]
+            ob.data[[x[3]]][4] = x[4]
         }
 
         ## For a trade increment the trade index and store the trade data.
 
         if (x[1] == "T"){
-            trade.data[as.character(feed.index)] = list(x)
+            trade.data[as.character(feed.index)] = x
         }
 
         ## Increase the feed index to keep track of which line we are on.
@@ -227,14 +201,13 @@
         x <- scan(feed, nline = 1, sep = ",", what = "character", quiet = TRUE)
     }
 
+    close(feed)
+
     ob@ob.data <- ob.data
     ob@feed.index <- feed.index
     ob@trade.data <- trade.data
 
-
-    close(feed)
-
-    ob = .update(ob, 0)
+    ob = .update(ob)
 
     invisible(ob)
 }
@@ -246,7 +219,7 @@
 ## "H:M:S".
 
 .to.time <- function(x){
-    x = as.POSIXct(x/1000, origin = Sys.Date(),  "America/New_York")
+    x = as.POSIXct(x/1000-144000, origin = Sys.Date())
 
     return(format(x, format = "%H:%M:%S"))
 
@@ -258,7 +231,7 @@
 .to.ms <- function(x){
 
     x = strsplit(x, split = ":")[[1]]
-    x = ((as.numeric(x[1])+4) * 3600000
+    x = ((as.numeric(x[1])-4) * 3600000
          + as.numeric(x[2]) * 60000
          + as.numeric(x[3]) * 1000)
 

@@ -30,7 +30,7 @@ exportMethods(
 	      "inside.market",
               
 	      "spread",
-	      "snapshot",
+
               
               "add.order",
               "remove.order",

@@ -26,11 +26,9 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      ob.names     = "character",
                                      feed         = "character",
                                      feed.index   = "numeric",
-                                     ob.data      = "matrix",
-                                     current.pos  = "numeric",
+                                     ob.data      = "hash",
                                      trade.data   = "hash",
-                                     trade.index  = "numeric",
-                                     ids          = "hash"
+                                     trade.index  = "numeric"
                                      ))
 
 if(!isGeneric("spread"))
@@ -39,10 +37,6 @@ if(!isGeneric("spread"))
 if(!isGeneric("get.order.info"))
     setGeneric("get.order.info", function(object, id, ...)
                standardGeneric("get.order.info"))
-
-if(!isGeneric("snapshot"))
-    setGeneric("snapshot", function(object, new.time,...)
-               standardGeneric("snapshot"))
 
 if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)

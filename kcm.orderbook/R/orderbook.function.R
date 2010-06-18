@@ -89,9 +89,7 @@ orderbook <- function(x = data.frame(),
                       current.ob   = current.ob,
                       current.time = end,
                       ob.names     = ob.names,
-                      feed         = feed,
-                      ob.data      = current.ob,
-                      current.pos  = nrow(current.ob) + 1
+                      feed         = feed
                       ))
     } else {
 
@@ -106,9 +104,7 @@ orderbook <- function(x = data.frame(),
                       current.ob   = current.ob,
                       current.time = 0,
                       ob.names     = ob.names,
-                      feed         = feed,
-                      ob.data      = as.matrix(current.ob),
-                      current.pos  = 1
+                      feed         = feed
                       ))
     }
 

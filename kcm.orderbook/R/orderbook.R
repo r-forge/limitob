@@ -25,7 +25,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      ),
 
          prototype(current.ob   = data.frame(),
-                   current.time = numeric(),
+                   current.time = 0,
                    ob.names     = character(),
                    feed		= character(),
                    feed.index   = 0,
@@ -349,9 +349,10 @@ setMethod("market.order",
                   while(size > 0 & nrow(tmp.ask) > 0){
                       size = size - tmp.ask[[ob.names[2]]][1]
                       if(size >= 0){
-                          tmp.ask = tmp.ask[-1,]
+                          object = remove.order(object, tmp.ask[[ob.names[5]]][1])
                       } else if(size < 0){
-                          tmp.ask[[ob.names[2]]][1] =  abs(size)
+                          object = replace.order(object, tmp.ask[[ob.names[5]]][1],
+                          abs(size))
                       }
                   }
 
@@ -364,16 +365,14 @@ setMethod("market.order",
                   while(size > 0 & nrow(tmp.ask) > 0){
                       size = size - tmp.bid[[ob.names[2]]][1]
                       if(size >= 0){
-                          tmp.bid = tmp.bid[-1,]
+                          object = remove.order(object, tmp.bid[[ob.names[5]]][1])
                       } else if(size < 0){
-                          tmp.bid[[ob.names[2]]][1] =  abs(size)
+                          object = replace.order(object, tmp.bid[[ob.names[5]]][1],
+                          abs(size))
                       }
                   }
               }
 
-              x = rbind(tmp.ask, tmp.bid)
-
-              object@current.ob <- x
               invisible(object)
 
           }
@@ -578,8 +577,6 @@ setMethod("reset",
                             ob.names = ob.names,
                             feed = object@feed,
                             feed.index = 0,
-                            ob.data = as.matrix(current.ob),
-                            current.pos = 1,
                             trade.data = object@trade.data,
                             trade.index = 1))
 

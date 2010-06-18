@@ -38,9 +38,8 @@ stopifnot(
 )
 
 # reset 
-
 ob <- reset(ob)
-ob <- read.orders(ob)
+ob <- read.orders(ob, n=2000)
 ob <- view.trade(ob, n=1)
 load("ob.1st.trade.RData")
 stopifnot(

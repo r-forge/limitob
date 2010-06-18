@@ -38,6 +38,7 @@ if(!isGeneric("get.order.info"))
     setGeneric("get.order.info", function(object, id, ...)
                standardGeneric("get.order.info"))
 
+
 if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)
                standardGeneric("display"))

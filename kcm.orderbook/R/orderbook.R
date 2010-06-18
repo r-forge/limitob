@@ -315,7 +315,7 @@ setMethod("replace.order",
                        print("Warning size greater than current size")
                    } else {
                        x[[ob.names[2]]][x[[ob.names[5]]] == id] = min(size, tmp.size)
-                       y[[id]][4] = size
+                       y[[as.character(id)]][4] = size
 
                        object@current.ob <- x
                        object@ob.data <- y
@@ -521,6 +521,7 @@ setMethod("spread",
 
           }
           )
+
 
 
 ## Remove an order by ID.

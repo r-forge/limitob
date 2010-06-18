@@ -1,7 +1,6 @@
 library(kcm.orderbook)
 load("sample.RData")
 
-
 load("market.order.test.1.RData")
 stopifnot(
 	isTRUE(identical(market.order.test.1@current.ob,

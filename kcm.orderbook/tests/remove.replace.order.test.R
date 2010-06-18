@@ -1,17 +1,26 @@
 library(kcm.orderbook)
 
+
+## remove order test
 load("sample.RData")
-
-
-load("remove.order.test.1.RData")
 stopifnot(
-	isTRUE(identical(remove.order.1@current.ob,
-	                 remove.order(ob, id=52109)@current.ob))
+		isTRUE(52109 %in% ob@current.ob[[5]])
+)
+ob <- remove.order(ob, id=52109)
+stopifnot(
+		isTRUE(!(52109 %in% ob@current.ob[[5]]))
 )
 
-load("replace.order.test.1.RData")
+
+## replace order test
+rm(ob)
+load("sample.RData")
 stopifnot(
-	isTRUE(identical(replace.order.1@current.ob,
-	                 replace.order(ob, id=52109, size=500)@current.ob))
+		isTRUE(52109 %in% ob@current.ob[[5]])
 )
+ob <-  replace.order(ob, id=52109, size=500)
+stopifnot(
+		isTRUE(all.equal(get.order.info(ob, 52109)[2],c(size=500)))
+)
+
 

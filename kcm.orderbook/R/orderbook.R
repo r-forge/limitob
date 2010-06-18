@@ -350,6 +350,8 @@ setMethod("market.order",
                       size = size - tmp.ask[[ob.names[2]]][1]
                       if(size >= 0){
                           object = remove.order(object, tmp.ask[[ob.names[5]]][1])
+                          tmp.ask = tmp.ask[-1,]
+
                       } else if(size < 0){
                           object = replace.order(object, tmp.ask[[ob.names[5]]][1],
                           abs(size))
@@ -358,14 +360,17 @@ setMethod("market.order",
 
               } else if(type == "SELL" & nrow(tmp.bid) > 0){
 
+                  tmp.bid = tmp.bid[order(tmp.bid[[ob.names[4]]]),]
                   tmp.bid = tmp.bid[order(tmp.bid[[ob.names[1]]],
                   decreasing = TRUE),]
-                  tmp.bid = tmp.bid[order(tmp.bid[[ob.names[4]]]),]
 
-                  while(size > 0 & nrow(tmp.ask) > 0){
+
+                  while(size > 0 & nrow(tmp.bid) > 0){
                       size = size - tmp.bid[[ob.names[2]]][1]
                       if(size >= 0){
                           object = remove.order(object, tmp.bid[[ob.names[5]]][1])
+                          tmp.bid = tmp.bid[-1,]
+
                       } else if(size < 0){
                           object = replace.order(object, tmp.bid[[ob.names[5]]][1],
                           abs(size))

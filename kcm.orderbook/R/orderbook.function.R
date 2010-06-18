@@ -104,6 +104,8 @@ orderbook <- function(x = data.frame(),
                       current.ob   = current.ob,
                       current.time = 0,
                       ob.names     = ob.names,
+                      ob.data      = hash(),
+                      trade.data   = hash(),
                       feed         = feed
                       ))
     }

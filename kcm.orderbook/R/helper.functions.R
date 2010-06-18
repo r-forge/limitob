@@ -165,7 +165,7 @@
 
     i = 1
 
-    while(length(x) != 0 && i <= n){
+    while(!identical(length(x), 0) && i <= n){
 
         ## If there is an add change current position, add something into ID, and
         ## increment current position.
@@ -178,19 +178,19 @@
 
         ## For a cancel remove the row from ob.data, remove the ID from list.
 
-        if (x[1]=="C"){
+        if (isTRUE(x[1] %in% "C")){
             ob.data[x[3]] = NULL
         }
 
         ## For a replace find the right row and replace it with the new size.
 
-        if (x[1]=="R"){
+        if (isTRUE(x[1] %in% "R")){
             ob.data[[x[3]]][4] = x[4]
         }
 
         ## For a trade increment the trade index and store the trade data.
 
-        if (x[1] == "T"){
+        if (isTRUE(x[1] %in% "T")){
             trade.data[as.character(feed.index)] = x
         }
 

@@ -19,14 +19,13 @@
 
 
 \title{orderbook}
-\author{Authors}
+\author{Andrew Liu and Khanh Nguyen}
 
 %%\VignetteIndexEntry{Using the orderbook package}
 %%\VignetteDepends{kcm.orderbook}
 
 <<echo = FALSE>>=
 options(width = 50, digits = 2, scipen = 5)
-set.seed(1)
 cat.df.without.rownames <- function (d, file = ""){
   stopifnot(is.data.frame(d))
   row.names(d) <- 1:nrow(d)
@@ -45,31 +44,105 @@ cat.df.without.rownames <- function (d, file = ""){
 \setkeys{Gin}{width=0.95\textwidth}
 
 \section*{Introduction}
-The limitob package provides facilities for exploring and visualizing orderbook data. For example, we want to 'slow' the orderbook and watch how the orders arrive before a trade occur, or we want to see how the price levels of the book change over a period of time. The microstructure insights from these analysis can help devising and testing short-term trading strategies. 
+
+The limitob package provides functions for exploring and visualizing orderbook data. For example, we may want to study an orderbook immediately before a trade occurs, or maybe 50 orders before a trade occurs, or we want to visualize the change of an orderbook overtime as the price level fluctuates. The microstructure insights from this sort of analysis can help in researching short-term trading strategies. 
+
 \section*{Background}
-To demonstrate the capabilities of the limitob package, we will consider a series of examples based on a single real-world data set. We will use a dataset shipped along with the package. It contains the orders of a public company for the period of 5 minutes after the open. 
-\newline
-The data comes in two seperate file. One contains the state of the orderbook before the openning. It consists of current outstanding orders in the orderbook. The other contains the series of orders, sorted by time of arrival at the exchange. 
-\newline
-The format of the input data follows (show the data and describe it here)
+To demonstrate the capabilities of the limitob package, we consider the first 10000 orders for a single stock on June 8, 2010. The orders are in following form
 
-\section*{Using limitob}
-Before using the tools in limitob, we first need to create an object of class limitob
+\begin{verbatim}
+A,31285893,1231884,11.49,200,ASK
+R,31295779,1231884,150
+T,31295779,1231884,11.49,50,BUY
+C,31295781,1231884
+\end{verbatim}
 
-(show how to do it here)
+where A, R, T, C mean Add, Replace, Trade, and Cancel order, respectively. The first number is the timestamp of the order in milliseconds after midnight of the users timezone, and the second number (or string) is the ID of the order. For a Replace the next number is the new size, while for Add and Trade price comes before size, followed by the type of order/transaction (BID/ASK or BUY/SELL). 
 
-Calling the summary on the resulting object of class limitob gives a quick peak at the typical statistical attributes of the orderbook
+<<results = hide>>= 
+library(kcm.orderbook)
+@
+<<echo = TRUE>>=
+ob = orderbook(feed = "sample.txt")
+ob = read.orders(ob, 10000)
+ob
+@
 
-To plot the orderbook, 
-\section*{Examing orderbook}
-Most of the time, we want to be able to look at the state of the orderbook before an interesting events occur (e.g large trade, or before important news, etc..). limitob provides three method for 'walking' the book. forward.by, back.by, ob.at, and next.trade
+We create the orderbook object by setting the feed as our \texttt{sample.txt} data file. Then we read in the first 10,000 orders. We see that the 10000th order occurs at 9:35:02, and there are 631 outstanding bid orders, and 1,856 outstanding ask orders. However, sometimes the user may want to jump to a place in the orderbook by time; for example, it is interesting to view the orderbook when the market opens.
 
-(show the forward.by, back.by, ob.at, next.trade)
+<<echo = TRUE>>= 
+ob = read.time(ob, "9:30:00")
+summary(ob)
+display(ob)
+@
+
+Summary provides the user with a set of important summary statistics, while display by default shows the top five bid and ask price levels. Suppose we wanted to see the first trade after this time.
+
+<<echo = TRUE>>= 
+ob = next.trade(ob)
+display(ob, n = 3)
+@
+
+Note that to save space I set \texttt{n = 31} so that only the top three bid and ask price levels are displayed. Sometimes a graphical representation is more useful than simply seeing the price levels and order sizes in text. By default, the maximum and minimum price levels shown are 10\% above and below the midpoint price, respectively.
+
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>= 
+plot(ob)
+@
+\end{figure}
+
+Users might want to view the orderbook fifty orders prior to the trade occurring. Here we also demonstrate setting the bounds to only 5\% above and below the midpoint price.
+
+<<echo = TRUE>>=
+ob.new = read.orders(ob, -50)
+@
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>= 
+plot(ob.new, bounds = 0.05)
+@
+\end{figure}
+
+Users can also view the previous trade, and then pass in two different orderbook objects to generate an orderbook animation.
+
+<<echo = TRUE, eval = FALSE>>=
+prev.ob = previous.trade(ob)
+animate.ob(prev.ob, ob)
+@
+
+To be added: Other visualizations
 
 \section*{Simulation}
 
+The limitob object supports adding, replacing, and cancelling orders. To add an order, the user needs to specify the price, size, and type. Time and ID are optional, and will default to the maximum time and the maximum ID + 1, respectively. For replacing an order, only ID and size need to be given, and for cancelling an order, only ID is necessary. Market orders are also possible by specifying the size and side (BUY/SELL).
+
+<<echo = TRUE, eval = FALSE>>=
+display(ob)
+ob = add.order(ob, stuff)
+ob = remove.order(ob, stuff)
+ob = replace.order(ob, stuff)
+ob = market.order(ob, 200, "BUY")
+display(ob)
+@
+
+Using these tools, the user can write functions to simulate the movement of an orderbook. 
+
+<<echo = TRUE, eval = FALSE>>=
+plot(ob)
+ob = simulate(ob)
+plot(ob)
+@
+
+Need to ask Khanh how to use the simulate 
+
 \section*{Future work}
 
+Eventually, we would like to incorporate the ability to backtest trading strategies into the limitob package. 
+
 \section*{Conclusion}
+
 \end{article}
 \end{document}

@@ -120,7 +120,7 @@
 
 ## Returns the row number of the first order after the specified time.
 
-.get.time.row <- function(feed, n, skip = 0){
+.get.time.row <- function(feed, n, skip = 1){
 
     feed <- file(feed, open="r")
 
@@ -128,9 +128,9 @@
     x <- scan(feed, nline = 1, sep = ",", what = "character",
               quiet = TRUE, skip = skip)
 
-    i = skip
+    i = skip + 1
 
-    while(length(x) != 0 & as.numeric(x[2]) < n){
+    while(length(x) != 0 & as.numeric(x[2]) <= n){
 
        	i = i + 1
         x <- scan(feed, nline = 1, sep = ",", what = "character", quiet = TRUE)
@@ -138,7 +138,29 @@
 
     close(feed)
 
-    return(i-1)
+    return(i)
+}
+
+## Returns the row number of the next trade after the current time.
+
+.get.next.trade <- function(feed, n){
+
+    feed <- file(feed, open="r")
+
+
+    x <- scan(feed, nline = 1, sep = ",", what = "character",
+              quiet = TRUE, skip = n)
+
+    n = n + 1
+
+    while(!isTRUE(x[1] %in% "T")){
+       	n = n + 1
+        x <- scan(feed, nline = 1, sep = ",", what = "character", quiet = TRUE)
+    }
+
+    close(feed)
+
+    return(n)
 }
 
 
@@ -153,6 +175,7 @@
     ob.data = ob@ob.data
 
     trade.data = ob@trade.data
+    trade.index = ob@trade.index
 
     feed <- file(feed, open="r")
 
@@ -165,7 +188,7 @@
 
     i = 1
 
-    while(!identical(length(x), 0) && i <= n){
+    while(!identical(length(x), 0) & i <= n){
 
         ## If there is an add change current position, add something into ID, and
         ## increment current position.
@@ -192,6 +215,7 @@
 
         if (isTRUE(x[1] %in% "T")){
             trade.data[as.character(feed.index)] = x
+            trade.index = trade.index + 1
         }
 
         ## Increase the feed index to keep track of which line we are on.
@@ -206,6 +230,7 @@
     ob@ob.data <- ob.data
     ob@feed.index <- feed.index
     ob@trade.data <- trade.data
+    ob@trade.index <- trade.index
 
     ob = .update(ob)
 
@@ -219,7 +244,7 @@
 ## "H:M:S".
 
 .to.time <- function(x){
-    x = as.POSIXct(x/1000-144000, origin = Sys.Date())
+    x = as.POSIXct(x/1000+14400, origin = Sys.Date())
 
     return(format(x, format = "%H:%M:%S"))
 
@@ -231,7 +256,7 @@
 .to.ms <- function(x){
 
     x = strsplit(x, split = ":")[[1]]
-    x = ((as.numeric(x[1])-4) * 3600000
+    x = ((as.numeric(x[1])) * 3600000
          + as.numeric(x[2]) * 60000
          + as.numeric(x[3]) * 1000)
 

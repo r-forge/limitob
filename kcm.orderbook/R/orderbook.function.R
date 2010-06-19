@@ -106,6 +106,7 @@ orderbook <- function(x = data.frame(),
                       ob.names     = ob.names,
                       ob.data      = hash(),
                       trade.data   = hash(),
+                      trade.index  = 0,
                       feed         = feed
                       ))
     }

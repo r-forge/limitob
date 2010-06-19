@@ -111,7 +111,6 @@ if (!isGeneric("view.trade"))
     setGeneric("view.trade", function(object, n = 1)
                standardGeneric("view.trade"))
 
-
 if(!isGeneric("reset"))
     setGeneric("reset", function(object)
                standardGeneric("reset"))
@@ -123,6 +122,14 @@ if(!isGeneric("read.orders"))
 if(!isGeneric("read.time"))
     setGeneric("read.time", function(object, n)
                standardGeneric("read.time"))
+
+if(!isGeneric("next.trade"))
+    setGeneric("next.trade", function(object, ...)
+               standardGeneric("next.trade"))
+
+if(!isGeneric("previous.trade"))
+    setGeneric("previous.trade", function(object, ...)
+               standardGeneric("previous.trade"))
 
 
 

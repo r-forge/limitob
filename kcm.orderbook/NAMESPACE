@@ -13,11 +13,11 @@ exportMethods(
 	      "summary",
 	      "plot",
               "display",
-              
+
               "best.bid",
               "best.ask",
               "get.order.info",
-              
+
    	      "bid.price.levels",
 	      "ask.price.levels",
 	      "total.price.levels",
@@ -28,16 +28,18 @@ exportMethods(
 
 	      "mid.point",
 	      "inside.market",
-              
+
 	      "spread",
 
-              
+
               "add.order",
               "remove.order",
               "replace.order",
               "market.order",
-              
+
               "read.orders",
               "read.time",
               "view.trade",
-              "reset")
+              "reset",
+              "next.trade",
+              "previous.trade")

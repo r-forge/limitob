@@ -31,7 +31,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                    feed.index   = 0,
                    ob.data      = hash(),
                    trade.data   = hash(),
-                   trade.index  = 1
+                   trade.index  = 0
                    )
          )
 
@@ -192,15 +192,15 @@ setMethod("summary",
                       .to.time(object@current.time), "\n\n")
               cat("ASK price levels:  ", ask.price.levels(object), "\n")
               cat("BID price levels:  ", bid.price.levels(object), "\n")
-              cat("Total price levels:", total.price.levels(object), "\n\n")
+              cat("Total price levels:", total.price.levels(object), "\n")
               cat("-----------------------------\n")
               cat("ASK orders:        ", ask.orders(object), "\n")
               cat("BID orders:        ", bid.orders(object), "\n")
-              cat("Total orders:      ", total.orders(object), "\n\n")
+              cat("Total orders:      ", total.orders(object), "\n")
               cat("-----------------------------\n")
               cat("Spread:            ", .prettify(spread(object)), "\n\n")
               cat("Mid point:         ",
-              formatC(mid.point(object), format = "f", digits = 3), "\n \n")
+              formatC(mid.point(object), format = "f", digits = 3), "\n")
               cat("-----------------------------\n")
               cat("Inside market \n \n");
               inside.market(object)
@@ -295,6 +295,33 @@ setMethod("add.order",
 
           }
           )
+
+## Go to next trade after current time.
+
+setMethod("next.trade",
+          signature(object = "orderbook"),
+          function(object, ...){
+              n = .get.next.trade(object@feed, object@feed.index)
+              n = n - object@feed.index
+              invisible(read.orders(object, n))
+          }
+          )
+
+## Go to previous trade.
+
+setMethod("previous.trade",
+          signature(object = "orderbook"),
+          function(object, ...){
+              x = object@trade.data
+              y = object@trade.index
+              nextindex = sort(as.numeric(names(x)))[y]
+              y = y - 1
+              object@trade.index <- y
+              nextindex = nextindex - object@feed.index
+              invisible(read.orders(object, nextindex))
+          }
+          )
+
 
 ## Replace an order. You need to specify ID and size.
 
@@ -579,11 +606,13 @@ setMethod("reset",
 
               invisible(new("orderbook",
                             current.ob = current.ob,
+                            current.time = 0,
                             ob.names = ob.names,
                             feed = object@feed,
                             feed.index = 0,
-                            trade.data = object@trade.data,
-                            trade.index = 1))
+                            ob.data = hash(),
+                            trade.data = hash(),
+                            trade.index = 0))
 
           }
           )

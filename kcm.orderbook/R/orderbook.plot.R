@@ -30,7 +30,7 @@
     ob.names = object@ob.names
 
 	## If there is nothing on the orderbook, stop
-	stopifnot(nrow(x)>0)	
+	stopifnot(nrow(x)>0)
 
 
 
@@ -117,7 +117,7 @@
 
     ## Printing the plot.
 
-    plot(tmp)
+    print(tmp)
 
     ## Using the panel functions to add the best ask and best bid.
 

@@ -163,8 +163,17 @@ setMethod("show",
 
 setMethod("plot",
           signature(x = "orderbook"),
-          function(x, bounds = 0.1, ...){
-              .plot.lattice.order.book(x, bounds)
+          function(x, bounds = 0.1, n = 10, type = "n", ...){
+              if(isTRUE(type %in% "n")){
+                  .plot.ob(x, bounds)
+              } else if(isTRUE(type %in% "s")){
+                  .plot.side.ob(x, n)
+              } else if(isTRUE(type %in% "o")){
+                  .plot.orders.ob(x, bounds)
+              } else {
+                  print("Invalid type")
+              }
+
           }
           )
 

@@ -4,7 +4,7 @@
 
 \usepackage{Rnews}
 \usepackage{fancyvrb}
-\usepackage{Sweave}  
+\usepackage{Sweave}
 
 \DefineVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\small,fontshape=sl}
 \DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
@@ -33,10 +33,10 @@ cat.df.without.rownames <- function (d, file = ""){
   conn <- textConnection("x", "w", local = TRUE)
   capture.output(print(d), file = conn)
   close(conn)
-  cat(substring(x, first = max(nchar(row.names(d))) + 2), sep = "\n", 
+  cat(substring(x, first = max(nchar(row.names(d))) + 2), sep = "\n",
       file = file)
 }
-@ 
+@
 
 \maketitle
 
@@ -45,7 +45,7 @@ cat.df.without.rownames <- function (d, file = ""){
 
 \section*{Introduction}
 
-The limitob package provides functions for exploring and visualizing orderbook data. For example, we may want to study an orderbook immediately before a trade occurs, or maybe 50 orders before a trade occurs, or we want to visualize the change of an orderbook overtime as the price level fluctuates. The microstructure insights from this sort of analysis can help in researching short-term trading strategies. 
+The limitob package provides functions for exploring and visualizing orderbook data. For example, we may want to study an orderbook immediately before a trade occurs, or maybe 50 orders before a trade occurs, or we want to visualize the change of an orderbook overtime as the price level fluctuates. The microstructure insights from this sort of analysis can help in researching short-term trading strategies.
 
 \section*{Background}
 To demonstrate the capabilities of the limitob package, we consider the first 10000 orders for a single stock on June 8, 2010. The orders are in following form
@@ -57,9 +57,9 @@ T,31295779,1231884,11.49,50,BUY
 C,31295781,1231884
 \end{verbatim}
 
-where A, R, T, C mean Add, Replace, Trade, and Cancel order, respectively. The first number is the timestamp of the order in milliseconds after midnight of the users timezone, and the second number (or string) is the ID of the order. For a Replace the next number is the new size, while for Add and Trade price comes before size, followed by the type of order/transaction (BID/ASK or BUY/SELL). 
+where A, R, T, C mean Add, Replace, Trade, and Cancel order, respectively. The first number is the timestamp of the order in milliseconds after midnight of the users timezone, and the second number (or string) is the ID of the order. For a Replace the next number is the new size, while for Add and Trade price comes before size, followed by the type of order/transaction (BID/ASK or BUY/SELL).
 
-<<results = hide>>= 
+<<results = hide>>=
 library(kcm.orderbook)
 @
 <<echo = TRUE>>=
@@ -70,7 +70,7 @@ ob
 
 We create the orderbook object by setting the feed as our \texttt{sample.txt} data file. Then we read in the first 10,000 orders. We see that the 10000th order occurs at 9:35:02, and there are 631 outstanding bid orders, and 1,856 outstanding ask orders. However, sometimes the user may want to jump to a place in the orderbook by time; for example, it is interesting to view the orderbook when the market opens.
 
-<<echo = TRUE>>= 
+<<echo = TRUE>>=
 ob = read.time(ob, "9:30:00")
 summary(ob)
 display(ob)
@@ -78,7 +78,7 @@ display(ob)
 
 Summary provides the user with a set of important summary statistics, while display by default shows the top five bid and ask price levels. Suppose we wanted to see the first trade after this time.
 
-<<echo = TRUE>>= 
+<<echo = TRUE>>=
 ob = next.trade(ob)
 display(ob, n = 3)
 @
@@ -88,12 +88,13 @@ Note that to save space I set \texttt{n = 31} so that only the top three bid and
 \begin{figure}
 \centering
 \vspace*{.1in}
-<<fig = TRUE>>= 
+<<fig = TRUE>>=
 plot(ob)
 @
 \end{figure}
 
-Users might want to view the orderbook fifty orders prior to the trade occurring. Here we also demonstrate setting the bounds to only 5\% above and below the midpoint price.
+Users might want to view the orderbook fifty orders prior to the
+trade occurring. Here we also demonstrate setting the bounds to only 5\% above and below the midpoint price.
 
 <<echo = TRUE>>=
 ob.new = read.orders(ob, -50)
@@ -101,9 +102,33 @@ ob.new = read.orders(ob, -50)
 \begin{figure}
 \centering
 \vspace*{.1in}
-<<fig = TRUE>>= 
+<<fig = TRUE>>=
 plot(ob.new, bounds = 0.05)
 @
+\end{figure}
+
+Note that there is a particularly large order around \$11.03. It is
+helpful to know whether the volume at that price level is comprised of
+a single order, or several.
+
+\begin{figure}
+  \centering
+  \vspace*{.1in}
+  <<fig = TRUE>>=
+  plot(ob.new, bounds = 0.05, type = 'o')
+  @
+\end{figure}
+
+Viewing the orderbook with bids on one side and asks on another is
+useful, but sometimes users may want to view them side by side to more
+directly compare the supply and demand at each price level.
+
+\begin{figure}
+  \centering
+  \vspace*{.1in}
+  <<fig = TRUE>>=
+  plot(ob.new, type = 's')
+  @
 \end{figure}
 
 Users can also view the previous trade, and then pass in two different orderbook objects to generate an orderbook animation.
@@ -128,7 +153,7 @@ ob = market.order(ob, 200, "BUY")
 display(ob)
 @
 
-Using these tools, the user can write functions to simulate the movement of an orderbook. 
+Using these tools, the user can write functions to simulate the movement of an orderbook.
 
 <<echo = TRUE, eval = FALSE>>=
 plot(ob)
@@ -136,11 +161,11 @@ ob = simulate(ob)
 plot(ob)
 @
 
-Need to ask Khanh how to use the simulate 
+Need to ask Khanh how to use the simulate
 
 \section*{Future work}
 
-Eventually, we would like to incorporate the ability to backtest trading strategies into the limitob package. 
+Eventually, we would like to incorporate the ability to backtest trading strategies into the limitob package.
 
 \section*{Conclusion}
 

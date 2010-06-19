@@ -21,7 +21,7 @@
 ## Asks on the right with Price and Size on the Y- and X-axes, respectively.
 ## Only prices within 10% above and below the midpoint value are shown.
 
-.plot.lattice.order.book <-function(object, bounds){
+.plot.ob <-function(object, bounds){
 
     ## Use combine size to find the total size at each price level. This
     ## function returns a data frame. Also get the names for the columns.
@@ -29,8 +29,8 @@
     x = .combine.size(object, bounds)
     ob.names = object@ob.names
 
-	## If there is nothing on the orderbook, stop
-	stopifnot(nrow(x)>0)
+    ## If there is nothing on the orderbook, stop
+    stopifnot(nrow(x)>0)
 
 
 
@@ -130,147 +130,132 @@
     trellis.unfocus()
 }
 
-## Incomplete
+## Plot top ask vs top bid, 2nd best ask vs 2nd best bid, etc.
 
-.plot.side.order.book <-function(object){
+.plot.side.ob <-function(object, n){
 
-    x = .combine.size(object)
+    x = .combine.size(object, 1)
     ob.names = object@ob.names
 
-    im = inside.market(object)
-    best.ask = im[[ob.names[1]]][1]
-    best.bid = im[[ob.names[1]]][2]
+    ## Creating the data frame to be plotted.
 
+    ask = x[x[[ob.names[3]]] == ob.names[6],][1:n,]
 
-    max.size = max(x[[ob.names[2]]])
-    min.price.diff = signif(min(x[ob.names[[1]]])-.05,3)-best.bid
-    max.price.diff = round(max(x[ob.names[[1]]])+0.5)-best.ask
+    bid = x[x[[ob.names[3]]] == ob.names[7],]
+    bid = bid[(nrow(bid) - n + 1):nrow(bid),]
 
-    low.diff = .25
+    x = rbind(ask, bid)
+    x$y = c(seq(n, 1, -1), seq(1, n, 1))
 
-    panel.bestbid<- function(x = panel.args$x[panel.args$y == max(y)] + max.size/10,
-                             y = panel.args$y,
-                             panel.args = trellis.panelArgs())
-    {
-        panel.text(x = x, y = formatC(max(y), format = "f", digits = 2), labels = max(y), cex = 0.75, col = "red")
-    }
+    ## Setting x-axis limits and labels.
+    max.size = signif(max(x[[ob.names[2]]]), 1)
+    x.limits = c(0, signif(max.size, 1))
+    x.at = seq(0, signif(max.size), max.size/5)
 
-    panel.bestask<- function(x = panel.args$x[panel.args$y == min(y)] + max.size/10,
-                             y = panel.args$y,
-                             panel.args = trellis.panelArgs())
-    {
-        panel.text(x = x, y = formatC(min(y), format = "f", digits = 2), labels = min(y), cex = 0.75, col = "blue")
-    }
+    ## Creating y-axis tick labels.
 
-   # panel.spread<- function(x = max(orderbook.df$size),
-   #                         y = panel.args$y,
-   #                         panel.args = trellis.panelArgs())
-   # {
-   #     panel.text(x = min(x), y = min(y)-spread*1.5, labels = spread, cex = 0.75, col = "green")
-   # }
+    ask.label <- formatC(sort(ask[[ob.names[1]]], decreasing = TRUE),
+                         format = "f", digits = 2)
 
-    x.limits =  list(c(1000,0),
-    c(0,1000))
-
-    x.at = seq(0, 1000, 100)
-
-    y.limits = list(c(best.bid - low.diff, best.bid),
-    c(best.ask + low.diff, best.ask))
-
-    yask.at = vector()
-    ybid.at = vector()
+    bid.label <- formatC(bid[[ob.names[1]]], format = "f", digits = 2)
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
         ans$right <- ans$left
 
-        ans$right$labels$labels <- seq(best.bid - low.diff, best.bid, 0.01)
-        ans$left$labels$labels <- seq(best.ask + low.diff, best.ask, -0.01)
+        ans$right$labels$labels <- ask.label
+        ans$left$labels$labels <- bid.label
 
         ans
     }
 
-    x[[ob.names[3]]] = ordered(x[[ob.names[3]]], levels = c(ob.names[7], ob.names[6]))
+    new.par.settings = list(
+    layout.widths = list(left.padding = 2, right.padding = 5))
 
-    tmp <- xyplot(x[[ob.names[1]]]~x[[ob.names[2]]]|x[[ob.names[3]]], data = x,
-                  ylab = "Price", xlab = "Size (Shares)", main = "Order Book",
-                  scales = list(x = list(relation = "free",
-                                limits = x.limits,
-                                at = x.at,
-                                axs = "i"),
-                  y = list(relation = "free",
-                  limits = y.limits, rot = 0, tick.number = 25)),
+    tmp <- barchart(y ~ size, data = x, groups = type, auto.key = TRUE,
+                    ylab = "Bid Price Levels", xlab = "Size (Shares)",
+                    main = "Order Book", par.settings = new.par.settings,
+                    yscale.components = new.yscale.components,
+                    scales = list(x = list(axs = "i",
+                                  limits = x.limits,
+                                  at = x.at,
+                                  tck = c(1, 0)),
+                    y = list(alternating = 3))
+                    )
 
-                  layout.widths = list(between = 5),
-                  panel = function(...){
-                      panel.xyplot(...)
-                      panel.lines(..., type = "H")
-                  }
-                  )
     plot(tmp)
 
-    trellis.focus("panel", 1, 1)
-    panel.bestbid()
-    Sys.sleep(0.01)
+    trellis.focus("panel", 1, 1, clip.off = TRUE)
+    grid.text("Ask Price Levels", x = 1.12, rot = 90)
     trellis.unfocus()
 
-    trellis.focus("panel", 2,1)
-    panel.bestask()
-    Sys.sleep(0.01)
-    trellis.unfocus()
 }
 
 
-.plot.orders.order.book <-function(object){
+.plot.orders.ob <-function(object, bounds){
 
-    x = object@current.ob
-    ob.names = object@ob.names
-    x = x[x[[ob.names[1]]] < mid.point(object)*1.1 & x[[ob.names[1]]] > mid.point(object)*0.9,]
+    x <- object@current.ob
+    ob.names <- object@ob.names
 
-    type = .combine.size(object)
-    type = table(type[[ob.names[3]]])
+    ## We only want data within our bounds
 
-    x = data.frame(table(x[[ob.names[1]]]))
-    x$Var1 = levels(x$Var1)
-    x$Var1 = as.numeric(x$Var1)
-    x = data.frame(x, "Type" = c(
-                   rep("BID", type[[ob.names[7]]]),
-                   rep("ASK", type[[ob.names[6]]])))
+    x <- x[(x[[ob.names[1]]] < mid.point(object)*(1+bounds)
+           & x[[ob.names[1]]] > mid.point(object)*(1-bounds)),]
 
-    names(x) = c(ob.names[1], "Orders", ob.names[3])
+    ## Create data.frame with price level, number of orders, and type
 
+    ask <- x[x[[ob.names[3]]] == ob.names[6],]
+    bid <- x[x[[ob.names[3]]] == ob.names[7],]
 
+    ask <- data.frame(table(ask[[ob.names[1]]]))
+    bid <- data.frame(table(bid[[ob.names[1]]]))
 
+    ask = cbind(ask, rep("ASK", nrow(ask)))
+    bid = cbind(bid, rep("BID", nrow(bid)))
 
-    max.orders = max(x[["Orders"]])
-    min.price = signif(min(x[ob.names[[1]]])-.05,3)
+    names(ask) = c(ob.names[1], "Orders", ob.names[3])
+    names(bid) = names(ask)
+
+    x = rbind(ask, bid)
+    x[[ob.names[1]]] = as.numeric(levels(x[[ob.names[1]]]))
+
+    ## Maximum size, max/min price. and difference between the max
+    ## and min price for purposes of drawing the axes.
+
+    max.orders = signif(max(x[["Orders"]]), 1)
+    min.price = signif(min(x[ob.names[[1]]])-.05, 3)
     max.price = round(max(x[ob.names[[1]]])+0.5)
+    midpoint = mid.point(object)
 
-    panel.bestbid<- function(x = panel.args$x[panel.args$y == max(y)] + max.orders/10,
+    ## Panel functions that display the best bid and best ask.
+
+    panel.bestbid <- function(x = max.orders/2,
                              y = panel.args$y,
                              panel.args = trellis.panelArgs())
     {
-        panel.text(x = x, y = formatC(max(y), format = "f", digits = 2), labels = max(y), cex = 0.75, col = "red")
+        panel.text(x = x, y = max(y) + midpoint * bounds/20,
+                   labels = formatC(max(y), format = "f", digits = 2),
+                   cex = 0.75, col = "red")
     }
 
-    panel.bestask<- function(x = panel.args$x[panel.args$y == min(y)] + max.orders/10,
+    panel.bestask <- function(x = max.orders/2,
                              y = panel.args$y,
                              panel.args = trellis.panelArgs())
     {
-        panel.text(x = x, y = formatC(min(y), format = "f", digits = 2), labels = min(y), cex = 0.75, col = "blue")
+        panel.text(x = x, y = min(y) - midpoint * bounds/20,
+                   labels = formatC(min(y), format = "f", digits = 2),
+                   cex = 0.75, col = "blue")
     }
 
-   # panel.spread<- function(x = max(orderbook.df$size),
-   #                         y = panel.args$y,
-   #                         panel.args = trellis.panelArgs())
-   # {
-   #     panel.text(x = min(x), y = min(y)-spread*1.5, labels = spread, cex = 0.75, col = "green")
-   # }
+    ## Create x axes/limits.
 
-    x.limits =  list(c(max.orders+max.orders/20,0),
-    c(0,max.orders+max.orders/20))
-    x.at = seq(0, max.orders, max.orders/5)
-    tmp.at = seq(min.price, max.price, .1)
+    x.limits =  list(c(max.orders ,0),
+    c(0, max.orders))
+    x.at = seq(0, max.orders, 10)
+
+    ## Create y axes/limits.
+
+    tmp.at = formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
     yask.at = vector()
     ybid.at = vector()
 
@@ -292,7 +277,12 @@
         ans
     }
 
-    x[[ob.names[3]]] = ordered(x[[ob.names[3]]], levels = c(ob.names[7], ob.names[6]))
+    ## Ordering the levels so Bid comes before Ask.
+
+    x[[ob.names[3]]] <- ordered(x[[ob.names[3]]],
+                                levels = c(ob.names[7], ob.names[6]))
+
+    ## Actually plotting it.
 
     tmp <- xyplot(x[[ob.names[1]]]~x[["Orders"]]|x[[ob.names[3]]], data = x,
                   ylab = "Price", xlab = "Number of Orders", main = "Order Book",
@@ -307,18 +297,19 @@
                       panel.lines(..., type = "H")
                   }
                   )
-    plot(tmp)
+
+    ## Printing the plot
+
+    print(tmp)
+
+    ## Using the panel functions to add the best ask and best bid.
 
     trellis.focus("panel", 1, 1)
     panel.bestbid()
-
-    Sys.sleep(0.01)
     trellis.unfocus()
 
     trellis.focus("panel", 2,1)
     panel.bestask()
-
-    Sys.sleep(0.01)
     trellis.unfocus()
 }
 

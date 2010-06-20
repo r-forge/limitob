@@ -147,7 +147,8 @@ setMethod("show",
           function(object){
               cat("An object of class limitob\n")
               cat("--------------------------\n")
-              cat("Current orderbook time:   ", .to.time(object@current.time), "\n")
+              cat("Current orderbook time:   ",
+                  .to.time(object@current.time), "\n")
               cat("Feed Index:               ", object@feed.index, "\n")
               cat("Number of Bids:           ",
                   .prettify(bid.orders(object), "s"), "\n")

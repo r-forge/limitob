@@ -222,7 +222,7 @@
     ## Maximum size, max/min price. and difference between the max
     ## and min price for purposes of drawing the axes.
 
-    max.orders = signif(max(x[["Orders"]]), 1)
+    max.orders = max(x[["Orders"]])
     min.price = signif(min(x[ob.names[[1]]])-.05, 3)
     max.price = round(max(x[ob.names[[1]]])+0.5)
     midpoint = mid.point(object)
@@ -249,9 +249,9 @@
 
     ## Create x axes/limits.
 
-    x.limits =  list(c(max.orders ,0),
+    x.limits =  list(c(max.orders + max.orders/10, 0),
     c(0, max.orders))
-    x.at = seq(0, max.orders, 10)
+    x.at = seq(0, max.orders, max.orders/10)
 
     ## Create y axes/limits.
 

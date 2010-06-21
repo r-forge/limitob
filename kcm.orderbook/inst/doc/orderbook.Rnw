@@ -112,11 +112,11 @@ helpful to know whether the volume at that price level is comprised of
 a single order, or several.
 
 \begin{figure}
-  \centering
-  \vspace*{.1in}
-  <<fig = TRUE>>=
-  plot(ob.new, bounds = 0.05, type = 'o')
-  @
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>=
+plot(ob.new, bounds = 0.05, type = 'o')
+@
 \end{figure}
 
 Viewing the orderbook with bids on one side and asks on another is
@@ -124,11 +124,11 @@ useful, but sometimes users may want to view them side by side to more
 directly compare the supply and demand at each price level.
 
 \begin{figure}
-  \centering
-  \vspace*{.1in}
-  <<fig = TRUE>>=
-  plot(ob.new, type = 's')
-  @
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>=
+plot(ob.new, type = 's')
+@
 \end{figure}
 
 Users can also view the previous trade, and then pass in two different orderbook objects to generate an orderbook animation.

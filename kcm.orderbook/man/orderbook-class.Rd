@@ -84,66 +84,48 @@
 
 \section{Methods}{
   \describe{
-   \item{show}{\code{signature(object = "orderbook")}: Prints the variables 
-     used in the orderbook
+   \item{show}{\code{signature(object = "orderbook")}: 
+     Prints the variables used in the orderbook
    }    
-   \item{summary}{\code{signature(object = "orderbook")}: Prints the summary 
-     of the orderbook
-   }  
    \item{best.bid}{\code{signature(object = "orderbook")}: Returns the current best bid
    }
    \item{best.ask}{\code{signature(object = "orderbook")}: Returns the current best ask     
    }
-   \item{summary}{\code{signature(object="orderbook")}: Prints the summary 
-     of the orderbook
+   \item{summary}{\code{signature(object="orderbook")}: Prints the summary of the orderbook
    }
-   \item{get.order.info}{\code{signature(object = "orderbook")}: Returns the price
-        and size of the order with specified ID.
+   \item{get.order.info}{\code{signature(object = "orderbook")}: Returns the price and size of the order with specified ID.
    }
    \item{plot}{\code{signature(x = "orderbook")}: Plots the orderbook
    }
-   \item{display}{\code{signature(object="orderbook")}: Prints the state of the orderbook.
-     The results is similar to \code{plot}      
+   \item{display}{\code{signature(object="orderbook")}: Prints the state of the orderbook. The results is similar to \code{plot}      
    }
-   \item{add.order}{\code{signature(object="orderbook")}: Adds an order to this orderbook.
-     Returns an oderbook object with updated information.     
+   \item{add.order}{\code{signature(object="orderbook")}: Adds an order to this orderbook. Returns an oderbook object with updated information.     
    }         
-   \item{remove.order}{\code{signature(object="orderbook")}: Removes an order from this 
-     orderbook. Returns an oderbook object with updated information.     
+   \item{remove.order}{\code{signature(object="orderbook")}: Removes an order from this orderbook. Returns an oderbook object with updated information.     
    }
-   \item{replace.order}{\code{signature(object="orderbook")}: Replaces an order in this 
-     orderbook. Returns an oderbook object with updated information.     
+   \item{replace.order}{\code{signature(object="orderbook")}: Replaces an order in this orderbook. Returns an oderbook object with updated information.     
    }
-   \item{market.order}{\code{signature(object="orderbook")}: Insert a market order to this
-     orderbook. Returns an oderbook object with updated information.     
+   \item{market.order}{\code{signature(object="orderbook")}: Insert a market order to this orderbook. Returns an oderbook object with updated information.     
    }
-   \item{bid.price.levels}{\code{signature(object="orderbook")}: Returns the number of bid
-     price levels.     
+   \item{bid.price.levels}{\code{signature(object="orderbook")}: Returns the number of bid price levels.     
    }
-   \item{ask.price.levels}{\code{signature(object="orderbook")}: Returns the number of ask
-     price levels.     
+   \item{ask.price.levels}{\code{signature(object="orderbook")}: Returns the number of ask price levels.     
    }
-   \item{total.price.levels}{\code{signature(object="orderbook")}: Returns the total number
-     of price levels.     
+   \item{total.price.levels}{\code{signature(object="orderbook")}: Returns the total number of price levels.     
    }
-   \item{bid.orders}{\code{signature(object="orderbook")}: Returns the number of bids.     
+   \item{bid.orders}{\code{signature(object="orderbook")}: Returns the number of bids.
    } 
    \item{ask.orders}{\code{signature(object="orderbook")}: Returns the number of asks.     
    } 
-   \item{total.orders}{\code{signature(object="orderbook")}: Returns the total number of
-     orders.     
+   \item{total.orders}{\code{signature(object="orderbook")}: Returns the total number of orders.     
    } 
-   \item{mid.point}{\code{signature(object="orderbook")}: Returns the midpoint between
-     best ask price and best bid price.     
+   \item{mid.point}{\code{signature(object="orderbook")}: Returns the midpoint between best ask price and best bid price.     
    }
-   \item{inside.market}{\code{signature(object="orderbook")}:  Returns a data frame with 
-     a row for the best ask and a row for the best bid. The columns are price, size, and type.
+   \item{inside.market}{\code{signature(object="orderbook")}:  Returns a data frame with a row for the best ask and a row for the best bid. The columns are price, size, and type.
    }
-   \item{spread}{\code{signature(object="orderbook")}: Returns the spread between best ask
-     price and best bid price.
+   \item{spread}{\code{signature(object="orderbook")}: Returns the spread between best ask price and best bid price.
    }
-   \item{snapshot}{\code{signature(object="orderbook")}: Returns the snapshot of the
-     orderbook at a point in time.
+   \item{snapshot}{\code{signature(object="orderbook")}: Returns the snapshot of the orderbook at a point in time.
    }
    \item{read.orders}{\code{signature(object="orderbook")}: Read the next n orders from the input feed from the feed's current position.
    }

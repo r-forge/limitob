@@ -150,5 +150,7 @@ summary(ob)
 
 plot(ob)
 
+ob <- read.orders(ob, n=1000)
+ob <- view.trade(ob, n=4)
 }
 \keyword{classes}

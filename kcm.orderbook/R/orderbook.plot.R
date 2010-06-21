@@ -172,7 +172,7 @@
     new.par.settings = list(
     layout.widths = list(left.padding = 2, right.padding = 5))
 
-    tmp <- barchart(y ~ size, data = x, groups = type, auto.key = TRUE,
+    tmp <- barchart(y ~ size, data = x, groups = x$type, auto.key = TRUE,
                     ylab = "Bid Price Levels", xlab = "Size (Shares)",
                     main = "Order Book", par.settings = new.par.settings,
                     yscale.components = new.yscale.components,

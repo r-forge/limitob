@@ -277,7 +277,7 @@ setMethod("add.order",
               y = object@ob.data
 
               if(is.null(time)){
-                  new.time = object@current.time
+                  new.time = object@current.time + 1000
               } else {
                   new.time = time
               }

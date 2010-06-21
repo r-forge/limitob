@@ -49,6 +49,7 @@ simulate <- function(ob, n=100000,
             #//set a new price/ or tick
             if(isbuy) {                          
                 ob <- market.order(ob, type="BUY", size = best.ask(ob)[2] )
+				
             } else {
                 ob <- market.order(ob, type="SELL", size = best.bid(ob)[2] )
             }

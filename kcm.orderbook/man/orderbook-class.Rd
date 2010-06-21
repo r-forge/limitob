@@ -144,13 +144,28 @@
 
 \examples{
 
-data(sample)
+# the codes must be run in the same directory with the sample.txt input feed
 
-summary(ob)
+#ob <- orderbook(feed="sample.txt")
+#ob <- read.orders(ob, n=50)
+#summary(ob)
 
-plot(ob)
+##read the input orders from the feed
 
-ob <- read.orders(ob, n=1000)
-ob <- view.trade(ob, n=4)
+#ob <- read.orders(ob, n=1000)
+
+## examine the orderbook when the 4th trade occurs
+#ob <- view.trade(ob, n=4)
+
+## go back a little to see the orderbook before thhe 4th trade
+
+#ob <- read.orders(ob, n=-5)
+
+## move forward from the current position on the feed. 
+#ob <- read.orders(ob, n=50)
+
+## jump to the next trade
+#ob <- next.trade(ob)
+
 }
 \keyword{classes}

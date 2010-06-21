@@ -310,7 +310,7 @@ setMethod("add.order",
 
 setMethod("next.trade",
           signature(object = "orderbook"),
-          function(object, ...){
+          function(object){
               n = .get.next.trade(object@feed, object@feed.index)
               n = n - object@feed.index
               invisible(read.orders(object, n))
@@ -321,7 +321,7 @@ setMethod("next.trade",
 
 setMethod("previous.trade",
           signature(object = "orderbook"),
-          function(object, ...){
+          function(object){
               x = object@trade.data
               y = object@trade.index
               nextindex = sort(as.numeric(names(x)))[y]

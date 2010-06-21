@@ -124,11 +124,11 @@ if(!isGeneric("read.time"))
                standardGeneric("read.time"))
 
 if(!isGeneric("next.trade"))
-    setGeneric("next.trade", function(object, ...)
+    setGeneric("next.trade", function(object)
                standardGeneric("next.trade"))
 
 if(!isGeneric("previous.trade"))
-    setGeneric("previous.trade", function(object, ...)
+    setGeneric("previous.trade", function(object)
                standardGeneric("previous.trade"))
 
 

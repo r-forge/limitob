@@ -71,9 +71,6 @@
     \item{\code{ob.data}:}{A matrix that contains all order information
       for manipulation of the orderbook.
     }
-    \item{\code{current.pos}:}{A numeric value which indicates the
-      current position in the orderbook
-    }
     \item{\code{trade.data}:}{A hash table that contains the position of
       the trade in the feed input. This helps the next.trade function to
       quickly calculate the row number of trade order.
@@ -81,9 +78,6 @@
     \item{\code{trade.index}:}{A numeric value that indicates the index
       of the current looked trade. This help the next.trade function to
       figure out where to jump to when it is called.
-    }
-    \item{\code{ids}:}{A hash table that contains the (id,
-      row_number_in_the_feed) of the orders.
     }
   }
 }
@@ -159,6 +153,10 @@
    }
    \item{view.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the nth trade occurs.
    }                    
+   \item{next.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the next trade occurs.
+   }
+   \item{previous.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the previous trade occurs.
+   }
   }
 }
 

@@ -1,6 +1,6 @@
 library(kcm.orderbook)
 
-load("sample.RData)
+load("sample.RData")
 
 tt <- inside.market(ob)
 

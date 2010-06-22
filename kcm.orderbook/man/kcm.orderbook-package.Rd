@@ -29,6 +29,6 @@ Further information is available in the following vignettes:
 \code{orderbook} \tab Using the orderbook package (source, pdf)\cr
 }
 \author{
-David Kane <dave@kanecap.com>, Andrew Liu <andrew.t.liu@williams.edu>, Khanh Nguyen <knguyen@cs.umb.edu>
+Andrew Liu <andrew.t.liu@williams.edu>, Khanh Nguyen <knguyen@cs.umb.edu>, David Kane <dave@kanecap.com>.
 }
 \keyword{package}

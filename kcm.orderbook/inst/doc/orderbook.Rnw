@@ -257,6 +257,8 @@ ob = simulate(ob, n = 1000)
 plot(ob)
 @
 
+http://gillesdaniel.com/Home.html
+
 \section*{Future work}
 The package limitob is at its very early stage and there are rooms for improvement. We are looking into extending the simulation into an trading exchange model. The exchange handles orders from multiple agents while at the same time sending the order feed to the orderbook object. Furtheremove, we would like to incorporate the ability to backtest trading strategies into the limitob package.
 \section*{Conclusion}

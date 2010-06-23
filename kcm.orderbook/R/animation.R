@@ -1,3 +1,5 @@
+## "from" and "to" are strings in the form
+## "HH::MM::SS", simiar to "by"
 .animate <- function(ob, from, to, by="00:00:01"){
 	
 	## generate required time sequences

@@ -178,6 +178,16 @@ setMethod("plot",
           }
           )
 
+## Basically just calls the plot.trade method. See orderbook.plot.R.
+
+setMethod("plot.trade",
+          signature(object = "orderbook"),
+          function(object){
+              .plot.trade(object)
+          }
+          )
+
+
 ## Takes ID as input, returns vector of price and size for that ID.
 
 setMethod("get.order.info",

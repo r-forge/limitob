@@ -17,6 +17,61 @@
 ## along with limitob.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+## Plots the number of shares traded at each price level up till the current time.
+
+.plot.trade<-function(object){
+
+    x <- object@trade.data
+
+    ## Turn hash into a list.
+
+    x = as.list(x)
+    x = unlist(x, use.names = FALSE)
+
+    len = length(x)
+
+    price = as.numeric(x[seq(4, len, 6)])
+    size  = as.numeric(x[seq(5, len, 6)])
+
+    x = data.frame(price, size)
+
+    ## Aggregating by price.
+
+    x = aggregate(x$size, by = list(price = x$price), sum)
+
+    ## Creating the x axis values.
+
+    max.size = max(x$x)
+    max.size = ceiling(max.size + max.size/20)
+
+    x.limits =  c(0, max.size)
+    x.at = ceiling(seq(0, max.size, max.size/5))
+
+    ## Creating the y axis values.
+
+    y.labels = formatC(x$price, format = "f", digits = 2)
+
+    new.yscale.components <- function(...) {
+        ans <- yscale.components.default(...)
+        ans$left$labels$labels <- y.labels
+        ans
+    }
+
+
+    tmp <- barchart(price ~ x, data = x,
+                    ylab = "Price Levels", xlab = "Size (Shares)",
+                    main = "Trades",
+                    yscale.components = new.yscale.components,
+                    scales = list(x = list(axs = "i",
+                                             limits = x.limits,
+                                             at = x.at,
+                                             tck = c(1, 0)),
+                                   y = list(alternating = 1))
+                    )
+
+    print(tmp)
+}
+
 ## Plots the orderbook object at current time. Displays Bids on the left and
 ## Asks on the right with Price and Size on the Y- and X-axes, respectively.
 ## Only prices within 10% above and below the midpoint value are shown.
@@ -35,10 +90,12 @@
 
 
 
-    ## Maximum size, max/min price. and difference between the max
+    ## Maximum size, max/min price and difference between the max
     ## and min price for purposes of drawing the axes.
 
-    max.size = signif(max(x[[ob.names[2]]]), 2)
+    max.size = max(x[[ob.names[2]]])
+    max.size = ceiling(max.size + max.size/20)
+
     min.price = signif(min(x[ob.names[[1]]])-.05,3)
     max.price = round(max(x[ob.names[[1]]])+0.5)
     midpoint = mid.point(object)
@@ -65,9 +122,8 @@
 
     ## Creating the x axis values.
 
-    x.limits =  list(c(max.size+max.size/20,0),
-    c(0,max.size+max.size/20))
-    x.at = seq(0, max.size, max.size/5)
+    x.limits =  list(c(max.size,0), c(0,max.size))
+    x.at = ceiling(seq(0, max.size, max.size/5))
 
     ## Creating the y axis values.
 
@@ -145,19 +201,30 @@
     bid = bid[(nrow(bid) - n + 1):nrow(bid),]
 
     x = rbind(ask, bid)
-    x$y = c(seq(n, 1, -1), seq(1, n, 1))
+
+    y <- data.frame(price = c(seq(ask[1,1], ask[1,1] + (n-1)/100, .01),
+                    seq(bid[1,1], bid[1,1] + (n-1)/100, .01)),
+                    y = c(seq(n, 1, -1), seq(1, n, 1)))
+
+    y$price = round(x$price, 2)
+
+    x = merge(x, y, all.y = TRUE)
+
 
     ## Setting x-axis limits and labels.
-    max.size = signif(max(x[[ob.names[2]]]), 1)
-    x.limits = c(0, signif(max.size, 1))
-    x.at = seq(0, signif(max.size), max.size/5)
+    max.size <- ceiling(max(x[[ob.names[2]]]))
+    max.size = max.size + max.size/5
+
+    x.limits <- c(0, max.size)
+    x.at <- ceiling(seq(0, signif(max.size), max.size/5))
 
     ## Creating y-axis tick labels.
 
-    ask.label <- formatC(sort(ask[[ob.names[1]]], decreasing = TRUE),
-                         format = "f", digits = 2)
+    ask.label <- formatC(seq(ask[1,1], ask[1,1] + n/100, .01), format = "f",
+                         digits = 2)
 
-    bid.label <- formatC(bid[[ob.names[1]]], format = "f", digits = 2)
+    bid.label <- formatC(seq(bid[1,1], bid[1,1] + n/100, .01), format = "f",
+                         digits = 2)
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
@@ -186,11 +253,13 @@
     plot(tmp)
 
     trellis.focus("panel", 1, 1, clip.off = TRUE)
-    grid.text("Ask Price Levels", x = 1.12, rot = 90)
+    grid.text("Ask Price Levels", x = 1.13, rot = 90)
     trellis.unfocus()
 
 }
 
+## Same as plot.ob, except # of orders instead of shares at each price
+## level.
 
 .plot.orders.ob <-function(object, bounds){
 
@@ -222,7 +291,9 @@
     ## Maximum size, max/min price. and difference between the max
     ## and min price for purposes of drawing the axes.
 
-    max.orders = max(x[["Orders"]])
+    max.orders = ceiling(max(x[["Orders"]]))
+    max.orders = max.orders + max.orders/5
+
     min.price = signif(min(x[ob.names[[1]]])-.05, 3)
     max.price = round(max(x[ob.names[[1]]])+0.5)
     midpoint = mid.point(object)
@@ -249,9 +320,9 @@
 
     ## Create x axes/limits.
 
-    x.limits =  list(c(max.orders + max.orders/10, 0),
-    c(0, max.orders))
-    x.at = seq(0, max.orders, max.orders/10)
+    x.limits <- list(c(max.orders, 0), c(0, max.orders))
+
+    x.at <- ceiling(seq(0, max.orders, max.orders/5))
 
     ## Create y axes/limits.
 

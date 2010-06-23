@@ -12,6 +12,7 @@ exportMethods(
               "show",
 	      "summary",
 	      "plot",
+              "plot.trade",
               "display",
 
               "best.bid",

@@ -1,4 +1,4 @@
-\documentclass[a4paper]{report}
+\documentclass{report}
 \usepackage[round]{natbib}
 
 
@@ -138,7 +138,16 @@ prev.ob = previous.trade(ob)
 animate.ob(prev.ob, ob)
 @
 
-To be added: Other visualizations
+Finally, users can easily plot the trade data by using \texttt{plot.trade}.
+
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>=
+plot.trade(ob.new)
+@
+\end{figure}
+
 
 \section*{Simulation}
 
@@ -155,11 +164,11 @@ display(ob)
 
 Using these tools, the user can write functions to simulate the movement of an orderbook.
 
-In this example of a simulation, we consulted \cite{daniel:gilles}. The simulation runs by default 100000 iterations. At each iterations, an action is selected based on predefined probabilities. 50% cancel orders, 20% market orders and 30% limit orders. When a limit order is placed, the price of the new order can be either inside or outside the current spread. This probability is chosen uniformly. The source code of the simulation is shipped with the package.
+In this example of a simulation, we consulted \cite{daniel:gilles}. The simulation runs by default 1000 iterations. At each iterations, an action is selected based on predefined probabilities. 50\% cancel orders, 20\% market orders and 30\% limit orders. When a limit order is placed, the price of the new order can be either inside or outside the current spread. This probability is chosen uniformly. The source code of the simulation is shipped with the package.
 
 
 <<echo = FALSE, eval=TRUE>>=
-simulate <- function(ob, n=100000,
+simulate <- function(ob, n=1000,
                      action.prob = c(cancel=0.5, market=0.2, limit=0.30),
                      order.type  = 0.5,
                      alpha = 0.3,
@@ -249,11 +258,17 @@ simulate <- function(ob, n=100000,
 }
 @
 
+
 <<echo = TRUE, eval = TRUE>>=
-plot(ob)
-ob = simulate(ob, n = 1000)
+ob = simulate(ob)
+@
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>=
 plot(ob)
 @
+\end{figure}
 
 \section*{Future work}
 The package limitob is at its very early stage and there are rooms for improvement. We are looking into extending the simulation into an trading exchange model. The exchange handles orders from multiple agents while at the same time sending the order feed to the orderbook object. Furtheremove, we would like to incorporate the ability to backtest trading strategies into the limitob package.
@@ -264,9 +279,10 @@ In this short article, we have described the limitob package. limitob aims to pr
     Kane Capital Management \\
     Cambridge, Massachusetts, USA\\
     \email{Andrew.T.Liu@williams.edu}, 
-	\email{knguyen@cs.umb.edu},
+	\email{knguyen@cs.umb.edu}, and
 	\email{jeff@kanecap.com}
 	}	
-\end{article}
+
 \bibliography{orderbook}
+\end{article}
 \end{document}

@@ -115,6 +115,10 @@ if(!isGeneric("reset"))
     setGeneric("reset", function(object)
                standardGeneric("reset"))
 
+if(!isGeneric("plot.trade"))
+    setGeneric("plot.trade", function(object)
+               standardGeneric("plot.trade"))
+
 if(!isGeneric("read.orders"))
     setGeneric("read.orders", function(object, n = 1000)
                standardGeneric("read.orders"))

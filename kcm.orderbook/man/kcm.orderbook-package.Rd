@@ -28,6 +28,7 @@ Further information is available in the following vignettes:
 \tabular{ll}{
 \code{orderbook} \tab Using the orderbook package (source, pdf)\cr
 }
+}
 \author{
 Andrew Liu <andrew.t.liu@williams.edu>, Khanh Nguyen <knguyen@cs.umb.edu>, David Kane <dave@kanecap.com>.
 }

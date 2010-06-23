@@ -25,6 +25,7 @@
 \alias{plot,orderbook-method}
 \alias{reset,orderbook-method}
 \alias{plottrade,orderbook-method}
+\alias{animation,orderbook-method}
 
 \alias{bid.price.levels}
 \alias{ask.price.levels}
@@ -47,6 +48,7 @@
 \alias{best.bid}
 \alias{reset}
 \alias{plottrade}
+\alias{animation}
 
 \title{Class "orderbook"}
 \description{Contains representation of an orderbook}
@@ -142,6 +144,8 @@
    \item{next.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the next trade occurs.
    }
    \item{previous.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the previous trade occurs.
+   }
+   \item{animation}{\code{signature(object="orderbook")}: Basic animation of the orderbook. Require the start and end time.
    }
   }
 }

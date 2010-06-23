@@ -42,4 +42,6 @@ exportMethods(
           "view.trade",
           "reset",
           "next.trade",
-          "previous.trade")
+          "previous.trade",
+
+		  "animation")

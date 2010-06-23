@@ -135,5 +135,9 @@ if(!isGeneric("previous.trade"))
     setGeneric("previous.trade", function(object)
                standardGeneric("previous.trade"))
 
+if(!isGeneric("animation"))
+    setGeneric("animation", function(object, from, to, by)
+               standardGeneric("animation"))
+
 
 

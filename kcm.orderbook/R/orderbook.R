@@ -613,7 +613,14 @@ setMethod("view.trade",
           }
           )
 
+## Animation function. 
 
+setMethod("animation",
+          signature(object = "orderbook"),
+          function(object, from, to, by){
+		  	.animate(object, from, to, by)
+		  }
+)
 ## Reset to beginning.
 
 setMethod("reset",

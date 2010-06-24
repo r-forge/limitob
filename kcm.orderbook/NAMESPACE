@@ -9,15 +9,15 @@ exportClasses(
               )
 
 exportMethods(
-		  "show",
+              "show",
 	      "summary",
 	      "plot",
-          "plottrade",
-          "display",
+              "plottrade",
+              "display",
 
-          "best.bid",
-          "best.ask",
-          "get.order.info",
+              "best.bid",
+              "best.ask",
+              "get.order.info",
 
    	      "bid.price.levels",
 	      "ask.price.levels",
@@ -32,16 +32,16 @@ exportMethods(
 
 	      "spread",
 
-          "add.order",
-          "remove.order",
-          "replace.order",
-          "market.order",
+              "add.order",
+              "remove.order",
+              "replace.order",
+              "market.order",
 
-          "read.orders",
-          "read.time",
-          "view.trade",
-          "reset",
-          "next.trade",
-          "previous.trade",
+              "read.orders",
+              "read.time",
+              "view.trade",
+              "reset",
+              "next.trade",
+              "previous.trade",
 
-		  "animate.ob")
+              "animate.ob")

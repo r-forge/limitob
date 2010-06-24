@@ -44,4 +44,4 @@ exportMethods(
           "next.trade",
           "previous.trade",
 
-		  "animation")
+		  "animate.ob")

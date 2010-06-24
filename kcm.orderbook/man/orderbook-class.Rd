@@ -25,7 +25,7 @@
 \alias{plot,orderbook-method}
 \alias{reset,orderbook-method}
 \alias{plottrade,orderbook-method}
-\alias{animation,orderbook-method}
+\alias{animate.ob,orderbook-method}
 
 \alias{bid.price.levels}
 \alias{ask.price.levels}
@@ -48,7 +48,7 @@
 \alias{best.bid}
 \alias{reset}
 \alias{plottrade}
-\alias{animation}
+\alias{animate.ob}
 
 \title{Class "orderbook"}
 \description{Contains representation of an orderbook}

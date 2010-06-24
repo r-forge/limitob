@@ -330,8 +330,9 @@
         x = .combine.size(tmp, bounds = 0.1)
         x[[ob.names[3]]] <- ordered(x[[ob.names[3]]], levels = c(ob.names[7],
                                                       ob.names[6]))
-
-        x <- xyplot(x[[ob.names[1]]]~x[[ob.names[2]]]|x[[ob.names[3]]], data = x,
+       
+        assign(paste("x", i, sep = "."), 
+						  xyplot(x[[ob.names[1]]]~x[[ob.names[2]]]|x[[ob.names[3]]], data = x,
                                     ylab = "Price", xlab = "Size (Shares)", main = "Order Book",
                                     scales = list(x = list(relation = "free",
                                                   limits = x.limits,
@@ -344,7 +345,8 @@
                                         panel.lines(..., type = "H")
                                     }
                                     )
-        assign(paste("x", i, sep = "."), x)
+
+				)
         object = tmp
     }
 

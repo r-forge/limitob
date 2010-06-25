@@ -22,9 +22,7 @@
 \alias{replace.order,orderbook-method}
 \alias{market.order,orderbook-method}
 \alias{display,orderbook-method}
-\alias{plot,orderbook-method}
 \alias{reset,orderbook-method}
-\alias{plottrade,orderbook-method}
 \alias{animate.ob,orderbook-method}
 
 \alias{bid.price.levels}
@@ -43,116 +41,126 @@
 \alias{replace.order}
 \alias{market.order}
 \alias{display}
-\alias{plot}
 \alias{best.ask}
 \alias{best.bid}
 \alias{reset}
-\alias{plottrade}
 \alias{animate.ob}
 
 \title{Class "orderbook"}
-\description{Contains representation of an orderbook}
-\section{Objects from the Class}{
-  Objects can be created by calls to the function \code{orderbook}						 
+\description{Functions for manipulating and extractiong information from
+an orderbook}
+\section{Objects from the class}{
+  Objects can be created by calls to the function \code{orderbook}
 }
 
 \section{Slots}{
   \describe{
-    \item{\code{current.ob}:}{A data frame containing the orders of this orderbook.
+    \item{\code{current.ob}:}{A data frame containing the current state
+      of the orderbook.
     }
-    \item{\code{current.time}:}{A numeric value that indicates the time of this orderbook.
+    \item{\code{current.time}:}{A numeric value in milliseconds after
+      midnight that indicates the time of \code{current.ob}.
     }
-    \item{\code{ob.names}:}{A character vector which indicates the names of the columns
-      in  \code{current.ob} to be used as input variables.
+    \item{\code{ob.names}:}{A character vector which indicates the names
+      of the columns in  \code{current.ob}.
     }
     \item{\code{feed}:}{A character string which specifies the
-      location of the file containing formatted orders.
+      location of the file containing the data feed.
     }
     \item{\code{feed.index}:}{A numeric value that indicates the
-      current position of the feed. Basically, this is the row number of the
-      input feed.
+      current row number of the input feed.
     }
-    \item{\code{ob.data}:}{A matrix that contains all order information
-      for manipulation of the orderbook.
+    \item{\code{ob.data}:}{A \code{hash} that contains all orders
+      currently in the orderbook. Essentially the same as current.ob,
+      but a different data structure.
     }
-    \item{\code{trade.data}:}{A hash table that contains the position of
-      the trade in the feed input. This helps the next.trade function to
-      quickly calculate the row number of trade order.
+    \item{\code{trade.data}:}{A \code{hash} that contains data on all
+      trades that occurred before current.time.
     }
     \item{\code{trade.index}:}{A numeric value that indicates the index
-      of the current looked trade. This help the next.trade function to
-      figure out where to jump to when it is called.
+      of the trade last seen/read.
     }
   }
 }
 
 \section{Methods}{
   \describe{
-   \item{show}{\code{signature(object = "orderbook")}: 
-     Prints the variables used in the orderbook
-   }    
-   \item{best.bid}{\code{signature(object = "orderbook")}: Returns the current best bid
+    \item{show}{\code{signature(object = "orderbook")}:
+      Prints the variables used in the orderbook
+    }
+    \item{best.bid}{\code{signature(object = "orderbook")}: Returns the
+      current best bid.
+    }
+    \item{best.ask}{\code{signature(object = "orderbook")}: Returns the
+      current best ask.
+    }
+    \item{summary}{\code{signature(object="orderbook")}: Prints a
+      summary of the orderbook
+    }
+    \item{get.order.info}{\code{signature(object = "orderbook")}: Returns
+      the price and size of the order with the specified ID.
+    }
+    \item{display}{\code{signature(object="orderbook")}: Prints the state
+      of the orderbook. The result is similar to \code{plot}
+    }
+    \item{add.order}{\code{signature(object="orderbook")}: Adds an order
+      to this orderbook. Returns an orderbook object with updated
+      information.
+    }
+    \item{remove.order}{\code{signature(object="orderbook")}: Removes an
+      order from this orderbook. Returns an orderbook object with updated
+      information.
+    }
+    \item{replace.order}{\code{signature(object="orderbook")}: Replaces
+      an order in this orderbook. Returns an orderbook object with updated
+      information.
+    }
+    \item{market.order}{\code{signature(object="orderbook")}: Insert a
+      market order to this orderbook. Returns an orderbook object with
+      updated information.
+    }
+    \item{bid.price.levels}{\code{signature(object="orderbook")}: Returns
+      the number of bid price levels.
+    }
+    \item{ask.price.levels}{\code{signature(object="orderbook")}: Returns
+      the number of ask price levels.
+    }
+    \item{total.price.levels}{\code{signature(object="orderbook")}:
+      Returns the total number of price levels.
+    }
+    \item{bid.orders}{\code{signature(object="orderbook")}: Returns the
+      number of bids.
    }
-   \item{best.ask}{\code{signature(object = "orderbook")}: Returns the current best ask     
+   \item{ask.orders}{\code{signature(object="orderbook")}: Returns the
+     number of asks.
    }
-   \item{summary}{\code{signature(object="orderbook")}: Prints the summary of the orderbook
+   \item{total.orders}{\code{signature(object="orderbook")}: Returns the
+     total number of orders.
    }
-   \item{get.order.info}{\code{signature(object = "orderbook")}: Returns the price and size of the order with specified ID.
+   \item{mid.point}{\code{signature(object="orderbook")}: Returns the
+     midpoint between the best ask and the  best bid.
    }
-   \item{plot}{\code{signature(x = "orderbook")}: Plot the orderbook
+   \item{inside.market}{\code{signature(object="orderbook")}:  Returns a
+     data frame with a row for the best ask and a row for the best bid. The
+     columns are price, size, and type.
    }
-   \item{plottrade}{\code{signature(object = "orderbook")}: Plot the number of trades at each price level
+   \item{spread}{\code{signature(object="orderbook")}: Returns the
+     spread between the best ask and best bid .
    }
-   \item{display}{\code{signature(object="orderbook")}: Prints the state of the orderbook. The results is similar to \code{plot}      
+
+   \item{reset}{\code{signature(object="orderbook")}: Reset the
+     orderbook to its initial state.
    }
-   \item{add.order}{\code{signature(object="orderbook")}: Adds an order to this orderbook. Returns an oderbook object with updated information.     
-   }         
-   \item{remove.order}{\code{signature(object="orderbook")}: Removes an order from this orderbook. Returns an oderbook object with updated information.     
-   }
-   \item{replace.order}{\code{signature(object="orderbook")}: Replaces an order in this orderbook. Returns an oderbook object with updated information.     
-   }
-   \item{market.order}{\code{signature(object="orderbook")}: Insert a market order to this orderbook. Returns an oderbook object with updated information.     
-   }
-   \item{bid.price.levels}{\code{signature(object="orderbook")}: Returns the number of bid price levels.     
-   }
-   \item{ask.price.levels}{\code{signature(object="orderbook")}: Returns the number of ask price levels.     
-   }
-   \item{total.price.levels}{\code{signature(object="orderbook")}: Returns the total number of price levels.     
-   }
-   \item{bid.orders}{\code{signature(object="orderbook")}: Returns the number of bids.
-   } 
-   \item{ask.orders}{\code{signature(object="orderbook")}: Returns the number of asks.     
-   } 
-   \item{total.orders}{\code{signature(object="orderbook")}: Returns the total number of orders.     
-   } 
-   \item{mid.point}{\code{signature(object="orderbook")}: Returns the midpoint between best ask price and best bid price.     
-   }
-   \item{inside.market}{\code{signature(object="orderbook")}:  Returns a data frame with a row for the best ask and a row for the best bid. The columns are price, size, and type.
-   }
-   \item{spread}{\code{signature(object="orderbook")}: Returns the spread between best ask price and best bid price.
-   }
-   \item{snapshot}{\code{signature(object="orderbook")}: Returns the snapshot of the orderbook at a point in time.
-   }
-   \item{read.orders}{\code{signature(object="orderbook")}: Read the next n orders from the input feed from the feed's current position.
-   }
-   \item{read.time}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at time t.
-   }
-   \item{reset}{\code{signature(object="orderbook")}: Reset the orderbook to its initial state the first time the orderbook object is created.
-   }
-   \item{view.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the nth trade occurs.
-   }                    
-   \item{next.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the next trade occurs.
-   }
-   \item{previous.trade}{\code{signature(object="orderbook")}: Read the feed data and returns the state of the orderbook at the time the previous trade occurs.
-   }
-   \item{animation}{\code{signature(object="orderbook")}: Basic animation of the orderbook. Require the start and end time.
+   \item{animate.ob}{\code{signature(object="orderbook")}: Basic
+  animation of the orderbook. Requires a start and end time, along with
+     a step time.
    }
   }
 }
 
 \examples{
 
-# the codes must be run in the same directory with the sample.txt input feed
+## The examples  must be run in the same directory as the sample.txt input feed
 
 #ob <- orderbook(feed="sample.txt")
 #ob <- read.orders(ob, n=50)
@@ -169,7 +177,7 @@
 
 #ob <- read.orders(ob, n=-5)
 
-## move forward from the current position on the feed. 
+## move forward from the current position on the feed.
 #ob <- read.orders(ob, n=50)
 
 ## jump to the next trade

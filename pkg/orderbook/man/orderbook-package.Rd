@@ -1,11 +1,11 @@
-\name{limitob-package}
-\alias{limitob-package}
+\name{orderbook-package}
+\alias{orderbook-package}
 \docType{package}
 \title{
 Analyze and visualize orderbook data.
 }
 \description{
-The limitob package provides functions for exploring and visualizing
+The orderbook package provides functions for exploring and visualizing
 orderbook data. For example, we may want to study an orderbook
 immediately before a trade occurs, or maybe 50 orders before a trade
 occurs, or we want to visualize the change of an orderbook overtime as
@@ -14,7 +14,7 @@ of analysis can help in researching short-term trading strategies.
 }
 \details{
 \tabular{ll}{
-Package: \tab limitob\cr
+Package: \tab orderbook\cr
 Type: \tab Package\cr
 Version: \tab 0.0.1\cr
 Date: \tab 2010-07-01\cr

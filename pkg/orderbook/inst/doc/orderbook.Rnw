@@ -22,7 +22,7 @@
 \author{Andrew Liu, Khanh Nguyen and David Kane}
 
 %%\VignetteIndexEntry{Using the orderbook package}
-%%\VignetteDepends{limitob}
+%%\VignetteDepends{orderbook}
 
 <<echo = FALSE>>=
 options(width = 50, digits = 2, scipen = 5)
@@ -72,7 +72,7 @@ number is the new size, while for Add and Trade price comes before
 size, followed by the type of order/transaction (BID/ASK or BUY/SELL).
 
 <<results = hide>>=
-library(limitob)
+library(orderbook)
 @
 <<echo = TRUE>>=
 ob = orderbook(feed = "sample.txt")

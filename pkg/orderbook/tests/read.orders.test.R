@@ -14,7 +14,7 @@
 ## along with Rcpp.  If not, see <http://www.gnu.org/licenses/>.
 
 
-library(limitob)
+library(orderbook)
 
 
 #something is wrong. This returns TRUE in R, but fail with test
@@ -37,7 +37,7 @@ stopifnot(
 	                 ob@current.ob))
 )
 
-# reset 
+# reset
 ob <- reset(ob)
 ob <- read.orders(ob, n=2000)
 ob <- view.trade(ob, n=1)

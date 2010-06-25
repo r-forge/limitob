@@ -45,7 +45,7 @@ cat.df.without.rownames <- function (d, file = ""){
 
 \section*{Introduction}
 
-The limitob package provides functions for exploring and visualizing
+The orderbook package provides functions for exploring and visualizing
 orderbook data. For example, we may want to study an orderbook
 immediately before a trade occurs, or maybe 50 orders before a trade
 occurs, or we want to visualize the change of an orderbook overtime as
@@ -53,7 +53,7 @@ the price level fluctuates. The microstructure insights from this sort
 of analysis can help in researching short-term trading strategies.
 
 \section*{Background}
-To demonstrate the capabilities of the limitob package, we consider
+To demonstrate the capabilities of the orderbook package, we consider
 the first 10000 orders for a single stock on June 8, 2010. The orders
 are in following form
 
@@ -181,7 +181,7 @@ plotTrade(ob.new)
 
 \section*{Simulation}
 
-The limitob object supports adding, replacing, and cancelling
+The orderbook object supports adding, replacing, and cancelling
 orders. To add an order, the user needs to specify the price, size,
 and type. Time and ID are optional, and will default to the maximum
 time and the maximum ID + 1, respectively. For replacing an order,
@@ -322,13 +322,13 @@ plot(ob)
 \end{figure}
 
 \section*{Future work}
-There is still much room for improvement with \texttt{limitob}. Aside
+There is still much room for improvement with \texttt{orderbook}. Aside
 from additional optimization, we are looking into creating an
 ``exchange'' package that can better simulate trading. Ultimately, we
 would like to have the ability to backtest high frequency trading strategies.
 
 \section*{Conclusion}
-In this short article, we have described the limitob package. limitob
+In this short article, we have described the orderbook package. orderbook
 aims to provide user-friendly statistical and visualization tools for
 analyzing orderbooks. We demonstrated the functionality of the
 package through a series of examples. Users who deal frequently with
@@ -345,6 +345,6 @@ it can be useful for generating ideas for strategies.
 	\email{dave@kanecap.com}
 	}
 
-\bibliography{limitob}
+\bibliography{orderbook}
 \end{article}
 \end{document}

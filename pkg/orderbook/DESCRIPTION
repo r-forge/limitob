@@ -1,4 +1,4 @@
-Package: limitob
+Package: orderbook
 Type: Package
 Title: Orderbook visualization/Charting software
 Depends: R (>= 2.8.0), methods, graphics, lattice, hash, grid

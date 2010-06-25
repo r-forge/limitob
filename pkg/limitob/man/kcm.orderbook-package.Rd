@@ -5,7 +5,12 @@
 Analyze and visualize orderbook data.
 }
 \description{
-The limitob package provides functions for exploring and visualizing orderbook data. For example, we may want to study an orderbook immediately before a trade occurs, or maybe 50 orders before a trade occurs, or we want to visualize the change of an orderbook overtime as the price level fluctuates. The microstructure insights from this sort of analysis can help in researching short-term trading strategies.
+The limitob package provides functions for exploring and visualizing
+orderbook data. For example, we may want to study an orderbook
+immediately before a trade occurs, or maybe 50 orders before a trade
+occurs, or we want to visualize the change of an orderbook overtime as
+the price level fluctuates. The insights from this sort
+of analysis can help in researching short-term trading strategies.
 }
 \details{
 \tabular{ll}{
@@ -20,7 +25,7 @@ LazyLoad: \tab yes\cr
 
 Index:
 \preformatted{
-orderbook				Creating an Object of class orderbook
+orderbook			Creating an Object of class orderbook
 orderbook-class			Class "orderbook"
 }
 
@@ -30,6 +35,7 @@ Further information is available in the following vignettes:
 }
 }
 \author{
-Andrew Liu <andrew.t.liu@williams.edu>, Khanh Nguyen <knguyen@cs.umb.edu>, David Kane <dave@kanecap.com>.
+Andrew Liu <andrew.t.liu@williams.edu>, Khanh Nguyen
+<knguyen@cs.umb.edu>, David Kane <dave@kanecap.com>.
 }
 \keyword{package}

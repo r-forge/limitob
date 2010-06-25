@@ -164,7 +164,7 @@ setMethod("show",
 
 setMethod("plot",
           signature(x = "orderbook"),
-          function(x, bounds = 0.1, n = 10, type = "n", ...){
+          function(x, bounds = 0.1, n = 10, type = "n"){
               if(isTRUE(type %in% "n")){
                   .plot.ob(x, bounds)
               } else if(isTRUE(type %in% "s")){
@@ -180,10 +180,10 @@ setMethod("plot",
 
 ## Basically just calls the plot.trade method. See orderbook.plot.R.
 
-setMethod("plottrade",
-          signature(object = "orderbook"),
-          function(object){
-              .plot.trade(object)
+setMethod("plotTrade",
+          signature(x = "orderbook"),
+          function(x){
+              .plot.trade(x)
           }
           )
 
@@ -251,7 +251,7 @@ setMethod("display",
                   }
 
                   cat("---------------------------------------------\n")
-                  for(i in rev(max(1, nrow(bid) - n):nrow(bid))){
+                  for(i in rev(max(1, nrow(bid) - n + 1):nrow(bid))){
                       cat(.prettify(bid[[ob.names[2]]][i], "s"), "\t\t",
                           .prettify(bid[[ob.names[1]]][i]), "\n")
                   }

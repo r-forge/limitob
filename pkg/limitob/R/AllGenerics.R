@@ -103,10 +103,6 @@ if (!isGeneric("market.order.price"))
     setGeneric("market.order.price", function(object, size, price, ...)
                standardGeneric("market.order.price"))
 
-if (!isGeneric("snapshot"))
-    setGeneric("snapshot", function(object, new.time, show = TRUE, ...)
-               standardGeneric("snapshot"))
-
 if (!isGeneric("view.trade"))
     setGeneric("view.trade", function(object, n = 1)
                standardGeneric("view.trade"))
@@ -115,9 +111,9 @@ if(!isGeneric("reset"))
     setGeneric("reset", function(object)
                standardGeneric("reset"))
 
-if(!isGeneric("plottrade"))
-    setGeneric("plottrade", function(object)
-               standardGeneric("plottrade"))
+if(!isGeneric("plotTrade"))
+    setGeneric("plotTrade", function(x)
+               standardGeneric("plotTrade"))
 
 if(!isGeneric("read.orders"))
     setGeneric("read.orders", function(object, n = 1000)

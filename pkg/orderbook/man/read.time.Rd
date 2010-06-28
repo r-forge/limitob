@@ -19,10 +19,10 @@ object = read.time(object, n)
   Return an object of class \code{orderbook}
 }
 \examples{
-## The examples must be run in the same directory as the sample.txt input feed
+## The examples must be run in the same directory as the sample.txt input file
 
-## ob <- orderbook(feed="sample.txt")
-## ob <- read.orders(ob, n=1000)
+## ob <- orderbook(file = "sample.txt")
+## ob <- read.orders(ob, n = 1000)
 ## ob <- read.time(ob, "09:30:00")
 }
 \keyword{file}

@@ -17,8 +17,8 @@
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
                                      ob.names     = "character",
-                                     feed         = "character",
-                                     feed.index   = "numeric",
+                                     file         = "character",
+                                     file.index   = "numeric",
                                      ob.data      = "hash",
                                      trade.data   = "hash",
                                      trade.index  = "numeric"
@@ -27,15 +27,15 @@ setClass("orderbook", representation(current.ob   = "data.frame",
          prototype(current.ob   = data.frame(),
                    current.time = 0,
                    ob.names     = character(),
-                   feed		= character(),
-                   feed.index   = 0,
+                   file		= character(),
+                   file.index   = 0,
                    ob.data      = hash(),
                    trade.data   = hash(),
                    trade.index  = 0
                    )
          )
 
-## Reads the next n orders from the feed. Use negative n to go
+## Reads the next n orders from the file. Use negative n to go
 ## backwards, but this really just reads everything over again.
 
 setMethod("read.orders",
@@ -44,7 +44,7 @@ setMethod("read.orders",
               if(n > 0){
                   invisible(.read.orders(object, n))
               } else {
-                  n = object@feed.index + n
+                  n = object@file.index + n
                   object = reset(object)
                   invisible(.read.orders(object, n))
               }
@@ -52,7 +52,7 @@ setMethod("read.orders",
           }
           )
 
-## Reads orders from the feed until the time specified.
+## Reads orders from the file until the time specified.
 
 setMethod("read.time",
            signature(object = "orderbook"),
@@ -63,14 +63,14 @@ setMethod("read.time",
                ## This takes care of that.
 
                if(.to.ms(n) > object@current.time){
-                   n = .get.time.row(object@feed, .to.ms(n),
-                   object@feed.index)
+                   n = .get.time.row(object@file, .to.ms(n),
+                   object@file.index)
 
-                   n = n - object@feed.index
+                   n = n - object@file.index
 
                    invisible(read.orders(object, n))
                } else {
-                   n = .get.time.row(object@feed, .to.ms(n))
+                   n = .get.time.row(object@file, .to.ms(n))
                    object = reset(object)
                    invisible(read.orders(object, n))
                }
@@ -145,11 +145,11 @@ setMethod("best.ask",
 setMethod("show",
           signature(object = "orderbook"),
           function(object){
-              cat("An object of class limitob\n")
+              cat("An object of class orderbook\n")
               cat("--------------------------\n")
               cat("Current orderbook time:   ",
                   .to.time(object@current.time), "\n")
-              cat("Feed Index:               ", object@feed.index, "\n")
+              cat("File Index:               ", object@file.index, "\n")
               cat("Number of Bids:           ",
                   .prettify(bid.orders(object), "s"), "\n")
               cat("Number of Asks:           ",
@@ -321,8 +321,8 @@ setMethod("add.order",
 setMethod("next.trade",
           signature(object = "orderbook"),
           function(object){
-              n = .get.next.trade(object@feed, object@feed.index)
-              n = n - object@feed.index
+              n = .get.next.trade(object@file, object@file.index)
+              n = n - object@file.index
               invisible(read.orders(object, n))
           }
           )
@@ -337,7 +337,7 @@ setMethod("previous.trade",
               nextindex = sort(as.numeric(names(x)))[y]
               y = y - 1
               object@trade.index <- y
-              nextindex = nextindex - object@feed.index
+              nextindex = nextindex - object@file.index
               invisible(read.orders(object, nextindex))
           }
           )
@@ -531,11 +531,11 @@ setMethod("inside.market",
 			  }
 
               if(invis == FALSE){
-                  cat("Top Bid:           ",
+                  cat("Best Bid:          ",
                       .prettify(tmp.bid[[ob.names[1]]][1]), "\n")
                   cat("Size:              ",
                       .prettify(tmp.bid[[ob.names[2]]][1]), "\n \n")
-                  cat("Top Ask:           ",
+                  cat("Best Ask:          ",
                       .prettify(tmp.ask[[ob.names[1]]][1]), "\n")
                   cat("Size:              ",
                       .prettify(tmp.ask[[ob.names[2]]][1]), "\n")
@@ -604,7 +604,7 @@ setMethod("view.trade",
               x = object@trade.data
               y = object@trade.index
 
-              currentindex = object@feed.index
+              currentindex = object@file.index
               nextindex = sort(as.numeric(names(x)))[n]
 
               n = nextindex - currentindex
@@ -636,8 +636,8 @@ setMethod("reset",
                             current.ob = current.ob,
                             current.time = 0,
                             ob.names = ob.names,
-                            feed = object@feed,
-                            feed.index = 0,
+                            file = object@file,
+                            file.index = 0,
                             ob.data = hash(),
                             trade.data = hash(),
                             trade.index = 0))

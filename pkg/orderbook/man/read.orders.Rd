@@ -3,7 +3,7 @@
 \alias{read.orders}
 
 \title{read.order}
-\description{Read the next n orders of the data feed.}
+\description{Read the next n orders of the data file.}
 \usage{
 read.orders(object, n=1000)
 }
@@ -13,16 +13,16 @@ read.orders(object, n=1000)
     want to read.}
 }
 \details{The orderbook keeps track of its current position within the
-  data feed. The read.orders function will read and
-  process the next n orders from the feed.
+  data file. The read.orders function will read and
+  process the next n orders from the file.
 }
 \value{
   Return an object of class \code{orderbook}
 }
 \examples{
-## The examples must be run in the same directory as the sample.txt input feed
+## The examples must be run in the same directory as the sample.txt input file
 
-## ob <- orderbook(feed="sample.txt")
+## ob <- orderbook(file="sample.txt")
 ## ob <- read.orders(ob, n=100)
 }
 \keyword{file}

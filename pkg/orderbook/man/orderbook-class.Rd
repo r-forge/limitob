@@ -64,11 +64,11 @@ an orderbook}
     \item{\code{ob.names}:}{A character vector which indicates the names
       of the columns in  \code{current.ob}.
     }
-    \item{\code{feed}:}{A character string which specifies the
-      location of the file containing the data feed.
+    \item{\code{file}:}{A character string which specifies the
+      location of the file containing the data file.
     }
-    \item{\code{feed.index}:}{A numeric value that indicates the
-      current row number of the input feed.
+    \item{\code{file.index}:}{A numeric value that indicates the
+      current row number of the input file.
     }
     \item{\code{ob.data}:}{A \code{hash} that contains all orders
       currently in the orderbook. Essentially the same as current.ob,
@@ -160,13 +160,13 @@ an orderbook}
 
 \examples{
 
-## The examples  must be run in the same directory as the sample.txt input feed
+## The examples  must be run in the same directory as the sample.txt input file
 
-#ob <- orderbook(feed="sample.txt")
+#ob <- orderbook(file="sample.txt")
 #ob <- read.orders(ob, n=50)
 #summary(ob)
 
-##read the input orders from the feed
+##read the input orders from the file
 
 #ob <- read.orders(ob, n=1000)
 
@@ -177,7 +177,7 @@ an orderbook}
 
 #ob <- read.orders(ob, n=-5)
 
-## move forward from the current position on the feed.
+## move forward from the current position on the file.
 #ob <- read.orders(ob, n=50)
 
 ## jump to the next trade

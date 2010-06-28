@@ -120,12 +120,12 @@
 
 ## Returns the row number of the first order after the specified time.
 
-.get.time.row <- function(feed, n, skip = 1){
+.get.time.row <- function(file, n, skip = 1){
 
-    feed <- file(feed, open="r")
+    file <- file(file, open="r")
 
 
-    x <- scan(feed, nline = 1, sep = ",", what = "character",
+    x <- scan(file, nline = 1, sep = ",", what = "character",
               quiet = TRUE, skip = skip)
 
     i = skip + 1
@@ -133,32 +133,32 @@
     while(length(x) != 0 & as.numeric(x[2]) <= n){
 
        	i = i + 1
-        x <- scan(feed, nline = 1, sep = ",", what = "character", quiet = TRUE)
+        x <- scan(file, nline = 1, sep = ",", what = "character", quiet = TRUE)
     }
 
-    close(feed)
+    close(file)
 
     return(i)
 }
 
 ## Returns the row number of the next trade after the current time.
 
-.get.next.trade <- function(feed, n){
+.get.next.trade <- function(file, n){
 
-    feed <- file(feed, open="r")
+    file <- file(file, open="r")
 
 
-    x <- scan(feed, nline = 1, sep = ",", what = "character",
+    x <- scan(file, nline = 1, sep = ",", what = "character",
               quiet = TRUE, skip = n)
 
     n = n + 1
 
     while(!isTRUE(x[1] %in% "T")){
        	n = n + 1
-        x <- scan(feed, nline = 1, sep = ",", what = "character", quiet = TRUE)
+        x <- scan(file, nline = 1, sep = ",", what = "character", quiet = TRUE)
     }
 
-    close(feed)
+    close(file)
 
     return(n)
 }
@@ -169,19 +169,19 @@
 .read.orders <- function(ob, n)
 {
 
-    feed = ob@feed
-    feed.index = ob@feed.index
+    file = ob@file
+    file.index = ob@file.index
 
     ob.data = ob@ob.data
 
     trade.data = ob@trade.data
     trade.index = ob@trade.index
 
-    feed <- file(feed, open="r")
+    file <- file(file, open="r")
 
 
-    x <- scan(feed, nline = 1, sep = ",", what = "character",
-              quiet = TRUE, skip = feed.index)
+    x <- scan(file, nline = 1, sep = ",", what = "character",
+              quiet = TRUE, skip = file.index)
 
 
     ## While there are still lines to read and less than n lines have been read.
@@ -214,21 +214,21 @@
         ## For a trade increment the trade index and store the trade data.
 
         if (isTRUE(x[1] %in% "T")){
-            trade.data[as.character(feed.index)] = x
+            trade.data[as.character(file.index)] = x
             trade.index = trade.index + 1
         }
 
-        ## Increase the feed index to keep track of which line we are on.
+        ## Increase the file index to keep track of which line we are on.
 
-        feed.index = feed.index + 1
+        file.index = file.index + 1
         i = i + 1
-        x <- scan(feed, nline = 1, sep = ",", what = "character", quiet = TRUE)
+        x <- scan(file, nline = 1, sep = ",", what = "character", quiet = TRUE)
     }
 
-    close(feed)
+    close(file)
 
     ob@ob.data <- ob.data
-    ob@feed.index <- feed.index
+    ob@file.index <- file.index
     ob@trade.data <- trade.data
     ob@trade.index <- trade.index
 

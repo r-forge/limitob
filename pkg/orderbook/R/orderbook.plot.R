@@ -96,7 +96,7 @@
     max.size = max(x[[ob.names[2]]])
     max.size = ceiling(max.size + max.size/20)
 
-    min.price = signif(min(x[ob.names[[1]]])-.05,3)
+    min.price = round(min(x[ob.names[[1]]])-.049, 1)
     max.price = round(max(x[ob.names[[1]]])+0.5)
     midpoint = mid.point(object)
 
@@ -288,21 +288,21 @@
     x = rbind(ask, bid)
     x[[ob.names[1]]] = as.numeric(levels(x[[ob.names[1]]]))
 
-    ## Maximum size, max/min price. and difference between the max
+    ## Maximum orders, max/min price. and difference between the max
     ## and min price for purposes of drawing the axes.
 
     max.orders = ceiling(max(x[["Orders"]]))
     max.orders = max.orders + max.orders/5
 
-    min.price = signif(min(x[ob.names[[1]]])-.05, 3)
+    min.price = round(min(x[ob.names[[1]]])-.049, 1)
     max.price = round(max(x[ob.names[[1]]])+0.5)
     midpoint = mid.point(object)
 
     ## Panel functions that display the best bid and best ask.
 
     panel.bestbid <- function(x = max.orders/2,
-                             y = panel.args$y,
-                             panel.args = trellis.panelArgs())
+                              y = panel.args$y,
+                              panel.args = trellis.panelArgs())
     {
         panel.text(x = x, y = max(y) + midpoint * bounds/20,
                    labels = formatC(max(y), format = "f", digits = 2),
@@ -310,8 +310,8 @@
     }
 
     panel.bestask <- function(x = max.orders/2,
-                             y = panel.args$y,
-                             panel.args = trellis.panelArgs())
+                              y = panel.args$y,
+                              panel.args = trellis.panelArgs())
     {
         panel.text(x = x, y = min(y) - midpoint * bounds/20,
                    labels = formatC(min(y), format = "f", digits = 2),
@@ -336,7 +336,7 @@
             ybid.at[i]=""
   	}else{
             yask.at[i] = ""
-	   	ybid.at[i] = tmp.at[i]
+            ybid.at[i] = tmp.at[i]
    	}
     }
 

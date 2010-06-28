@@ -13,7 +13,7 @@
 	         id    = "id",
 	         ask   = "ASK",
                  bid   = "BID",
-                 feed  = NULL)
+                 file  = NULL)
 }
 
 \arguments{
@@ -39,8 +39,8 @@
   \item{bid}{ Object of class \code{"character"} specifying
     the BID values for the orderbook.
   }
-  \item{feed}{ Object of class \code{"character"} specifying the
-    location of the data feed.
+  \item{file}{ Object of class \code{"character"} specifying the
+    location of the data file.
 
   }
 }
@@ -48,12 +48,12 @@
 \details{This function should be used to initially create the orderbook
   function. If you have an orderbook data.frame from a previous session,
   you can load it and begin from there. If you want to create an empty
-  orderbook, just specify the feed (see example).}
+  orderbook, just specify the file (see example).}
 \value{
   Return an object of class \code{orderbook}
 }
 \examples{
-## ob = orderbook(feed = "sample.txt")
+## ob = orderbook(file = "sample.txt")
 }
 
 

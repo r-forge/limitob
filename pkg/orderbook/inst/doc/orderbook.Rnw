@@ -17,7 +17,6 @@
 \begin{document}
 \begin{article}
 
-
 \title{orderbook}
 \author{Andrew Liu, Khanh Nguyen and David Kane}
 
@@ -45,17 +44,211 @@ cat.df.without.rownames <- function (d, file = ""){
 
 \section*{Introduction}
 
-The orderbook package provides functions for exploring and visualizing
-orderbook data. For example, we may want to study an orderbook
-immediately before a trade occurs, or maybe 50 orders before a trade
-occurs, or we want to visualize the change of an orderbook overtime as
-the price level fluctuates. The microstructure insights from this sort
-of analysis can help in researching short-term trading strategies.
+The \pkg{orderbook} package provides functions for exploring and visualizing
+orderbook data. Using the \pkg{orderbook} package, analysts can
+create a object of class \texttt{orderbook}, that is able to accept
+add, replace, cancel, and market orders. From this object summary statistics
+such as the spread, number of price levels, and depth of the market can be
+retrieved.
 
 \section*{Background}
-To demonstrate the capabilities of the orderbook package, we consider
-the first 10000 orders for a single stock on June 8, 2010. The orders
-are in following form
+
+An orderbook keeps track of the outstanding limit orders for a current
+stock. For example, person A may want to purchase 100 shares of IBM at
+\$11.00, in which case A would submit a limit order. In the orderbook
+for IBM this would be represented as a \emph{bid} at \$11.00 for 100
+shares. Suppose person B submits the same order. Then there would be
+200 shares offered at \$11.00. Next, consider a Person C wants to sell
+150 shares of IBM at \$11.05. The orderbook now has an \emph{ask} order.
+
+\begin{table}
+  \centering
+  \begin{tabular}{cccc}
+    &&Ask&\\\hline
+    &&\$11.05&150\\
+    &200&\$11.00&\\\hline
+    Bid&&&
+  \end{tabular}
+\end{table}
+
+The best ask/bid is the lowest/highest price level that
+individuals are willing to sell/buy stocks. In this case the best ask
+is \$11.05, and the best bid is \$11.00, and the \emph{spread}, which
+is the difference between the two, is \$0.05. The \emph{depth}, or
+number of shares being offered at each price level, is 150 at \$11.05,
+and 200 at \$11.00.  We call this the \emph{inside market}. Another noteworthy
+statistic is the \emph{midpoint}, which is the simple average
+of the best bid and best ask.
+
+Now if A decided he only wanted to buy 50 shares of IBM he could submit a
+replace order to reduce the number of shares he is willing to
+purchase. Note that a replace order can never increase the number of
+shares to be purchased or sold. The reason for this is that in the
+event of a market order, the orders submitted earliest are processed
+(filled) first. Now perhaps B decides that he wants to buy IBM at
+\$10.95 instead of \$11.00. B would cancel his order, then submit a
+new limit order at the lower price. This would result in two
+\emph{price levels} on the bid side.
+
+\begin{table}
+  \centering
+  \begin{tabular}{cccc}
+    &&Ask\\\hline
+    &\$11.05&150\\
+    50&\$11.00&\\
+    100&\$10.95&\\\hline
+    Bid&&
+  \end{tabular}
+\end{table}
+
+A person D may come in and submit a market order to sell 125 shares of
+IBM. With a market order, price does not matter, and transactions are
+carried out until the desired number of shares to be bought or sold is
+reached. In this case, A will buy 50 shares at \$11.00, and B will buy
+75 shares at \$10.95.
+
+\begin{table}
+  \centering
+  \begin{tabular}{cccc}
+    &&Ask\\\hline
+    &\$11.05&150\\
+    25&\$10.95&\\\hline
+    Bid&&
+  \end{tabular}
+\end{table}
+
+Hundreds of thousands of orders are submitted daily for a single
+stock, and the orderbook package allows the user to examine the
+orderbook at any given point during the day.
+
+\section*{Examples}
+
+Consider the first 10,000 orders for a NVDA on June 8, 2010. Start by
+loading and examining the input data.
+
+<<results = hide>>=
+library(orderbook)
+@
+<<echo = TRUE>>=
+ob = orderbook(file = "sample.txt")
+ob = read.orders(ob, 10000)
+ob
+@
+
+We create the orderbook object by giving the object the location of
+our data file. Then we read in the first 10,000 orders. Only 2,487
+orders remain, indicating that many have either been cancelled or
+removed through trades.
+
+<<echo = TRUE>>=
+summary(ob)
+@
+
+In addition to the number of orders, with \texttt{summary} we also see
+the number of price levels, spread, midpoint, and inside market.
+
+<<echo = TRUE>>=
+display(ob)
+@
+
+\texttt{summary} provides the user with a set of important summary statistics,
+while \texttt{display} shows the top five bid and ask price
+levels, along with the corresponding depth. Finally, \texttt{plot}
+shows a graphical representation of the orderbook with price levels on
+the y-axis, and size on the x-axis. By default, the maximum and
+minimum price levels are 10\% above and below the midpoint price, respectively.
+
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>=
+plot(ob)
+@
+\end{figure}
+
+Note that there is a particularly large order at \$11.01. It is
+helpful to know whether the depth at that price level is comprised of
+a single order, or several. Additionally, we lower the bounds since we
+are really only concerned with the \$11.01 price level.
+
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>=
+plot(ob, bounds = 0.033, type = 'o')
+@
+\end{figure}
+
+At first it appears that there are many orders at \$11.01, but upon
+closer examination we see that there are 56 orders at \$11.00, but
+only 3 at \$11.01, indicating that the depth at that price level is
+composed of a few very large orders (in this case one order for 50,000).
+
+Viewing the orderbook with bids on one side and asks on another is
+useful, but sometimes users may want to view them side by side to more
+directly compare the supply and demand at each price level.
+
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>=
+plot(ob, type = 's')
+@
+\end{figure}
+
+Additionally, The user can view a simple animation of the orderbook between
+two times.
+
+<<eval = FALSE, echo = TRUE>>=
+animate.ob(ob, "9:30:00", "9:32:00")
+@
+
+Finally, users can easily plot the trade data by using
+\texttt{plot.trade}. This creates a simple bar graph of the number of
+shares traded at each price level.
+
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<fig = TRUE>>=
+plotTrade(ob)
+@
+\end{figure}
+
+Aside from the ability to easily retrieve summary statistics and
+create graphics, \pkg{orderbook} can create different \texttt{orderbook}
+objects for viewing the orderbook at different times. For example, the
+user may want to view the orderbook when the market opens.
+
+<<eval = FALSE, echo = TRUE>>=
+ob = read.time(ob, "9:30:00")
+@
+
+Suppose the user wants to view the last pre-market
+trade. \texttt{previous.trade} returns the state of the
+orderbook at the time of the trade immediately preceding the current
+time ocurred, and \texttt{next.trade} returns the state
+of the orderbook at the time of the next trade.
+
+<<eval = FALSE, echo = TRUE>>=
+next.ob = next.trade(ob)
+prev.ob = prev.trade(ob)
+@
+
+To look at the 50 orders preceding \texttt{next.ob} or following
+\texttt{next.ob}, we use the \texttt{read.orders} command.
+
+<<eval = FALSE, echo = TRUE>>=
+a = read.orders(next.ob, n = 50)
+b = read.orders(next.ob, n = -50)
+@
+
+\section*{Data}
+
+Almost every broker and exchange has its own way of transmitting raw
+order data to customers, so it would be unfeasible for us to write
+scripts to automatically process that data. Consequently, raw data for an
+\texttt{orderbook} object should be in the following form:
 
 \begin{verbatim}
 A,31285893,1231884,11.49,200,ASK
@@ -69,115 +262,8 @@ respectively. The first number is the timestamp of the order in
 milliseconds after midnight of the users timezone, and the second
 number (or string) is the ID of the order. For a Replace the next
 number is the new size, while for Add and Trade price comes before
-size, followed by the type of order/transaction (BID/ASK or BUY/SELL).
-
-<<results = hide>>=
-library(orderbook)
-@
-<<echo = TRUE>>=
-ob = orderbook(feed = "sample.txt")
-ob = read.orders(ob, 10000)
-ob
-@
-
-We create the orderbook object by setting the feed as our
-\texttt{sample.txt} data file. Then we read in the first 10,000
-orders. We see that the 10000th order occurs at 9:35:02, and there are
-631 outstanding bid orders, and 1,856 outstanding ask orders. However,
-sometimes the user may want to jump to a place in the orderbook by
-time; for example, it is interesting to view the orderbook when the
-market opens.
-\columnbreak
-
-<<echo = TRUE>>=
-ob = read.time(ob, "9:30:00")
-summary(ob)
-display(ob)
-@
-
-Summary provides the user with a set of important summary statistics,
-while display by default shows the top five bid and ask price
-levels. Suppose we wanted to see the first trade after this time.
-
-<<echo = TRUE>>=
-ob = next.trade(ob)
-display(ob, n = 1)
-@
-
-Note that to save space I set \texttt{n = 1} so that only the top
-three bid and ask price levels are displayed. Sometimes a graphical
-representation is more useful than simply seeing the price levels and
-order sizes in text. By default, the maximum and minimum price levels
-shown are 10\% above and below the midpoint price, respectively.
-
-\begin{figure}
-\centering
-\vspace*{.1in}
-<<fig = TRUE>>=
-plot(ob)
-@
-\end{figure}
-
-Users might want to view the orderbook fifty orders prior to the
-trade occurring. Here we also demonstrate setting the bounds to only
-5\% above and below the midpoint price.
-
-<<echo = TRUE>>=
-ob.new = read.orders(ob, -50)
-@
-\begin{figure}
-\centering
-\vspace*{.1in}
-<<fig = TRUE>>=
-plot(ob.new, bounds = 0.05)
-@
-\end{figure}
-
-Note that there is a particularly large order around \$11.03. It is
-helpful to know whether the volume at that price level is comprised of
-a single order, or several.
-
-\begin{figure}
-\centering
-\vspace*{.1in}
-<<fig = TRUE>>=
-plot(ob.new, bounds = 0.05, type = 'o')
-@
-\end{figure}
-
-Viewing the orderbook with bids on one side and asks on another is
-useful, but sometimes users may want to view them side by side to more
-directly compare the supply and demand at each price level.
-
-\begin{figure}
-\centering
-\vspace*{.1in}
-<<fig = TRUE>>=
-plot(ob.new, type = 's')
-@
-\end{figure}
-
-Users can also view the previous trade, and then pass in the time at
-each trade, along with the object, to view a simple animation between
-the two times.
-
-<<echo = TRUE, eval = FALSE>>=
-prev.ob = previous.trade(ob)
-animate.ob(ob, "9:30:00", "9:32:00")
-@
-
-Finally, users can easily plot the trade data by using
-\texttt{plot.trade}. This creates a simple bar graph of the number of
-shares traded at each price level.
-
-\begin{figure}
-\centering
-\vspace*{.1in}
-<<fig = TRUE>>=
-plotTrade(ob.new)
-@
-\end{figure}
-
+size, followed by the type of order/transaction (BID/ASK or
+BUY/SELL).
 
 \section*{Simulation}
 
@@ -321,14 +407,10 @@ plot(ob)
 @
 \end{figure}
 
-\section*{Future work}
-There is still much room for improvement with \texttt{orderbook}. Aside
-from additional optimization, we are looking into creating an
-``exchange'' package that can better simulate trading. Ultimately, we
-would like to have the ability to backtest high frequency trading strategies.
+
 
 \section*{Conclusion}
-In this short article, we have described the orderbook package. orderbook
+In this  article, we have described the orderbook package. orderbook
 aims to provide user-friendly statistical and visualization tools for
 analyzing orderbooks. We demonstrated the functionality of the
 package through a series of examples. Users who deal frequently with

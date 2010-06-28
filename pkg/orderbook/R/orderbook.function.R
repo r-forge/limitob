@@ -29,7 +29,7 @@ orderbook <- function(x = data.frame(),
                       id    = "id",
                       ask   = "ASK",
                       bid   = "BID",
-                      feed  = NULL)
+                      file  = NULL)
 {
 
     ## Make sure the user inputted correct names for the columns, ie the
@@ -89,7 +89,7 @@ orderbook <- function(x = data.frame(),
                       current.ob   = current.ob,
                       current.time = end,
                       ob.names     = ob.names,
-                      feed         = feed
+                      file         = file
                       ))
     } else {
 
@@ -107,7 +107,7 @@ orderbook <- function(x = data.frame(),
                       ob.data      = hash(),
                       trade.data   = hash(),
                       trade.index  = 0,
-                      feed         = feed
+                      file         = file
                       ))
     }
 

@@ -64,7 +64,7 @@ shares. Suppose person B submits the same order. Then there would be
 \begin{table}
   \centering
   \begin{tabular}{cccc}
-    &&Ask&\\\hline
+    &&&A\\\hline
     &&\$11.05&150\\
     &200&\$11.00&\\\hline
     Bid&&&

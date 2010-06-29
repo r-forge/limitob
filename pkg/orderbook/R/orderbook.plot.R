@@ -25,31 +25,31 @@
 
     ## Turn hash into a list.
 
-    x = as.list(x)
-    x = unlist(x, use.names = FALSE)
+    x <- as.list(x)
+    x <- unlist(x, use.names = FALSE)
 
-    len = length(x)
+    len <- length(x)
 
-    price = as.numeric(x[seq(4, len, 6)])
-    size  = as.numeric(x[seq(5, len, 6)])
+    price <- as.numeric(x[seq(4, len, 6)])
+    size <- as.numeric(x[seq(5, len, 6)])
 
-    x = data.frame(price, size)
+    x <- data.frame(price, size)
 
     ## Aggregating by price.
 
-    x = aggregate(x$size, by = list(price = x$price), sum)
+    x <- aggregate(x$size, by = list(price = x$price), sum)
 
     ## Creating the x axis values.
 
-    max.size = max(x$x)
-    max.size = ceiling(max.size + max.size/20)
+    max.size <- max(x$x)
+    max.size <- ceiling(max.size + max.size/20)
 
-    x.limits =  c(0, max.size)
-    x.at = ceiling(seq(0, max.size, max.size/5))
+    x.limits <- c(0, max.size)
+    x.at <- ceiling(seq(0, max.size, max.size/5))
 
     ## Creating the y axis values.
 
-    y.labels = formatC(x$price, format = "f", digits = 2)
+    y.labels <- formatC(x$price, format = "f", digits = 2)
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
@@ -63,10 +63,10 @@
                     main = "Trades",
                     yscale.components = new.yscale.components,
                     scales = list(x = list(axs = "i",
-                                             limits = x.limits,
-                                             at = x.at,
-                                             tck = c(1, 0)),
-                                   y = list(alternating = 1))
+                                  limits = x.limits,
+                                  at = x.at,
+                                  tck = c(1, 0)),
+                    y = list(alternating = 1))
                     )
 
     print(tmp)
@@ -81,24 +81,21 @@
     ## Use combine size to find the total size at each price level. This
     ## function returns a data frame. Also get the names for the columns.
 
-    x = .combine.size(object, bounds)
-    ob.names = object@ob.names
+    x <- .combine.size(object, bounds)
+    ob.names <- object@ob.names
 
     ## If there is nothing on the orderbook, stop
     stopifnot(nrow(x)>0)
 
-
-
-
     ## Maximum size, max/min price and difference between the max
     ## and min price for purposes of drawing the axes.
 
-    max.size = max(x[[ob.names[2]]])
-    max.size = ceiling(max.size + max.size/20)
+    max.size <- max(x[[ob.names[2]]])
+    max.size <- ceiling(max.size + max.size/20)
 
-    min.price = round(min(x[ob.names[[1]]])-.049, 1)
-    max.price = round(max(x[ob.names[[1]]])+0.5)
-    midpoint = mid.point(object)
+    min.price <- round(min(x[ob.names[[1]]])-.049, 1)
+    max.price <- round(max(x[ob.names[[1]]])+0.5)
+    midpoint <- mid.point(object)
 
     ## Panel functions that display the best bid and best ask.
 
@@ -122,22 +119,22 @@
 
     ## Creating the x axis values.
 
-    x.limits =  list(c(max.size,0), c(0,max.size))
-    x.at = ceiling(seq(0, max.size, max.size/5))
+    x.limits <- list(c(max.size,0), c(0,max.size))
+    x.at <- ceiling(seq(0, max.size, max.size/5))
 
     ## Creating the y axis values.
 
-    tmp.at = formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
-    yask.at = vector()
-    ybid.at = vector()
+    tmp.at <- formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
+    yask.at <- vector()
+    ybid.at <- vector()
 
     for(i in 1:length(tmp.at)){
-  	if(i%%2==0){
-            yask.at[i] = tmp.at[i]
-            ybid.at[i]=""
+  	if(i%%2 == 0){
+            yask.at[i] <- tmp.at[i]
+            ybid.at[i] <- ""
   	}else{
-            yask.at[i] = ""
-	   	ybid.at[i] = tmp.at[i]
+            yask.at[i] <- ""
+            ybid.at[i] <- tmp.at[i]
    	}
     }
 
@@ -152,8 +149,8 @@
     ## Ordering the levels so Bid comes before Ask, this allows Bid to be
     ## on the left.
 
-    x[[ob.names[3]]] = ordered(x[[ob.names[3]]], levels = c(ob.names[7],
-                                                 ob.names[6]))
+    x[[ob.names[3]]] <- ordered(x[[ob.names[3]]], levels = c(ob.names[7],
+                                                  ob.names[6]))
 
     ## Actually plotting it.
 
@@ -190,30 +187,30 @@
 
 .plot.side.ob <-function(object, n){
 
-    x = .combine.size(object, 1)
-    ob.names = object@ob.names
+    x <- .combine.size(object, 1)
+    ob.names <- object@ob.names
 
     ## Creating the data frame to be plotted.
 
-    ask = x[x[[ob.names[3]]] == ob.names[6],][1:n,]
+    ask <- x[x[[ob.names[3]]] == ob.names[6],][1:n,]
 
-    bid = x[x[[ob.names[3]]] == ob.names[7],]
-    bid = bid[(nrow(bid) - n + 1):nrow(bid),]
+    bid <- x[x[[ob.names[3]]] == ob.names[7],]
+    bid <- bid[(nrow(bid) - n + 1):nrow(bid),]
 
-    x = rbind(ask, bid)
+    x <- rbind(ask, bid)
 
     y <- data.frame(price = c(seq(ask[1,1], ask[1,1] + (n-1)/100, .01),
                     seq(bid[1,1], bid[1,1] + (n-1)/100, .01)),
                     y = c(seq(n, 1, -1), seq(1, n, 1)))
 
-    y$price = round(x$price, 2)
+    y$price <- round(x$price, 2)
 
-    x = merge(x, y, all.y = TRUE)
+    x <- merge(x, y, all.y = TRUE)
 
 
     ## Setting x-axis limits and labels.
     max.size <- ceiling(max(x[[ob.names[2]]]))
-    max.size = max.size + max.size/5
+    max.size <- max.size + max.size/5
 
     x.limits <- c(0, max.size)
     x.at <- ceiling(seq(0, signif(max.size), max.size/5))
@@ -269,7 +266,7 @@
     ## We only want data within our bounds
 
     x <- x[(x[[ob.names[1]]] < mid.point(object)*(1+bounds)
-           & x[[ob.names[1]]] > mid.point(object)*(1-bounds)),]
+            & x[[ob.names[1]]] > mid.point(object)*(1-bounds)),]
 
     ## Create data.frame with price level, number of orders, and type
 
@@ -279,24 +276,24 @@
     ask <- data.frame(table(ask[[ob.names[1]]]))
     bid <- data.frame(table(bid[[ob.names[1]]]))
 
-    ask = cbind(ask, rep("ASK", nrow(ask)))
-    bid = cbind(bid, rep("BID", nrow(bid)))
+    ask <- cbind(ask, rep("ASK", nrow(ask)))
+    bid <- cbind(bid, rep("BID", nrow(bid)))
 
-    names(ask) = c(ob.names[1], "Orders", ob.names[3])
-    names(bid) = names(ask)
+    names(ask) <- c(ob.names[1], "Orders", ob.names[3])
+    names(bid) <- names(ask)
 
-    x = rbind(ask, bid)
-    x[[ob.names[1]]] = as.numeric(levels(x[[ob.names[1]]]))
+    x <- rbind(ask, bid)
+    x[[ob.names[1]]] <- as.numeric(levels(x[[ob.names[1]]]))
 
     ## Maximum orders, max/min price. and difference between the max
     ## and min price for purposes of drawing the axes.
 
-    max.orders = ceiling(max(x[["Orders"]]))
-    max.orders = max.orders + max.orders/5
+    max.orders <- ceiling(max(x[["Orders"]]))
+    max.orders <- max.orders + max.orders/5
 
-    min.price = round(min(x[ob.names[[1]]])-.049, 1)
-    max.price = round(max(x[ob.names[[1]]])+0.5)
-    midpoint = mid.point(object)
+    min.price <- round(min(x[ob.names[[1]]])-.049, 1)
+    max.price <- round(max(x[ob.names[[1]]])+0.5)
+    midpoint <- mid.point(object)
 
     ## Panel functions that display the best bid and best ask.
 
@@ -326,17 +323,17 @@
 
     ## Create y axes/limits.
 
-    tmp.at = formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
-    yask.at = vector()
-    ybid.at = vector()
+    tmp.at <- formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
+    yask.at <- vector()
+    ybid.at <- vector()
 
     for(i in 1:length(tmp.at)){
-  	if(i%%2==0){
-            yask.at[i] = tmp.at[i]
-            ybid.at[i]=""
+  	if(i%%2 == 0){
+            yask.at[i] <- tmp.at[i]
+            ybid.at[i] <- ""
   	}else{
-            yask.at[i] = ""
-            ybid.at[i] = tmp.at[i]
+            yask.at[i] <- ""
+            ybid.at[i] <- tmp.at[i]
    	}
     }
 

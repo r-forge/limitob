@@ -18,7 +18,7 @@ library(orderbook)
 
 
 #something is wrong. This returns TRUE in R, but fail with test
-ob <- orderbook(feed="sample.txt")
+ob <- orderbook(file = "sample.txt")
 
 # read 20 orders
 ob <- read.orders(ob, n=20)

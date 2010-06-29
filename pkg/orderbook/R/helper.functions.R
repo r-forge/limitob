@@ -12,10 +12,10 @@
 
 .prettify <- function(x, type = "p"){
     if(type == "p"){
-        x = formatC(x, format = "f", big.mark = ",", digits = 2)
+        x <- formatC(x, format = "f", big.mark = ",", digits = 2)
         invisible(x)
     } else if(type == "s"){
-        x = formatC(x, format = "d", big.mark = ",")
+        x <- formatC(x, format = "d", big.mark = ",")
         invisible(x)
     }
 }
@@ -31,49 +31,36 @@
 
     ## Pull out the current.ob and ob.names.
 
-    x = object@current.ob
-    ob.names = object@ob.names
+    x <- object@current.ob
+    ob.names <- object@ob.names
 
 
     ## Removes rows 10% above and below the midpoint.
 
-    x = x[x[[ob.names[1]]] < mid.point(object)*(1 + bounds) &
-    x[[ob.names[1]]] > mid.point(object)*(1 - bounds),]
+    x <- x[x[[ob.names[1]]] < mid.point(object)*(1 + bounds) &
+           x[[ob.names[1]]] > mid.point(object)*(1 - bounds),]
 
     ## Splits x into ask and bid data frames.
+
     x <- split(x, x[[ob.names[3]]])
     ask <- x[[ob.names[6]]]
     bid <- x[[ob.names[7]]]
-    ## ask = x[x[[ob.names[3]]] == ob.names[6],]
-    ## bid = x[x[[ob.names[3]]] == ob.names[7],]
 
     ## Aggregate sizes by price level.
 
     if(nrow(ask) > 0){
-        ask = aggregate(ask[[ob.names[2]]], by = list(ask[[ob.names[1]]]), sum)
+        ask <- aggregate(ask[[ob.names[2]]], by = list(ask[[ob.names[1]]]), sum)
         ask <- data.frame(ask, type = rep(ob.names[6], nrow(ask)))
     }
 
     if(nrow(bid) > 0){
-        bid = aggregate(bid[[ob.names[2]]], by = list(bid[[ob.names[1]]]), sum)
+        bid <- aggregate(bid[[ob.names[2]]], by = list(bid[[ob.names[1]]]), sum)
         bid <- data.frame(bid, type = rep(ob.names[7], nrow(bid)))
     }
 
-    x  = rbind(ask, bid)
+    x <- rbind(ask, bid)
 
-    ## Adds a type column to x.
-
-    #x = data.frame(x, type = character(nrow(x)))
-    ##levels(x$type) = c(ob.names[6], ob.names[7])
-
-    ## Fills in the type column depending on if the price levels are in the ask
-    ## or bid data frames.
-
-    ##x$type[x[[1]] %in% ask[[ob.names[1]]]] = ob.names[6]
-    ##x$type[x[[1]] %in% bid[[ob.names[1]]]] = ob.names[7]
-
-    ## Names the new data frame and returns it.
-    names(x) = c(ob.names[1], ob.names[2], ob.names[3])
+    names(x) <- c(ob.names[1], ob.names[2], ob.names[3])
 
     return(x)
 }
@@ -89,26 +76,26 @@
 
     ## Turn hash into a list. Unlist into a vector. Remove names.
 
-    x = as.list(x)
-    x = unlist(x, use.names = FALSE)
+    x <- as.list(x)
+    x <- unlist(x, use.names = FALSE)
 
 
     ## Get out length, use it to create data frame.
 
-    len = length(x)
+    len <- length(x)
 
 
 
-    price = as.numeric(x[seq(3, len, 5)])
-    size  = as.numeric(x[seq(4, len, 5)])
-    type  = as.factor(x[seq(5, len, 5)])
-    time  = as.numeric(x[seq(1, len, 5)])
-    id    = as.character(x[seq(2, len, 5)])
+    price <- as.numeric(x[seq(3, len, 5)])
+    size <- as.numeric(x[seq(4, len, 5)])
+    type <- as.factor(x[seq(5, len, 5)])
+    time <- as.numeric(x[seq(1, len, 5)])
+    id <- as.character(x[seq(2, len, 5)])
 
 
-    x = data.frame(price, size, type, time, id, stringsAsFactors = FALSE)
+    x <- data.frame(price, size, type, time, id, stringsAsFactors = FALSE)
 
-    names(x) = ob.names[1:5]
+    names(x) <- ob.names[1:5]
 
     ob@current.ob <- x
     ob@current.time <- max(x[[ob.names[4]]])
@@ -128,11 +115,11 @@
     x <- scan(file, nline = 1, sep = ",", what = "character",
               quiet = TRUE, skip = skip)
 
-    i = skip + 1
+    i <- skip + 1
 
     while(length(x) != 0 & as.numeric(x[2]) <= n){
 
-       	i = i + 1
+       	i <- i + 1
         x <- scan(file, nline = 1, sep = ",", what = "character", quiet = TRUE)
     }
 
@@ -151,10 +138,10 @@
     x <- scan(file, nline = 1, sep = ",", what = "character",
               quiet = TRUE, skip = n)
 
-    n = n + 1
+    n <- n + 1
 
     while(!isTRUE(x[1] %in% "T")){
-       	n = n + 1
+       	n <- n + 1
         x <- scan(file, nline = 1, sep = ",", what = "character", quiet = TRUE)
     }
 
@@ -169,13 +156,13 @@
 .read.orders <- function(ob, n)
 {
 
-    file = ob@file
-    file.index = ob@file.index
+    file <- ob@file
+    file.index <- ob@file.index
 
-    ob.data = ob@ob.data
+    ob.data <- ob@ob.data
 
-    trade.data = ob@trade.data
-    trade.index = ob@trade.index
+    trade.data <- ob@trade.data
+    trade.index <- ob@trade.index
 
     file <- file(file, open="r")
 
@@ -186,7 +173,7 @@
 
     ## While there are still lines to read and less than n lines have been read.
 
-    i = 1
+    i <- 1
 
     while(!identical(length(x), 0) & i <= n){
 
@@ -202,26 +189,26 @@
         ## For a cancel remove the row from ob.data, remove the ID from list.
 
         if (isTRUE(x[1] %in% "C")){
-            ob.data[x[3]] = NULL
+            ob.data[x[3]] <- NULL
         }
 
         ## For a replace find the right row and replace it with the new size.
 
         if (isTRUE(x[1] %in% "R")){
-            ob.data[[x[3]]][4] = x[4]
+            ob.data[[x[3]]][4] <- x[4]
         }
 
         ## For a trade increment the trade index and store the trade data.
 
         if (isTRUE(x[1] %in% "T")){
-            trade.data[as.character(file.index)] = x
-            trade.index = trade.index + 1
+            trade.data[as.character(file.index)] <- x
+            trade.index <- trade.index + 1
         }
 
         ## Increase the file index to keep track of which line we are on.
 
-        file.index = file.index + 1
-        i = i + 1
+        file.index <- file.index + 1
+        i <- i + 1
         x <- scan(file, nline = 1, sep = ",", what = "character", quiet = TRUE)
     }
 
@@ -244,7 +231,7 @@
 ## "H:M:S".
 
 .to.time <- function(x){
-    x = as.POSIXct(x/1000+14400, origin = Sys.Date())
+    x <- as.POSIXct(x/1000+14400, origin = Sys.Date())
 
     return(format(x, format = "%H:%M:%S"))
 
@@ -255,10 +242,10 @@
 
 .to.ms <- function(x){
 
-    x = strsplit(x, split = ":")[[1]]
-    x = ((as.numeric(x[1])) * 3600000
-         + as.numeric(x[2]) * 60000
-         + as.numeric(x[3]) * 1000)
+    x <- strsplit(x, split = ":")[[1]]
+    x <- ((as.numeric(x[1])) * 3600000
+          + as.numeric(x[2]) * 60000
+          + as.numeric(x[3]) * 1000)
 
     return(signif(x, 8))
 
@@ -269,14 +256,14 @@
 
 .animate <- function(object, from, to, by){
 
-    ob.names = object@ob.names
+    ob.names <- object@ob.names
 
     ## Create the vector of times
 
-    from = as.POSIXlt(from, format = "%H:%M:%S")
-    to = as.POSIXlt(to, format = "%H:%M:%S")
-    time = seq.POSIXt(from, to, by)
-    time = format(time, format ="%H:%M:%S")
+    from <- as.POSIXlt(from, format = "%H:%M:%S")
+    to <- as.POSIXlt(to, format = "%H:%M:%S")
+    time <- seq.POSIXt(from, to, by)
+    time <- format(time, format ="%H:%M:%S")
 
 
     ## Define function for plotting the y-axis values.
@@ -293,37 +280,37 @@
 
 
     for (i in 1:length(time)){
-        tmp = read.time(object, time[i])
-        x = .combine.size(tmp, bounds = 0.1)
+        tmp <- read.time(object, time[i])
+        x <- .combine.size(tmp, bounds = 0.1)
 
         ## Maximum size, max/min price and difference between the max
         ## and min price for purposes of drawing the axes.
 
-        max.size = max(x[[ob.names[2]]])
-        max.size = ceiling(max.size + max.size/20)
+        max.size <- max(x[[ob.names[2]]])
+        max.size <- ceiling(max.size + max.size/20)
 
-        min.price = signif(min(x[ob.names[[1]]])-.05,3)
-        max.price = round(max(x[ob.names[[1]]])+0.5)
-        midpoint = mid.point(object)
+        min.price <- signif(min(x[ob.names[[1]]])-.05,3)
+        max.price <- round(max(x[ob.names[[1]]])+0.5)
+        midpoint <- mid.point(object)
 
         ## Creating the x axis values.
 
-        x.limits =  list(c(max.size,0), c(0,max.size))
-        x.at = ceiling(seq(0, max.size, max.size/5))
+        x.limits <- list(c(max.size,0), c(0,max.size))
+        x.at <- ceiling(seq(0, max.size, max.size/5))
 
         ## Creating the y axis values.
 
-        tmp.at = formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
-        yask.at = vector()
-        ybid.at = vector()
+        tmp.at <- formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
+        yask.at <- vector()
+        ybid.at <- vector()
 
         for(j in 1:length(tmp.at)){
             if(i%%2==0){
-                yask.at[j] = tmp.at[j]
-                ybid.at[j]=""
+                yask.at[j] <- tmp.at[j]
+                ybid.at[j] <- ""
             } else {
-                yask.at[j] = ""
-	   	ybid.at[j] = tmp.at[j]
+                yask.at[j] <- ""
+	   	ybid.at[j] <- tmp.at[j]
             }
         }
 
@@ -349,13 +336,13 @@
                       )
 
                )
-        object = tmp
+        object <- tmp
     }
 
     ## "Animates" using a for loop.
 
     for(i in 1:length(time)){
-        x = paste("x", i, sep = ".")
+        x <- paste("x", i, sep = ".")
         print(get(x))
         Sys.sleep(.25)
         rm(x)

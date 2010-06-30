@@ -4,24 +4,24 @@
 ## orderbook.function.R: Returns an object of class limitob
 ##
 ##
-## limitob is free software: you can redistribute it and/or modify it
+## orderbook is free software: you can redistribute it and/or modify it
 ## under the terms of the GNU General Public License as published by
 ## the Free Software Foundation, either version 2 of the License, or
 ## (at your option) any later version.
 ##
-## limitob is distributed in the hope that it will be useful, but
+## orderbook is distributed in the hope that it will be useful, but
 ## WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
 ##
 ## You should have received a copy of the GNU General Public License
-## along with limitob.  If not, see <http://www.gnu.org/licenses/>.
+## along with orderbook.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
 ## Returns an orderbook object. For input it takes a data frame, and names for
 ## price, size, type, time, id, as well as what ASK and BID are denoted as.
 
-orderbook <- function(x = data.frame(),
+orderbook <- function(x     = data.frame(),
                       price = "price",
                       size  = "size",
                       type  = "type",
@@ -89,7 +89,10 @@ orderbook <- function(x = data.frame(),
                       current.ob   = current.ob,
                       current.time = end,
                       ob.names     = ob.names,
-                      file         = file
+                      ob.data      = hash(),
+                      trade.data   = hash(),
+                      file         = file,
+                      my.trades    = hash()
                       ))
     } else {
 
@@ -106,8 +109,8 @@ orderbook <- function(x = data.frame(),
                       ob.names     = ob.names,
                       ob.data      = hash(),
                       trade.data   = hash(),
-                      trade.index  = 0,
-                      file         = file
+                      file         = file,
+                      my.trades    = hash()
                       ))
     }
 

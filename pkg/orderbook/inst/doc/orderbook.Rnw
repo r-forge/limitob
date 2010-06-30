@@ -198,7 +198,7 @@ Additionally, The user can view a simple animation of the orderbook between
 two times.
 
 <<eval = FALSE, echo = TRUE>>=
-animate.ob(ob, "9:30:00", "9:32:00")
+animate(ob, "9:30:00", "9:32:00")
 @
 
 Finally, users can easily plot the trade data by using

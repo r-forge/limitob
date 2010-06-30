@@ -21,7 +21,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      file.index   = "numeric",
                                      ob.data      = "hash",
                                      trade.data   = "hash",
-                                     trade.index  = "numeric"
+                                     my.trades    = "hash"
                                      ),
 
          prototype(current.ob   = data.frame(),
@@ -31,7 +31,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                    file.index   = 0,
                    ob.data      = hash(),
                    trade.data   = hash(),
-                   trade.index  = 0
+                   my.trades    = hash()
                    )
          )
 
@@ -346,17 +346,18 @@ setMethod("next.trade",
           }
           )
 
-## Go to previous trade.
+## Go to the first trade to occur before the current time.
 
 setMethod("previous.trade",
           signature(object = "orderbook"),
           function(object){
               x <- object@trade.data
-              y <- object@trade.index
-              nextindex <- sort(as.numeric(names(x)))[y]
-              y <- y - 1
-              object@trade.index <- y
+
+              trade.index <- length(x)
+
+              nextindex <- sort(as.numeric(names(x)))[trade.index]
               nextindex <- nextindex - object@file.index
+
               invisible(read.orders(object, nextindex))
           }
           )
@@ -430,27 +431,20 @@ setMethod("market.order",
                   tmp.bid <- tmp.bid[order(tmp.bid[[ob.names[1]]],
                                            decreasing = TRUE),]
 
-
                   while(size > 0 & nrow(tmp.bid) > 0){
                       size <- size - tmp.bid[[ob.names[2]]][1]
                       if(size >= 0){
                           object <- remove.order(object, tmp.bid[[ob.names[5]]][1])
                           tmp.bid <- tmp.bid[-1,]
-
                       } else if(size < 0){
                           object <- replace.order(object, tmp.bid[[ob.names[5]]][1],
                                                   abs(size))
                       }
                   }
               }
-
               invisible(object)
-
           }
           )
-
-
-
 
 ## Returns the number of bid price levels.
 
@@ -577,16 +571,12 @@ setMethod("spread",
               if(nrow(tmp.ask) == 0 | nrow(tmp.bid) == 0){
                   return(0)
               } else {
-
-
                   tmp.ask <- min(tmp.ask[[ob.names[1]]])
 
                   tmp.bid <- max(tmp.bid[[ob.names[1]]])
 
-
                   return(tmp.ask -  tmp.bid)
               }
-
           }
           )
 
@@ -618,7 +608,6 @@ setMethod("view.trade",
           signature(object = "orderbook"),
           function(object, n = 1){
               x <- object@trade.data
-              y <- object@trade.index
 
               currentindex <- object@file.index
               nextindex <- sort(as.numeric(names(x)))[n]
@@ -631,10 +620,10 @@ setMethod("view.trade",
 
 ## Animation function.
 
-setMethod("animate.ob",
+setMethod("animate",
           signature(object = "orderbook"),
-          function(object, from, to, by = "sec"){
-              .animate(object, from, to, by)
+          function(object, from, to, by = "sec", bounds = 0.05){
+              .animate(object, from, to, by, bounds)
           }
           )
 
@@ -649,15 +638,14 @@ setMethod("reset",
               names(current.ob) <- ob.names[1:5]
 
               invisible(new("orderbook",
-                            current.ob = current.ob,
+                            current.ob   = current.ob,
                             current.time = 0,
-                            ob.names = ob.names,
-                            file = object@file,
-                            file.index = 0,
-                            ob.data = hash(),
-                            trade.data = hash(),
-                            trade.index = 0))
-
+                            ob.names     = ob.names,
+                            file         = object@file,
+                            file.index   = 0,
+                            ob.data      = hash(),
+                            trade.data   = hash(),
+                            my.trades    = hash()))
           }
           )
 

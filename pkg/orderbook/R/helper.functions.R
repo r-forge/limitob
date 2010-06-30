@@ -162,7 +162,7 @@
     ob.data <- ob@ob.data
 
     trade.data <- ob@trade.data
-    trade.index <- ob@trade.index
+    my.trades <- ob@my.trades
 
     file <- file(file, open="r")
 
@@ -202,7 +202,13 @@
 
         if (isTRUE(x[1] %in% "T")){
             trade.data[as.character(file.index)] <- x
-            trade.index <- trade.index + 1
+
+            ## If it is your trade, put it into the my.trades hash.
+
+            if(!is.na(x[6])){
+                my.trades[as.character(file.index)] <- x
+            }
+
         }
 
         ## Increase the file index to keep track of which line we are on.
@@ -217,7 +223,7 @@
     ob@ob.data <- ob.data
     ob@file.index <- file.index
     ob@trade.data <- trade.data
-    ob@trade.index <- trade.index
+    ob@my.trades <- my.trades
 
     ob = .update(ob)
 
@@ -254,7 +260,7 @@
 ## "from" and "to" are strings in the form "%H:%M:%S", for usage of "by" see
 ## seq.POSIXt.
 
-.animate <- function(object, from, to, by){
+.animate <- function(object, from, to, by, bounds){
 
     ob.names <- object@ob.names
 
@@ -265,23 +271,12 @@
     time <- seq.POSIXt(from, to, by)
     time <- format(time, format ="%H:%M:%S")
 
-
-    ## Define function for plotting the y-axis values.
-
-    new.yscale.components <- function(...) {
-        ans <- yscale.components.default(...)
-        ans$right <- ans$left
-        ans$left$labels$labels <- ybid.at
-        ans$right$labels$labels <- yask.at
-        ans
-    }
-
     ## Create the trellis objects and put them in a vector.
 
 
     for (i in 1:length(time)){
-        tmp <- read.time(object, time[i])
-        x <- .combine.size(tmp, bounds = 0.1)
+        tmp.ob <- read.time(object, time[i])
+        x <- .combine.size(tmp.ob, bounds)
 
         ## Maximum size, max/min price and difference between the max
         ## and min price for purposes of drawing the axes.
@@ -289,8 +284,8 @@
         max.size <- max(x[[ob.names[2]]])
         max.size <- ceiling(max.size + max.size/20)
 
-        min.price <- signif(min(x[ob.names[[1]]])-.05,3)
-        max.price <- round(max(x[ob.names[[1]]])+0.5)
+        min.price <- round(min(x[ob.names[[1]]]) - .049,1)
+        max.price <- round(max(x[ob.names[[1]]]) + 0.5)
         midpoint <- mid.point(object)
 
         ## Creating the x axis values.
@@ -300,18 +295,26 @@
 
         ## Creating the y axis values.
 
-        tmp.at <- formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
-        yask.at <- vector()
-        ybid.at <- vector()
+        tmp.at <- seq(min.price, max.price, .1)
+        yask.at <- formatC(tmp.at[tmp.at > (midpoint - .1)],
+                           format = "f", digits = 2)
+        ybid.at <- formatC(tmp.at[tmp.at < (midpoint + .1)],
+                           format = "f", digits = 2)
 
-        for(j in 1:length(tmp.at)){
-            if(i%%2==0){
-                yask.at[j] <- tmp.at[j]
-                ybid.at[j] <- ""
-            } else {
-                yask.at[j] <- ""
-	   	ybid.at[j] <- tmp.at[j]
-            }
+        new.yscale.components <- function(...) {
+            ans <- yscale.components.default(...)
+            ans$right <- ans$left
+
+            ans$left$ticks$at <- tmp.at
+            ans$left$labels$at <- ybid.at
+            ans$left$labels$labels <- c(ybid.at,
+                                        rep(" ", length(tmp.at) - length(ybid.at)))
+
+            ans$right$ticks$at <- tmp.at
+            ans$right$labels$at <- yask.at
+            ans$right$labels$labels <- c(rep(" ", length(tmp.at) - length(yask.at)),
+                                         yask.at)
+            ans
         }
 
         ## Ordering so that Bid comes before Ask
@@ -319,24 +322,25 @@
         x[[ob.names[3]]] <- ordered(x[[ob.names[3]]], levels = c(ob.names[7],
                                                       ob.names[6]))
 
-        assign(paste("x", i, sep = "."),
-               xyplot(x[[ob.names[1]]]~x[[ob.names[2]]]|x[[ob.names[3]]], data = x,
-                      ylab = "Price", xlab = "Size (Shares)", main = paste("Order Book",
-                                                              time[i] , sep = " - "),
-                      scales = list(x = list(relation = "free",
-                                    limits = x.limits,
-                                    at = x.at,
-                                    axs = "i"),
-                      y = list(at = tmp.at, alternating = 3)),
-                      yscale.components = new.yscale.components,
-                      panel = function(...){
-                          panel.xyplot(...)
-                          panel.lines(..., type = "H")
-                      }
-                      )
+        tmp.plot <-  xyplot(x[[ob.names[1]]]~x[[ob.names[2]]]|x[[ob.names[3]]],
+                            data = x,
+                            ylab = "Price", xlab = "Size (Shares)",
+                            main = paste("Order Book", time[i] , sep = " - "),
+                            scales = list(x = list(relation = "free",
+                                          limits = x.limits,
+                                          at = x.at,
+                                          axs = "i"),
+                            y = list(at = tmp.at, alternating = 3)),
+                            yscale.components = new.yscale.components,
+                            panel = function(...){
+                                panel.xyplot(...)
+                                panel.lines(..., type = "H")
+                            }
+                            )
 
-               )
-        object <- tmp
+        assign(paste("x", i, sep = "."), tmp.plot)
+
+        object <- tmp.ob
     }
 
     ## "Animates" using a for loop.
@@ -348,6 +352,7 @@
         rm(x)
     }
 
+    rm(tmp.plot)
 }
 
 

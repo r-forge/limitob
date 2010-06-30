@@ -28,7 +28,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      feed.index   = "numeric",
                                      ob.data      = "hash",
                                      trade.data   = "hash",
-                                     trade.index  = "numeric"
+                                     my.trades    = "hash"
                                      ))
 
 if(!isGeneric("spread"))
@@ -131,9 +131,9 @@ if(!isGeneric("previous.trade"))
     setGeneric("previous.trade", function(object)
                standardGeneric("previous.trade"))
 
-if(!isGeneric("animate.ob"))
-    setGeneric("animate.ob", function(object, from, to, by = "sec")
-               standardGeneric("animate.ob"))
+if(!isGeneric("animate"))
+    setGeneric("animate", function(object, from, to, by = "sec", bounds = 0.05)
+               standardGeneric("animate"))
 
 
 

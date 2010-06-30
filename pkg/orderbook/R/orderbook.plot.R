@@ -93,8 +93,8 @@
     max.size <- max(x[[ob.names[2]]])
     max.size <- ceiling(max.size + max.size/20)
 
-    min.price <- round(min(x[ob.names[[1]]])-.049, 1)
-    max.price <- round(max(x[ob.names[[1]]])+0.5)
+    min.price <- round(min(x[ob.names[[1]]]) - .049, 1)
+    max.price <- round(max(x[ob.names[[1]]]) + .049, 1)
     midpoint <- mid.point(object)
 
     ## Panel functions that display the best bid and best ask.
@@ -124,25 +124,23 @@
 
     ## Creating the y axis values.
 
-    tmp.at <- formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
-    yask.at <- vector()
-    ybid.at <- vector()
-
-    for(i in 1:length(tmp.at)){
-  	if(i%%2 == 0){
-            yask.at[i] <- tmp.at[i]
-            ybid.at[i] <- ""
-  	}else{
-            yask.at[i] <- ""
-            ybid.at[i] <- tmp.at[i]
-   	}
-    }
+    tmp.at <- seq(min.price, max.price, .1)
+    yask.at <- formatC(tmp.at[tmp.at > (midpoint - .1)],
+                              format = "f", digits = 2)
+    ybid.at <- formatC(tmp.at[tmp.at < (midpoint + .1)],
+                       format = "f", digits = 2)
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
         ans$right <- ans$left
-        ans$left$labels$labels <- ybid.at
-        ans$right$labels$labels <- yask.at
+
+        ans$left$ticks$at <- tmp.at
+        ans$left$labels$at <- ybid.at
+        ans$left$labels$labels <- c(ybid.at, rep(" ", length(tmp.at) - length(ybid.at)))
+
+        ans$right$ticks$at <- tmp.at
+        ans$right$labels$at <- yask.at
+        ans$right$labels$labels <- c(rep(" ", length(tmp.at) - length(yask.at)), yask.at)
         ans
     }
 
@@ -156,12 +154,12 @@
 
     tmp <- xyplot(x[[ob.names[1]]]~x[[ob.names[2]]]|x[[ob.names[3]]], data = x,
                   ylab = "Price", xlab = "Size (Shares)", main = "Order Book",
+                  yscale.components = new.yscale.components,
                   scales = list(x = list(relation = "free",
                                 limits = x.limits,
                                 at = x.at,
                                 axs = "i"),
-                  y = list(at = tmp.at, alternating = 3)),
-                  yscale.components = new.yscale.components,
+                  y = list(alternating = 3)),
                   panel = function(...){
                       panel.xyplot(...)
                       panel.lines(..., type = "H")
@@ -189,27 +187,33 @@
 
     x <- .combine.size(object, 1)
     ob.names <- object@ob.names
+    midpoint = mid.point(object)
 
     ## Creating the data frame to be plotted.
 
-    ask <- x[x[[ob.names[3]]] == ob.names[6],][1:n,]
+    ask <- x[x[[ob.names[3]]] == ob.names[6],]
+    k <- min(n, nrow(ask))
+
+    ask <- ask[1:k,]
 
     bid <- x[x[[ob.names[3]]] == ob.names[7],]
-    bid <- bid[(nrow(bid) - n + 1):nrow(bid),]
+    k <- min(n, nrow(bid))
+
+    bid <- bid[(nrow(bid) - k + 1):nrow(bid),]
 
     x <- rbind(ask, bid)
 
     y <- data.frame(price = c(seq(ask[1,1], ask[1,1] + (n-1)/100, .01),
-                    seq(bid[1,1], bid[1,1] + (n-1)/100, .01)),
-                    y = c(seq(n, 1, -1), seq(1, n, 1)))
+                    seq(bid[nrow(bid),1],
+                        bid[nrow(bid),1] - (n-1)/100, -.01)),
+                    y = c(seq(n, 1, -1)))
 
-    y$price <- round(x$price, 2)
+    y$price <- round(y$price, 2)
 
     x <- merge(x, y, all.y = TRUE)
 
-
     ## Setting x-axis limits and labels.
-    max.size <- ceiling(max(x[[ob.names[2]]]))
+    max.size <- ceiling(max(x[[ob.names[2]]], na.rm = TRUE))
     max.size <- max.size + max.size/5
 
     x.limits <- c(0, max.size)
@@ -217,21 +221,26 @@
 
     ## Creating y-axis tick labels.
 
-    ask.label <- formatC(seq(ask[1,1], ask[1,1] + n/100, .01), format = "f",
-                         digits = 2)
+    ask.label <- formatC(x$price[x$price > midpoint],
+                         format = "f", digits = 2)
 
-    bid.label <- formatC(seq(bid[1,1], bid[1,1] + n/100, .01), format = "f",
-                         digits = 2)
+    bid.label <- formatC(x$price[x$price < midpoint],
+                         format = "f", digits = 2)
 
-    new.yscale.components <- function(...) {
+
+   new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
         ans$right <- ans$left
 
-        ans$right$labels$labels <- ask.label
+        ans$left$labels$at <- bid.label
         ans$left$labels$labels <- bid.label
+
+        ans$right$labels$at <- rev(ask.label)
+        ans$right$labels$labels <- rev(ask.label)
 
         ans
     }
+
 
     new.par.settings = list(
     layout.widths = list(left.padding = 2, right.padding = 5))
@@ -291,8 +300,8 @@
     max.orders <- ceiling(max(x[["Orders"]]))
     max.orders <- max.orders + max.orders/5
 
-    min.price <- round(min(x[ob.names[[1]]])-.049, 1)
-    max.price <- round(max(x[ob.names[[1]]])+0.5)
+    min.price <- round(min(x[ob.names[[1]]]) - .049, 1)
+    max.price <- round(max(x[ob.names[[1]]]) + .049, 1)
     midpoint <- mid.point(object)
 
     ## Panel functions that display the best bid and best ask.
@@ -321,27 +330,25 @@
 
     x.at <- ceiling(seq(0, max.orders, max.orders/5))
 
-    ## Create y axes/limits.
+    ## Creating the y axis values.
 
-    tmp.at <- formatC(seq(min.price, max.price, .1), format = "f", digits = 2)
-    yask.at <- vector()
-    ybid.at <- vector()
-
-    for(i in 1:length(tmp.at)){
-  	if(i%%2 == 0){
-            yask.at[i] <- tmp.at[i]
-            ybid.at[i] <- ""
-  	}else{
-            yask.at[i] <- ""
-            ybid.at[i] <- tmp.at[i]
-   	}
-    }
+    tmp.at <- seq(min.price, max.price, .1)
+    yask.at <- formatC(tmp.at[tmp.at > (midpoint - .1)],
+                       format = "f", digits = 2)
+    ybid.at <- formatC(tmp.at[tmp.at < (midpoint + .1)],
+                       format = "f", digits = 2)
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
         ans$right <- ans$left
-        ans$left$labels$labels <- ybid.at
-        ans$right$labels$labels <- yask.at
+
+        ans$left$ticks$at <- tmp.at
+        ans$left$labels$at <- ybid.at
+        ans$left$labels$labels <- c(ybid.at, rep(" ", length(tmp.at) - length(ybid.at)))
+
+        ans$right$ticks$at <- tmp.at
+        ans$right$labels$at <- yask.at
+        ans$right$labels$labels <- c(rep(" ", length(tmp.at) - length(yask.at)), yask.at)
         ans
     }
 
@@ -380,4 +387,5 @@
     panel.bestask()
     trellis.unfocus()
 }
+
 

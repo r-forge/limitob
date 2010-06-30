@@ -260,7 +260,7 @@
 ## "from" and "to" are strings in the form "%H:%M:%S", for usage of "by" see
 ## seq.POSIXt.
 
-.animate <- function(object, from, to, by, bounds){
+.preload <- function(file, object, from, to, by, bounds, FUN){
 
     ob.names <- object@ob.names
 
@@ -271,89 +271,42 @@
     time <- seq.POSIXt(from, to, by)
     time <- format(time, format ="%H:%M:%S")
 
-    ## Create the trellis objects and put them in a vector.
+    ## Create the trellis objects and put their names in a vector.
 
+    names = vector()
 
     for (i in 1:length(time)){
         tmp.ob <- read.time(object, time[i])
-        x <- .combine.size(tmp.ob, bounds)
 
-        ## Maximum size, max/min price and difference between the max
-        ## and min price for purposes of drawing the axes.
+        tmp.plot <- FUN(tmp.ob, bounds)
 
-        max.size <- max(x[[ob.names[2]]])
-        max.size <- ceiling(max.size + max.size/20)
-
-        min.price <- round(min(x[ob.names[[1]]]) - .049,1)
-        max.price <- round(max(x[ob.names[[1]]]) + 0.5)
-        midpoint <- mid.point(object)
-
-        ## Creating the x axis values.
-
-        x.limits <- list(c(max.size,0), c(0,max.size))
-        x.at <- ceiling(seq(0, max.size, max.size/5))
-
-        ## Creating the y axis values.
-
-        tmp.at <- seq(min.price, max.price, .1)
-        yask.at <- formatC(tmp.at[tmp.at > (midpoint - .1)],
-                           format = "f", digits = 2)
-        ybid.at <- formatC(tmp.at[tmp.at < (midpoint + .1)],
-                           format = "f", digits = 2)
-
-        new.yscale.components <- function(...) {
-            ans <- yscale.components.default(...)
-            ans$right <- ans$left
-
-            ans$left$ticks$at <- tmp.at
-            ans$left$labels$at <- ybid.at
-            ans$left$labels$labels <- c(ybid.at,
-                                        rep(" ", length(tmp.at) - length(ybid.at)))
-
-            ans$right$ticks$at <- tmp.at
-            ans$right$labels$at <- yask.at
-            ans$right$labels$labels <- c(rep(" ", length(tmp.at) - length(yask.at)),
-                                         yask.at)
-            ans
-        }
-
-        ## Ordering so that Bid comes before Ask
-
-        x[[ob.names[3]]] <- ordered(x[[ob.names[3]]], levels = c(ob.names[7],
-                                                      ob.names[6]))
-
-        tmp.plot <-  xyplot(x[[ob.names[1]]]~x[[ob.names[2]]]|x[[ob.names[3]]],
-                            data = x,
-                            ylab = "Price", xlab = "Size (Shares)",
-                            main = paste("Order Book", time[i] , sep = " - "),
-                            scales = list(x = list(relation = "free",
-                                          limits = x.limits,
-                                          at = x.at,
-                                          axs = "i"),
-                            y = list(at = tmp.at, alternating = 3)),
-                            yscale.components = new.yscale.components,
-                            panel = function(...){
-                                panel.xyplot(...)
-                                panel.lines(..., type = "H")
-                            }
-                            )
-
+        names[i] <- paste("x", i, sep = ".")
         assign(paste("x", i, sep = "."), tmp.plot)
 
         object <- tmp.ob
     }
 
-    ## "Animates" using a for loop.
+    ## Save the names vector
 
-    for(i in 1:length(time)){
-        x <- paste("x", i, sep = ".")
+    names[length(names) + 1] = "names"
+
+    assign("names", names)
+
+    save(list = names, file = file)
+
+}
+
+animate <- function(file){
+
+    ## "Animates" using a for loop.
+    load(file)
+
+    for(i in 1:length(names)){
+        x <- names[i]
         print(get(x))
         Sys.sleep(.25)
         rm(x)
     }
 
-    rm(tmp.plot)
 }
-
-
 

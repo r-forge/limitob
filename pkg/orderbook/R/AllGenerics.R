@@ -131,9 +131,13 @@ if(!isGeneric("previous.trade"))
     setGeneric("previous.trade", function(object)
                standardGeneric("previous.trade"))
 
-if(!isGeneric("animate"))
-    setGeneric("animate", function(object, from, to, by = "sec", bounds = 0.05)
-               standardGeneric("animate"))
+if(!isGeneric("preload"))
+    setGeneric("preload", function(object, from, to, by = "sec",
+                                   bounds = 0.05, type = "n", file)
+               standardGeneric("preload"))
 
+if(!isGeneric("animate"))
+    setGeneric("animate", function(file)
+               standardGeneric("animate"))
 
 

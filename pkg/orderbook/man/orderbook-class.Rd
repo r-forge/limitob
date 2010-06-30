@@ -23,7 +23,6 @@
 \alias{market.order,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
-\alias{animate.ob,orderbook-method}
 
 \alias{bid.price.levels}
 \alias{ask.price.levels}
@@ -44,7 +43,6 @@
 \alias{best.ask}
 \alias{best.bid}
 \alias{reset}
-\alias{animate.ob}
 
 \title{Class "orderbook"}
 \description{Functions for manipulating and extractiong information from
@@ -77,11 +75,11 @@ an orderbook}
     \item{\code{trade.data}:}{A \code{hash} that contains data on all
       trades that occurred before current.time.
     }
-    \item{\code{trade.index}:}{A numeric value that indicates the index
-      of the trade last seen/read.
+    \item{\code{my.trades}:}{A \code{hash} that contains data on the
+  users trades.}
     }
   }
-}
+
 
 \section{Methods}{
   \describe{
@@ -151,12 +149,11 @@ an orderbook}
    \item{reset}{\code{signature(object="orderbook")}: Reset the
      orderbook to its initial state.
    }
-   \item{animate.ob}{\code{signature(object="orderbook")}: Basic
-  animation of the orderbook. Requires a start and end time, along with
-     a step time.
-   }
-  }
-}
+
+ }
+ }
+
+
 
 \examples{
 

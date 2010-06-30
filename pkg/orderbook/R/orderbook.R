@@ -166,11 +166,13 @@ setMethod("plot",
           signature(x = "orderbook"),
           function(x, bounds = 0.1, n = 10, type = "n"){
               if(isTRUE(type %in% "n")){
-                  .plot.ob(x, bounds)
+                  tmp = .plot.ob(x, bounds)
+                  print(tmp)
               } else if(isTRUE(type %in% "s")){
                   .plot.side.ob(x, n)
               } else if(isTRUE(type %in% "o")){
-                  .plot.orders.ob(x, bounds)
+                  tmp = .plot.orders.ob(x, bounds)
+                  print(tmp)
               } else {
                   print("Invalid type")
               }
@@ -381,7 +383,8 @@ setMethod("replace.order",
                    if(tmp.size < size){
                        print("Warning size greater than current size")
                    } else {
-                       x[[ob.names[2]]][x[[ob.names[5]]] == id] <- min(size, tmp.size)
+                       x[[ob.names[2]]][x[[ob.names[5]]] == id] <- min(size,
+                                         tmp.size)
                        y[[as.character(id)]][4] <- size
 
                        object@current.ob <- x
@@ -618,12 +621,17 @@ setMethod("view.trade",
           }
           )
 
-## Animation function.
+## Preload the animations.
 
-setMethod("animate",
+setMethod("preload",
           signature(object = "orderbook"),
-          function(object, from, to, by = "sec", bounds = 0.05){
-              .animate(object, from, to, by, bounds)
+          function(object, from, to, by = "sec",
+                   bounds = 0.05, type = "n", file){
+              if(type == "n"){
+                  .preload(file, object, from, to, by, bounds, .plot.ob)
+              } else if(type == "s"){
+                  .preload(file, object, from, to, by, bounds, .plot.orders.ob)
+              }
           }
           )
 
@@ -648,5 +656,23 @@ setMethod("reset",
                             my.trades    = hash()))
           }
           )
+
+## Animate, run preload first to generate the .Rdata file
+
+setMethod("animate",
+          signature(file = "character"),
+          function(file){
+
+              ## "Animates" using a for loop.
+              load(file)
+
+              for(i in 1:length(names)){
+                  x <- names[i]
+                  print(get(x))
+                  Sys.sleep(.25)
+              }
+          }
+          )
+
 
 

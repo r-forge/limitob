@@ -44,4 +44,5 @@ exportMethods(
               "next.trade",
               "previous.trade",
 
-              "animate")
+              "animate",
+              "preload")

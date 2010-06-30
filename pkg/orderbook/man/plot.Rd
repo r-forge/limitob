@@ -31,7 +31,7 @@ plotTrade(x)
 
   plotTrade plots the number of shares traded at each price level.}
 \value{
-  Prints a trellis object.
+  Prints a Trellis object.
 }
 \examples{
 ## The examples must be run in the same directory as the sample.txt input file

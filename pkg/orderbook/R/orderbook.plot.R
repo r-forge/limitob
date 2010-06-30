@@ -97,25 +97,8 @@
     max.price <- round(max(x[ob.names[[1]]]) + .049, 1)
     midpoint <- mid.point(object)
 
-    ## Panel functions that display the best bid and best ask.
-
-    panel.bestbid<- function(x = max.size/2,
-                             y = panel.args$y,
-                             panel.args = trellis.panelArgs())
-    {
-        panel.text(x = x, y = max(y) + midpoint * bounds/20,
-                   labels = formatC(max(y), format = "f", digits = 2),
-                   cex = 0.75, col = "red")
-    }
-
-    panel.bestask<- function(x = max.size/2,
-                             y = panel.args$y,
-                             panel.args = trellis.panelArgs())
-    {
-        panel.text(x = x, y = min(y) - midpoint * bounds/20,
-                   labels = formatC(min(y), format = "f", digits = 2),
-                   cex = 0.75, col = "blue")
-    }
+    bestbid <- best.bid(object)[[1]]
+    bestask <- best.ask(object)[[1]]
 
     ## Creating the x axis values.
 
@@ -124,23 +107,40 @@
 
     ## Creating the y axis values.
 
-    tmp.at <- seq(min.price, max.price, .1)
-    yask.at <- formatC(tmp.at[tmp.at > (midpoint - .1)],
-                              format = "f", digits = 2)
-    ybid.at <- formatC(tmp.at[tmp.at < (midpoint + .1)],
-                       format = "f", digits = 2)
+    tmp.at <- c(seq(min.price, max.price, .1), bestbid, bestask)
+    tmp.at <- sort(tmp.at)
+
+    yask.at <- tmp.at[tmp.at > midpoint]
+    ybid.at <- tmp.at[tmp.at < midpoint]
+
+    ## Remove values if its too close to the best bid or best ask
+
+    if(yask.at[1] + .05 > yask.at[2])
+        yask.at = yask.at[-2]
+
+    if(ybid.at[length(ybid.at)] - .05 < ybid.at[length(ybid.at) - 1])
+        ybid.at = ybid.at[-(length(ybid.at) - 1)]
+
+    ## Format it so it has two decimal places
+
+    yask.at <- formatC(yask.at, format = "f", digits = 2)
+
+    ybid.at <- formatC(ybid.at, format = "f", digits = 2)
+
+
+    ## Add the best ask and bid as the final values
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
         ans$right <- ans$left
 
-        ans$left$ticks$at <- tmp.at
+        ans$left$ticks$at <- ybid.at
         ans$left$labels$at <- ybid.at
-        ans$left$labels$labels <- c(ybid.at, rep(" ", length(tmp.at) - length(ybid.at)))
+        ans$left$labels$labels <- ybid.at
 
-        ans$right$ticks$at <- tmp.at
+        ans$right$ticks$at <- yask.at
         ans$right$labels$at <- yask.at
-        ans$right$labels$labels <- c(rep(" ", length(tmp.at) - length(yask.at)), yask.at)
+        ans$right$labels$labels <- yask.at
         ans
     }
 
@@ -152,8 +152,10 @@
 
     ## Actually plotting it.
 
-    tmp <- xyplot(x[[ob.names[1]]]~x[[ob.names[2]]]|x[[ob.names[3]]], data = x,
-                  ylab = "Price", xlab = "Size (Shares)", main = "Order Book",
+    tmp <- xyplot(price~size|type, data = x,
+                  ylab = "Price", xlab = "Size (Shares)",
+                  main = paste("Order Book", .to.time(object@current.time),
+                  sep = " - "),
                   yscale.components = new.yscale.components,
                   scales = list(x = list(relation = "free",
                                 limits = x.limits,
@@ -166,19 +168,10 @@
                   }
                   )
 
-    ## Printing the plot.
+    ## Return the Trellis object.
 
-    print(tmp)
+    invisible(tmp)
 
-    ## Using the panel functions to add the best ask and best bid.
-
-    trellis.focus("panel", 1, 1)
-    panel.bestbid()
-    trellis.unfocus()
-
-    trellis.focus("panel", 2,1)
-    panel.bestask()
-    trellis.unfocus()
 }
 
 ## Plot top ask vs top bid, 2nd best ask vs 2nd best bid, etc.
@@ -258,7 +251,7 @@
 
     plot(tmp)
 
-    trellis.focus("panel", 1, 1, clip.off = TRUE)
+    trellis.focus("panel", 1, 1, clip.off = TRUE, highlight = FALSE)
     grid.text("Ask Price Levels", x = 1.13, rot = 90)
     trellis.unfocus()
 
@@ -304,25 +297,8 @@
     max.price <- round(max(x[ob.names[[1]]]) + .049, 1)
     midpoint <- mid.point(object)
 
-    ## Panel functions that display the best bid and best ask.
-
-    panel.bestbid <- function(x = max.orders/2,
-                              y = panel.args$y,
-                              panel.args = trellis.panelArgs())
-    {
-        panel.text(x = x, y = max(y) + midpoint * bounds/20,
-                   labels = formatC(max(y), format = "f", digits = 2),
-                   cex = 0.75, col = "red")
-    }
-
-    panel.bestask <- function(x = max.orders/2,
-                              y = panel.args$y,
-                              panel.args = trellis.panelArgs())
-    {
-        panel.text(x = x, y = min(y) - midpoint * bounds/20,
-                   labels = formatC(min(y), format = "f", digits = 2),
-                   cex = 0.75, col = "blue")
-    }
+    bestbid <- best.bid(object)[[1]]
+    bestask <- best.ask(object)[[1]]
 
     ## Create x axes/limits.
 
@@ -332,23 +308,40 @@
 
     ## Creating the y axis values.
 
-    tmp.at <- seq(min.price, max.price, .1)
-    yask.at <- formatC(tmp.at[tmp.at > (midpoint - .1)],
-                       format = "f", digits = 2)
-    ybid.at <- formatC(tmp.at[tmp.at < (midpoint + .1)],
-                       format = "f", digits = 2)
+    tmp.at <- c(seq(min.price, max.price, .1), bestbid, bestask)
+    tmp.at <- sort(tmp.at)
+
+    yask.at <- tmp.at[tmp.at > midpoint]
+    ybid.at <- tmp.at[tmp.at < midpoint]
+
+    ## Remove values if its too close to the best bid or best ask
+
+    if(yask.at[1] + .05 > yask.at[2])
+        yask.at = yask.at[-2]
+
+    if(ybid.at[length(ybid.at)] - .05 < ybid.at[length(ybid.at) - 1])
+        ybid.at = ybid.at[-(length(ybid.at) - 1)]
+
+    ## Format it so it has two decimal places
+
+    yask.at <- formatC(yask.at, format = "f", digits = 2)
+
+    ybid.at <- formatC(ybid.at, format = "f", digits = 2)
+
+
+    ## Add the best ask and bid as the final values
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
         ans$right <- ans$left
 
-        ans$left$ticks$at <- tmp.at
+        ans$left$ticks$at <- ybid.at
         ans$left$labels$at <- ybid.at
-        ans$left$labels$labels <- c(ybid.at, rep(" ", length(tmp.at) - length(ybid.at)))
+        ans$left$labels$labels <- ybid.at
 
-        ans$right$ticks$at <- tmp.at
+        ans$right$ticks$at <- yask.at
         ans$right$labels$at <- yask.at
-        ans$right$labels$labels <- c(rep(" ", length(tmp.at) - length(yask.at)), yask.at)
+        ans$right$labels$labels <- yask.at
         ans
     }
 
@@ -360,12 +353,14 @@
     ## Actually plotting it.
 
     tmp <- xyplot(x[[ob.names[1]]]~x[["Orders"]]|x[[ob.names[3]]], data = x,
-                  ylab = "Price", xlab = "Number of Orders", main = "Order Book",
+                  ylab = "Price", xlab = "Number of Orders",
+                  main = paste("Order Book", .to.time(object@current.time),
+                  sep = " - "),
                   scales = list(x = list(relation = "free",
                                 limits = x.limits,
                                 at = x.at,
                                 axs = "i"),
-                  y = list(at = tmp.at, alternating = 3)),
+                  y = list(alternating = 3)),
                   yscale.components = new.yscale.components,
                   panel = function(...){
                       panel.xyplot(...)
@@ -373,19 +368,10 @@
                   }
                   )
 
-    ## Printing the plot
+    ## Return the Trellis object
 
-    print(tmp)
+    invisible(tmp)
 
-    ## Using the panel functions to add the best ask and best bid.
-
-    trellis.focus("panel", 1, 1)
-    panel.bestbid()
-    trellis.unfocus()
-
-    trellis.focus("panel", 2,1)
-    panel.bestask()
-    trellis.unfocus()
 }
 
 

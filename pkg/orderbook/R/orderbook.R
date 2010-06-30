@@ -628,9 +628,9 @@ setMethod("preload",
           function(object, from, to, by = "sec",
                    bounds = 0.05, type = "n", file){
               if(type == "n"){
-                  .preload(file, object, from, to, by, bounds, .plot.ob)
-              } else if(type == "s"){
-                  .preload(file, object, from, to, by, bounds, .plot.orders.ob)
+                  .preload(object, from, to, by, bounds, .plot.ob, file)
+              } else if(type == "o"){
+                  .preload(object, from, to, by, bounds, .plot.orders.ob, file)
               }
           }
           )

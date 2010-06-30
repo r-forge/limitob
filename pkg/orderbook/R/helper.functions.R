@@ -98,7 +98,6 @@
     names(x) <- ob.names[1:5]
 
     ob@current.ob <- x
-    ob@current.time <- max(x[[ob.names[4]]])
     invisible(ob)
 
 }
@@ -224,6 +223,7 @@
     ob@file.index <- file.index
     ob@trade.data <- trade.data
     ob@my.trades <- my.trades
+    ob@current.time <- as.numeric(x[2])
 
     ob = .update(ob)
 
@@ -260,7 +260,7 @@
 ## "from" and "to" are strings in the form "%H:%M:%S", for usage of "by" see
 ## seq.POSIXt.
 
-.preload <- function(file, object, from, to, by, bounds, FUN){
+.preload <- function(object, from, to, by, bounds, FUN, file){
 
     ob.names <- object@ob.names
 
@@ -296,17 +296,5 @@
 
 }
 
-animate <- function(file){
 
-    ## "Animates" using a for loop.
-    load(file)
-
-    for(i in 1:length(names)){
-        x <- names[i]
-        print(get(x))
-        Sys.sleep(.25)
-        rm(x)
-    }
-
-}
 

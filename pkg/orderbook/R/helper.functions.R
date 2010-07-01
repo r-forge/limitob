@@ -71,14 +71,13 @@
 
 {
 
-    x <- ob@ob.data
+    x <- copy(ob@ob.data)
     ob.names <- ob@ob.names
 
     ## Turn hash into a list. Unlist into a vector. Remove names.
 
     x <- as.list(x)
     x <- unlist(x, use.names = FALSE)
-
 
     ## Get out length, use it to create data frame.
 
@@ -158,7 +157,11 @@
     file <- ob@file
     file.index <- ob@file.index
 
-    ob.data <- ob@ob.data
+    if(length(ob@ob.data) != 0){
+        ob.data <- copy(ob@ob.data)
+    } else {
+        ob.data <- ob@ob.data
+    }
 
     trade.data <- ob@trade.data
     my.trades <- ob@my.trades
@@ -219,7 +222,7 @@
 
     close(file)
 
-    ob@ob.data <- ob.data
+    ob@ob.data <-ob.data
     ob@file.index <- file.index
     ob@trade.data <- trade.data
     ob@my.trades <- my.trades
@@ -261,7 +264,7 @@
 ## seq.POSIXt.
 
 .preload <- function(object, from, to, by, bounds, FUN, file){
-    object = reset(object)
+
     ob.names <- object@ob.names
 
     ## Create the vector of times
@@ -285,6 +288,7 @@
 
         object <- tmp.ob
     }
+
 
     ## Save the names vector
 

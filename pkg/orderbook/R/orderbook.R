@@ -305,7 +305,7 @@ setMethod("add.order",
 
 
               x <- object@current.ob
-              y <- object@ob.data
+              y <- copy(object@ob.data)
 
               if(is.null(time)){
                   new.time <- object@current.time + 1000
@@ -374,7 +374,7 @@ setMethod("replace.order",
                     invisible(remove.order(object, id))
               } else {
                    x <- object@current.ob
-                   y <- object@ob.data
+                   y <- copy(object@ob.data)
                    ob.names <- object@ob.names
 
                    stopifnot(size > 0)
@@ -592,7 +592,7 @@ setMethod("remove.order",
           function(object, id, ...){
 
               x <- object@current.ob
-              y <- object@ob.data
+              y <- copy(object@ob.data)
               ob.names <- object@ob.names
 
               x <- x[x[[ob.names[5]]] != id,]
@@ -642,6 +642,11 @@ setMethod("reset",
           function(object){
 
               ob.names <- object@ob.names
+
+              ## Clear the hash
+
+              clear(object@ob.data)
+
               current.ob <- data.frame(NA, NA, NA, NA, NA)
               names(current.ob) <- ob.names[1:5]
 

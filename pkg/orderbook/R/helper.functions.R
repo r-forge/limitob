@@ -261,7 +261,7 @@
 ## seq.POSIXt.
 
 .preload <- function(object, from, to, by, bounds, FUN, file){
-
+    object = reset(object)
     ob.names <- object@ob.names
 
     ## Create the vector of times

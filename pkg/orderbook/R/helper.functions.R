@@ -1,6 +1,6 @@
 ################################################################################
 ##
-## $Id: helper.functions.R 1300 2008-08-27 21:01:11Z zhao $
+## $Id: helper.functions.R 1300 2008-08-27 21:01:11Z liu $
 ##
 ## Internal helper functions
 ##
@@ -100,8 +100,6 @@
     invisible(ob)
 
 }
-
-
 
 ## Returns the row number of the first order after the specified time.
 

@@ -1,35 +1,43 @@
 \name{animate.function}
 
-\alias{animate,character-method}
-\alias{preload,orderbook-method}
-
+\alias{animate,orderbook-method}
+\alias{load.animation,orderbook-method}
+\alias{load.trade.animation,orderbook-method}
 \alias{animate}
-\alias{preload}
+\alias{load.animation}
+\alias{load.trade.animation}
 
 \title{animate}
 \description{Animate the orderbook between two times}
 \usage{
-preload(object, from, to, by = "sec", bounds = 0.05, type = "n", file)
 
-animate(file)
+load.animation(object, from, to, by = "sec", bounds = 0.05)
+
+animate(object, pause = 0.25, type = "sec")
 }
 \arguments{
-  \item{object}{ Object of class \code{"orderbook"}}
+  \item{object}{ Object of class \code{"orderbook"}
+  }
   \item{from}{ Object of class \code{"character"}. The start time of the
-    animation in the form \code{"HH:MM:SS"}.}
+    animation in the form \code{"HH:MM:SS"}.
+  }
   \item{to}{ Object of class \code{"character"}. The end time of the
-    animation in the form \code{"HH:MM:SS"}.}
+    animation in the form \code{"HH:MM:SS"}.
+  }
   \item{by}{ Object of class \code{"character"}. Descides the skip of
-    the orderbook.}
+    the orderbook.
+  }
   \item{bounds}{ Object of class \code{"numeric"}. Percentage above and
-    below the midpoint to determine the y limits.}
-  \item{type}{ Object of class \code{"character"}. Either \code{"n"},
-    \code{"s"}, or \code{"c"}.}
-  \item{file}{ Object of class \code{"character"}. This is the filename
-    for the \code{".Rdata"} file you create using \code{"preload"}, and
-    the filename of the file you want to load with \code{"animate"}.}
+    below the midpoint to determine the y limits.
+  }
+  \item{pause}{ Object of class \code{"numeric"}. Determines how many
+      seconds to wait in between printing each Trellis object.
+    }
+  \item{type}{ Object of class \code{"character"}. Either "msg" or
+      "sec", depending on which animation you want to play.
+    }
 }
-\details{Preload creates Trellis objects plotting the state of the
+\details{loadanimation creates Trellis objects plotting the state of the
   orderbook between from and to, and animate will plot them using a for loop. }
 \value{
   Prints many Trellis objects.
@@ -37,8 +45,8 @@ animate(file)
 \examples{
 ## The examples must be run in the same directory as the sample.txt input file
 
-## preload(file = "file.Rdata", a, "9:30:00", "9:31:00")
-## animate("file.Rdata")
+## ob <- loadanimation(ob, "9:30:00", "9:31:00")
+## animate(ob)
 
 }
 \keyword{file}

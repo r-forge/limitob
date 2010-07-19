@@ -1,4 +1,5 @@
 importFrom("graphics", plot)
+importFrom("hash", "copy")
 
 export(
        "orderbook"
@@ -14,6 +15,8 @@ exportMethods(
 	      "plot",
               "plotTrade",
               "display",
+              "[",
+              "copy",
 
               "best.bid",
               "best.ask",
@@ -45,4 +48,5 @@ exportMethods(
               "previous.trade",
 
               "animate",
-              "preload")
+              "load.animation",
+              "load.trade.animation")

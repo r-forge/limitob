@@ -64,18 +64,17 @@ orderbook <- function(x     = data.frame(),
         x <- x[x[price] != 0,]
         x <- x[x[size] != 0,]
 
-        ## Store the current order book as current.ob, and the user inputted
-        ## names as ob.names. We use ob.names throughout the rest of the
-        ## package and here is where we assign the names!
-
-        ob.names <- c(price, size, type, time, id, ask, bid)
-
-        ## Rearrange the rows of the current.ob data frame.
+        ## Rearrange the rows of the current.ob data frame and rename the columns.
 
         current.ob <- data.frame(x[[price]], x[[size]], x[[type]],
                                  x[[time]], x[[id]])
 
-        names(current.ob) <- c(price, size, type, time, id)
+        names(current.ob) <- c("price", "size", "type", "time", "id")
+
+        ## Rename to "ASK" and "BID"
+
+        x[type][x[type] == ask] = "ASK"
+        x[type][x[type] == bid] = "BID"
 
 
         ## Put a time on the order book. We assume that it is the last timestamp
@@ -88,7 +87,6 @@ orderbook <- function(x     = data.frame(),
         invisible(new("orderbook",
                       current.ob   = current.ob,
                       current.time = end,
-                      ob.names     = ob.names,
                       ob.data      = hash(),
                       trade.data   = hash(),
                       file         = file,
@@ -97,16 +95,14 @@ orderbook <- function(x     = data.frame(),
     } else {
 
         ## x was empty so just create an ``empty'' orderbook object.
-        ob.names <- c(price, size, type, time, id, ask, bid)
 
-        current.ob <- data.frame(NA, NA, NA, NA, NA)
-
-        names(current.ob) <- ob.names[1:5]
+        current.ob <- data.frame(price = numeric(0), size =
+                                 numeric(0), type = character(0), time
+                                 = numeric(0), id = character(0))
 
         invisible(new("orderbook",
                       current.ob   = current.ob,
                       current.time = 0,
-                      ob.names     = ob.names,
                       ob.data      = hash(),
                       trade.data   = hash(),
                       file         = file,

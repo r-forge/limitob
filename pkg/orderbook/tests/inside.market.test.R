@@ -19,9 +19,3 @@ stopifnot(
 stopifnot(
 	isTRUE(all.equal(tt[2,2], 1000))
 )
-stopifnot(
-	isTRUE(tt[1,3]=="ASK")
-)
-stopifnot(
-	isTRUE(tt[2,3]=="BID")
-)

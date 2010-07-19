@@ -27,11 +27,12 @@
 
     x <- as.list(x)
     x <- unlist(x, use.names = FALSE)
+    x <- x[x!=TRUE]
 
     len <- length(x)
 
-    price <- as.numeric(x[seq(4, len, 6)])
-    size <- as.numeric(x[seq(5, len, 6)])
+    price <- as.numeric(x[seq(4, len, 5)])
+    size <- as.numeric(x[seq(5, len, 5)])
 
     x <- data.frame(price, size)
 
@@ -42,10 +43,9 @@
     ## Creating the x axis values.
 
     max.size <- max(x$x)
-    max.size <- ceiling(max.size + max.size/20)
 
-    x.limits <- c(0, max.size)
-    x.at <- ceiling(seq(0, max.size, max.size/5))
+    x.at <- pretty(c(0, max.size))
+    x.limits <- c(0, x.at[length(x.at)])
 
     ## Creating the y axis values.
 
@@ -57,6 +57,7 @@
         ans
     }
 
+    ## Actually plotting it.
 
     tmp <- barchart(price ~ x, data = x,
                     ylab = "Price Levels", xlab = "Size (Shares)",
@@ -82,7 +83,6 @@
     ## function returns a data frame. Also get the names for the columns.
 
     x <- .combine.size(object, bounds)
-    ob.names <- object@ob.names
 
     ## If there is nothing on the orderbook, stop
     stopifnot(nrow(x)>0)
@@ -90,11 +90,10 @@
     ## Maximum size, max/min price and difference between the max
     ## and min price for purposes of drawing the axes.
 
-    max.size <- max(x[[ob.names[2]]])
-    max.size <- ceiling(max.size + max.size/20)
+    max.size <- max(x[["size"]])
 
-    min.price <- round(min(x[ob.names[[1]]]) - .049, 1)
-    max.price <- round(max(x[ob.names[[1]]]) + .049, 1)
+    min.price <- min(x[["price"]])
+    max.price <- max(x[["price"]])
     midpoint <- mid.point(object)
 
     bestbid <- best.bid(object)[[1]]
@@ -102,33 +101,19 @@
 
     ## Creating the x axis values.
 
-    x.limits <- list(c(max.size,0), c(0,max.size))
-    x.at <- ceiling(seq(0, max.size, max.size/5))
+    x.at <- pretty(c(0, max.size))
+    x.limits <- list(c(x.at[length(x.at)], 0),
+                     c(0, x.at[length(x.at)]))
 
-    ## Creating the y axis values.
+    ## Creating the y axis values and appending the best ask/bestbid to them.
 
-    tmp.at <- c(seq(min.price, max.price, .1), bestbid, bestask)
+    tmp.at <- c(pretty(c(min.price, max.price), n = 10), bestbid, bestask)
     tmp.at <- sort(tmp.at)
 
     yask.at <- tmp.at[tmp.at > midpoint]
     ybid.at <- tmp.at[tmp.at < midpoint]
 
-    ## Remove values if its too close to the best bid or best ask
-
-    if(yask.at[1] + .05 > yask.at[2])
-        yask.at = yask.at[-2]
-
-    if(ybid.at[length(ybid.at)] - .05 < ybid.at[length(ybid.at) - 1])
-        ybid.at = ybid.at[-(length(ybid.at) - 1)]
-
-    ## Format it so it has two decimal places
-
-    yask.at <- formatC(yask.at, format = "f", digits = 2)
-
-    ybid.at <- formatC(ybid.at, format = "f", digits = 2)
-
-
-    ## Add the best ask and bid as the final values
+    ## Function for drawing the y-axis.
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
@@ -136,31 +121,48 @@
 
         ans$left$ticks$at <- ybid.at
         ans$left$labels$at <- ybid.at
-        ans$left$labels$labels <- ybid.at
+        ans$left$labels$labels <- formatC(ybid.at, format = "f",
+                                          digits = 2)
 
         ans$right$ticks$at <- yask.at
         ans$right$labels$at <- yask.at
-        ans$right$labels$labels <- yask.at
+        ans$right$labels$labels <- formatC(yask.at, format = "f",
+                                           digits = 2)
         ans
     }
+
+    ## Remove values if its too close to the best bid or best ask.
+
+    space = (max.price - min.price)/20
+
+    if(yask.at[1] + space > yask.at[2])
+        yask.at = yask.at[-2]
+
+    if(ybid.at[length(ybid.at)] - space < ybid.at[length(ybid.at) - 1])
+        ybid.at = ybid.at[-(length(ybid.at) - 1)]
 
     ## Ordering the levels so Bid comes before Ask, this allows Bid to be
     ## on the left.
 
-    x[[ob.names[3]]] <- ordered(x[[ob.names[3]]], levels = c(ob.names[7],
-                                                  ob.names[6]))
+    x[["type"]] <- ordered(x[["type"]], levels = c("BID",
+                                                  "ASK"))
 
     ## Actually plotting it.
 
     tmp <- xyplot(price~size|type, data = x,
+
                   ylab = "Price", xlab = "Size (Shares)",
-                  main = paste("Order Book", .to.time(object@current.time),
-                  sep = " - "),
+
+                  main = paste("Order Book",
+                  .to.time(object@current.time), sep = " - "),
+
                   yscale.components = new.yscale.components,
+
                   scales = list(x = list(relation = "free",
                                 limits = x.limits,
                                 at = x.at,
-                                axs = "i"),
+                                axs = "i",
+                                rot = 45),
                   y = list(alternating = 3)),
                   panel = function(...){
                       panel.xyplot(...)
@@ -179,17 +181,16 @@
 .plot.side.ob <-function(object, n){
 
     x <- .combine.size(object, 1)
-    ob.names <- object@ob.names
     midpoint = mid.point(object)
 
     ## Creating the data frame to be plotted.
 
-    ask <- x[x[[ob.names[3]]] == ob.names[6],]
+    ask <- x[x[["type"]] == "ASK",]
     k <- min(n, nrow(ask))
 
     ask <- ask[1:k,]
 
-    bid <- x[x[[ob.names[3]]] == ob.names[7],]
+    bid <- x[x[["type"]] == "BID",]
     k <- min(n, nrow(bid))
 
     bid <- bid[(nrow(bid) - k + 1):nrow(bid),]
@@ -206,30 +207,29 @@
     x <- merge(x, y, all.y = TRUE)
 
     ## Setting x-axis limits and labels.
-    max.size <- ceiling(max(x[[ob.names[2]]], na.rm = TRUE))
-    max.size <- max.size + max.size/5
+    max.size <- ceiling(max(x[["size"]], na.rm = TRUE))
 
-    x.limits <- c(0, max.size)
-    x.at <- ceiling(seq(0, signif(max.size), max.size/5))
+    x.at <- pretty(c(0, max.size))
+    x.limits <- c(0, x.at[length(x.at)])
 
     ## Creating y-axis tick labels.
 
-    ask.label <- formatC(x$price[x$price > midpoint],
-                         format = "f", digits = 2)
+    yask.at <- rev(x$price[x$price > midpoint])
+    ybid.at <- x$price[x$price < midpoint]
 
-    bid.label <- formatC(x$price[x$price < midpoint],
-                         format = "f", digits = 2)
 
 
    new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
         ans$right <- ans$left
 
-        ans$left$labels$at <- bid.label
-        ans$left$labels$labels <- bid.label
+        ans$left$labels$at <- ybid.at
+        ans$left$labels$labels <- formatC(ybid.at, format = "f",
+                                          digits = 2)
 
-        ans$right$labels$at <- rev(ask.label)
-        ans$right$labels$labels <- rev(ask.label)
+        ans$right$labels$at <- yask.at
+        ans$right$labels$labels <- formatC(yask.at, format = "f",
+                                           digits = 2)
 
         ans
     }
@@ -252,7 +252,7 @@
     plot(tmp)
 
     trellis.focus("panel", 1, 1, clip.off = TRUE, highlight = FALSE)
-    grid.text("Ask Price Levels", x = 1.13, rot = 90)
+    grid.text("Ask Price Levels", x = 1.14, rot = 90)
     trellis.unfocus()
 
 }
@@ -263,38 +263,36 @@
 .plot.orders.ob <-function(object, bounds){
 
     x <- object@current.ob
-    ob.names <- object@ob.names
 
     ## We only want data within our bounds
 
-    x <- x[(x[[ob.names[1]]] < mid.point(object)*(1+bounds)
-            & x[[ob.names[1]]] > mid.point(object)*(1-bounds)),]
+    x <- x[(x[["price"]] < mid.point(object)*(1+bounds)
+            & x[["price"]] > mid.point(object)*(1-bounds)),]
 
     ## Create data.frame with price level, number of orders, and type
 
-    ask <- x[x[[ob.names[3]]] == ob.names[6],]
-    bid <- x[x[[ob.names[3]]] == ob.names[7],]
+    ask <- x[x[["type"]] == "ASK",]
+    bid <- x[x[["type"]] == "BID",]
 
-    ask <- data.frame(table(ask[[ob.names[1]]]))
-    bid <- data.frame(table(bid[[ob.names[1]]]))
+    ask <- data.frame(table(ask[["price"]]))
+    bid <- data.frame(table(bid[["price"]]))
 
     ask <- cbind(ask, rep("ASK", nrow(ask)))
     bid <- cbind(bid, rep("BID", nrow(bid)))
 
-    names(ask) <- c(ob.names[1], "Orders", ob.names[3])
+    names(ask) <- c("price", "Orders", "type")
     names(bid) <- names(ask)
 
     x <- rbind(ask, bid)
-    x[[ob.names[1]]] <- as.numeric(levels(x[[ob.names[1]]]))
+    x[["price"]] <- as.numeric(levels(x[["price"]]))
 
     ## Maximum orders, max/min price. and difference between the max
     ## and min price for purposes of drawing the axes.
 
     max.orders <- ceiling(max(x[["Orders"]]))
-    max.orders <- max.orders + max.orders/5
 
-    min.price <- round(min(x[ob.names[[1]]]) - .049, 1)
-    max.price <- round(max(x[ob.names[[1]]]) + .049, 1)
+    min.price <- min(x[["price"]])
+    max.price <- max(x[["price"]])
     midpoint <- mid.point(object)
 
     bestbid <- best.bid(object)[[1]]
@@ -302,34 +300,17 @@
 
     ## Create x axes/limits.
 
-    x.limits <- list(c(max.orders, 0), c(0, max.orders))
-
-    x.at <- ceiling(seq(0, max.orders, max.orders/5))
+    x.at <- pretty(c(0, max.orders))
+    x.limits <- list(c(x.at[length(x.at)], 0),
+                     c(0, x.at[length(x.at)]))
 
     ## Creating the y axis values.
 
-    tmp.at <- c(seq(min.price, max.price, .1), bestbid, bestask)
+    tmp.at <- c(pretty(c(min.price, max.price), n = 10), bestbid, bestask)
     tmp.at <- sort(tmp.at)
 
     yask.at <- tmp.at[tmp.at > midpoint]
     ybid.at <- tmp.at[tmp.at < midpoint]
-
-    ## Remove values if its too close to the best bid or best ask
-
-    if(yask.at[1] + .05 > yask.at[2])
-        yask.at = yask.at[-2]
-
-    if(ybid.at[length(ybid.at)] - .05 < ybid.at[length(ybid.at) - 1])
-        ybid.at = ybid.at[-(length(ybid.at) - 1)]
-
-    ## Format it so it has two decimal places
-
-    yask.at <- formatC(yask.at, format = "f", digits = 2)
-
-    ybid.at <- formatC(ybid.at, format = "f", digits = 2)
-
-
-    ## Add the best ask and bid as the final values
 
     new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
@@ -337,31 +318,48 @@
 
         ans$left$ticks$at <- ybid.at
         ans$left$labels$at <- ybid.at
-        ans$left$labels$labels <- ybid.at
+        ans$left$labels$labels <- formatC(ybid.at, format = "f",
+                                          digits = 2)
 
         ans$right$ticks$at <- yask.at
         ans$right$labels$at <- yask.at
-        ans$right$labels$labels <- yask.at
+        ans$right$labels$labels <- formatC(yask.at, format = "f",
+                                           digits = 2)
         ans
     }
 
+    ## Remove values if its too close to the best bid or best ask
+
+    space = (max.price - min.price)/20
+
+    if(yask.at[1] + space > yask.at[2])
+        yask.at = yask.at[-2]
+
+    if(ybid.at[length(ybid.at)] - space < ybid.at[length(ybid.at) - 1])
+        ybid.at = ybid.at[-(length(ybid.at) - 1)]
+
     ## Ordering the levels so Bid comes before Ask.
 
-    x[[ob.names[3]]] <- ordered(x[[ob.names[3]]],
-                                levels = c(ob.names[7], ob.names[6]))
+    x[["type"]] <- ordered(x[["type"]],
+                                levels = c("BID", "ASK"))
 
     ## Actually plotting it.
 
-    tmp <- xyplot(x[[ob.names[1]]]~x[["Orders"]]|x[[ob.names[3]]], data = x,
+    tmp <- xyplot(x[["price"]]~x[["Orders"]]|x[["type"]], data = x,
+
                   ylab = "Price", xlab = "Number of Orders",
-                  main = paste("Order Book", .to.time(object@current.time),
-                  sep = " - "),
+
+                  main = paste("Order Book",
+                  .to.time(object@current.time), sep = " - "),
+
                   scales = list(x = list(relation = "free",
                                 limits = x.limits,
                                 at = x.at,
                                 axs = "i"),
                   y = list(alternating = 3)),
+
                   yscale.components = new.yscale.components,
+
                   panel = function(...){
                       panel.xyplot(...)
                       panel.lines(..., type = "H")
@@ -374,4 +372,123 @@
 
 }
 
+.animate.plot <- function(x, x.at, x.limits, y.limits, sub, time){
 
+    ## Creating the data to be plotted
+
+    x <- x[order(x$price),]
+
+    ask <- x[x[["type"]] == "ASK",]
+    ask <- ask[ask$price < y.limits[2] + .001,]
+
+    bid <- x[x[["type"]] == "BID",]
+    bid <- bid[bid$price > y.limits[1] + .001,]
+
+    x <- rbind(ask, bid)
+
+    price <- round(seq(y.limits[1], y.limits[2], .01), 2)
+
+    price <- cbind(price)
+
+    x <- merge(x, price, all.y = TRUE)
+
+    x$price <- as.ordered(x$price)
+    x$time <- as.ordered(x$time)
+
+    ## Ordering the levels so Bid comes before Ask.
+
+    x[["type"]] <- ordered(x[["type"]],
+                           levels = c("BID", "ASK"))
+
+    ## Creating the y-axis
+
+    ymin = y.limits[1] - .01
+    ybid.at <- (100 * (min(bid$price) - ymin)):(100 * (max(bid$price) - ymin))
+    ybid.at <- round(ybid.at)
+    yask.at <- (100 * (min(ask$price) - ymin)):(100 * (max(ask$price) - ymin))
+    yask.at <- round(yask.at)
+
+    new.yscale.components <- function(...) {
+        ans <- yscale.components.default(...)
+        ans$right <- ans$left
+
+        ans$left$ticks$at <- ybid.at
+        ans$left$labels$at <- ybid.at
+        ans$left$labels$labels <- formatC(price[ybid.at], format =
+                                          "f", digits = 2)
+
+        ans$right$ticks$at <- yask.at
+        ans$right$labels$at <- yask.at
+        ans$right$labels$labels <- formatC(price[yask.at], format =
+                                           "f", digits = 2)
+
+        ans
+    }
+
+    ## Actually plotting it
+
+    tmp <- barchart(price ~ size | type, data = x,
+
+                    ylab = "Price", xlab = "Size (Shares)",
+
+                    main = paste("Order Book", time, sep = " -- "),
+                    sub = sub,
+                    stack = TRUE,
+                    col = c("gray"),
+                    scale = list(x = list(relation = "free", at = x.at,
+                                 limits = x.limits, axs = "i", rot = 45),
+                    y = list(alternating = 3)),
+
+                    yscale.components = new.yscale.components
+
+                    )
+
+    invisible(tmp)
+}
+
+.supply.demand.plot <- function(object, bounds){
+
+    x <- .combine.size(object, bounds)
+    ask <- x[x$type == "ASK",]
+    bid <- x[x$type == "BID",]
+    bid <- bid[order(bid$price, decreasing = TRUE),]
+
+    ask$price <- ask$price - mid.point(object)
+    bid$price <- bid$price - mid.point(object)
+    ask$price <- ask$price/max(ask$price)
+    bid$price <- bid$price/max(abs(bid$price))
+
+    ask$size <- cumsum(ask$size)/sum(ask$size)
+    bid$size <- cumsum(bid$size)/sum(bid$size)
+    x <- rbind(ask, bid)
+    x <- rbind(x, c(ask$price[1], 0, "ASK"), c(bid$price[1], 0, "BID"))
+    x$size <- as.numeric(x$size)
+    x$price <- as.numeric(x$price)
+
+    x.limits = c(0, 1.2)
+    x.at = c(0, .2, .4, .6, .8, 1, 1.2)
+    x.labels = c(0, 20, 40, 60, 80, 100, 120)
+
+    y.limits <- c(-1.5, 1.5)
+    y.at = c(-1.5, -1, -.5, 0, .5, 1, 1.5)
+    y.labels = c(-150, -100, -50, 0, 50, 100, 150)
+
+    tmp <- xyplot(x$price ~ x$size, data = x, groups = x$type, type =
+                  "S", ylab = "Price (%)",
+                  xlab = "Size (%)", main = "Supply and Demand", sub =
+                  .to.time(object@current.time),
+                  scales = list(
+
+                  x = list(limits = x.limits, axs = "i", at = x.at, labels =
+                  x.labels, tck = c(1, 0)),
+
+                  y = list(limits = y.limits, at = y.at, labels = y.labels, tck =
+                  c(1, 0))),
+
+                  panel = function(...){
+                      panel.xyplot(...)
+                      panel.abline(h = 0)
+                  }
+                  )
+    invisible(tmp)
+}

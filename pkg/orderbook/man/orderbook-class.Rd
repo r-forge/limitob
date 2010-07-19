@@ -23,6 +23,8 @@
 \alias{market.order,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
+\alias{[,orderbook,character,ANY,ANY-method}
+\alias{copy,orderbook-method}
 
 \alias{bid.price.levels}
 \alias{ask.price.levels}
@@ -43,6 +45,8 @@
 \alias{best.ask}
 \alias{best.bid}
 \alias{reset}
+\alias{[}
+\alias{copy}
 
 \title{Class "orderbook"}
 \description{Functions for manipulating and extractiong information from
@@ -59,9 +63,6 @@ an orderbook}
     \item{\code{current.time}:}{A numeric value in milliseconds after
       midnight that indicates the time of \code{current.ob}.
     }
-    \item{\code{ob.names}:}{A character vector which indicates the names
-      of the columns in  \code{current.ob}.
-    }
     \item{\code{file}:}{A character string which specifies the
       location of the file containing the data file.
     }
@@ -76,9 +77,14 @@ an orderbook}
       trades that occurred before current.time.
     }
     \item{\code{my.trades}:}{A \code{hash} that contains data on the
-  users trades.}
+      users trades.
+    }
+    \item{\code{animation}:}{A \code{list} that contains the
+      location of the last created animation as well as the number of
+      slow frames.
     }
   }
+}
 
 
 \section{Methods}{
@@ -95,6 +101,12 @@ an orderbook}
     \item{summary}{\code{signature(object="orderbook")}: Prints a
       summary of the orderbook
     }
+    \item{[}{\code{signature(x = "orderbook", i = "character")}: Prints
+      the orders at that price level.
+    }
+    \item{copy}{\code{signature(x = "orderbook")}: Creates a copy of the
+      orderbook.
+      }
     \item{get.order.info}{\code{signature(object = "orderbook")}: Returns
       the price and size of the order with the specified ID.
     }

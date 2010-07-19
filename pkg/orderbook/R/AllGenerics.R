@@ -23,12 +23,12 @@
 
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
-                                     ob.names     = "character",
                                      feed         = "character",
                                      feed.index   = "numeric",
                                      ob.data      = "hash",
                                      trade.data   = "hash",
-                                     my.trades    = "hash"
+                                     my.trades    = "hash",
+                                     animation    = "list"
                                      ))
 
 if(!isGeneric("spread"))
@@ -37,7 +37,6 @@ if(!isGeneric("spread"))
 if(!isGeneric("get.order.info"))
     setGeneric("get.order.info", function(object, id, ...)
                standardGeneric("get.order.info"))
-
 
 if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)
@@ -131,13 +130,17 @@ if(!isGeneric("previous.trade"))
     setGeneric("previous.trade", function(object)
                standardGeneric("previous.trade"))
 
-if(!isGeneric("preload"))
-    setGeneric("preload", function(object, from, to, by = "sec",
-                                   bounds = 0.05, type = "n", file)
-               standardGeneric("preload"))
+if(!isGeneric("load.animation"))
+    setGeneric("load.animation", function(object, from, to, by =
+                                         "sec", bounds = 0.05)
+               standardGeneric("load.animation"))
+
+if(!isGeneric("load.trade.animation"))
+    setGeneric("load.trade.animation", function(object, before = 30,
+                                                after = 30, by = "sec", bounds = 0.05)
+               standardGeneric("load.trade.animation"))
 
 if(!isGeneric("animate"))
-    setGeneric("animate", function(file)
+    setGeneric("animate", function(object, pause = 0.25, type =
+                                   "sec")
                standardGeneric("animate"))
-
-

@@ -270,7 +270,7 @@ shown below.
 \begin{figure}
   \centering
   \vspace*{.1in}
-  \includegraphics{orderbook-fig1}
+  \includegraphics{orderbook-fig1.eps}
 \end{figure}
 
 Black lines separate individual orders. The order nearest to (furthest

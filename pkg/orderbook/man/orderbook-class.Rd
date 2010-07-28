@@ -76,12 +76,18 @@ an orderbook}
     \item{\code{trade.data}:}{A \code{hash} that contains data on all
       trades that occurred before current.time.
     }
-    \item{\code{my.trades}:}{A \code{hash} that contains data on the
-      users trades.
+    \item{\code{my.trades}:}{A \code{vector} that contains the file row
+      numbers of the users trades.
+    }
+    \item{\code{my.orders}:}{A \code{vector} that contains the IDs of
+      the users orders.
     }
     \item{\code{animation}:}{A \code{list} that contains the
       location of the last created animation as well as the number of
       slow frames.
+    }
+    \item{\code{trader}:}{A \code{boolean} that indicates whether or not
+      the order book will recognize the user's trades.
     }
   }
 }

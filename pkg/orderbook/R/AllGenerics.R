@@ -23,12 +23,13 @@
 
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
-                                     feed         = "character",
-                                     feed.index   = "numeric",
-                                     ob.data      = "hash",
-                                     trade.data   = "hash",
-                                     my.trades    = "hash",
-                                     animation    = "list"
+                                     file         = "character",
+                                     file.index   = "numeric",
+                                     trade.data   = "data.frame",
+                                     my.trades    = "data.frame",
+                                     animation    = "list",
+                                     trader       = "logical",
+                                     trade.index  = "numeric"
                                      ))
 
 if(!isGeneric("spread"))
@@ -136,11 +137,32 @@ if(!isGeneric("load.animation"))
                standardGeneric("load.animation"))
 
 if(!isGeneric("load.trade.animation"))
-    setGeneric("load.trade.animation", function(object, before = 30,
-                                                after = 30, by = "sec", bounds = 0.05)
+    setGeneric("load.trade.animation", function(object, tradenum,
+                                                before = 30, after =
+                                                30, by = "both", bounds
+                                                = 0.02)
                standardGeneric("load.trade.animation"))
 
 if(!isGeneric("animate"))
     setGeneric("animate", function(object, pause = 0.25, type =
                                    "sec")
                standardGeneric("animate"))
+
+if(!isGeneric("initialize.trades"))
+    setGeneric("initialize.trades", function(object, time = c(5, 300))
+               standardGeneric("initialize.trades"))
+
+if(!isGeneric("load.next.trade"))
+    setGeneric("load.next.trade", function(object, before = 30, after
+                                           = 30, by = "both",
+                                           bounds = 0.05)
+               standardGeneric("load.next.trade"))
+
+if(!isGeneric("load.previous.trade"))
+    setGeneric("load.previous.trade", function(object, before = 30, after
+                                           = 30, by = "both",
+                                           bounds = 0.05)
+               standardGeneric("load.previous.trade"))
+
+
+

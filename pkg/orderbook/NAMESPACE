@@ -1,3 +1,5 @@
+useDynLib(orderbook, .registration = TRUE)
+
 importFrom("graphics", plot)
 importFrom("hash", "copy")
 
@@ -13,10 +15,10 @@ exportMethods(
               "show",
 	      "summary",
 	      "plot",
+              "sort",
               "plotTrade",
               "display",
               "[",
-              "copy",
 
               "best.bid",
               "best.ask",
@@ -49,4 +51,8 @@ exportMethods(
 
               "animate",
               "load.animation",
-              "load.trade.animation")
+              "load.next.trade",
+              "load.trade.animation",
+              "load.next.trade",
+              "load.previous.trade",
+              "initialize.trades")

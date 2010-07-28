@@ -382,7 +382,7 @@
     ask <- ask[ask$price < y.limits[2] + .001,]
 
     bid <- x[x[["type"]] == "BID",]
-    bid <- bid[bid$price > y.limits[1] + .001,]
+    bid <- bid[bid$price > y.limits[1] - .001,]
 
     x <- rbind(ask, bid)
 
@@ -425,16 +425,27 @@
         ans
     }
 
+    ## Deciding groups/colors based on if trader or not
+
+    if(TRUE %in% x$mine){
+        colors = c("gray", "red")
+        chartgroups = interaction(x$mine, x$time)
+    } else {
+        colors = c("gray")
+        chartgroups = x$time
+    }
+
     ## Actually plotting it
 
     tmp <- barchart(price ~ size | type, data = x,
 
                     ylab = "Price", xlab = "Size (Shares)",
-
+                    groups = chartgroups,
                     main = paste("Order Book", time, sep = " -- "),
                     sub = sub,
                     stack = TRUE,
-                    col = c("gray"),
+                    col = colors,
+                    border = "transparent",
                     scale = list(x = list(relation = "free", at = x.at,
                                  limits = x.limits, axs = "i", rot = 45),
                     y = list(alternating = 3)),

@@ -36,7 +36,7 @@ SEXP getTrades(SEXP filename){
     const char delimiters[] = ",";
     char *token, *strcp;
     int len, i = 0, j = 0, h = 1;
-    trade *tmp, *t, *elt;
+    trade *tmp, *t;
 
 
     f = fopen(CHAR(STRING_ELT(filename, 0)), "r");
@@ -50,24 +50,24 @@ SEXP getTrades(SEXP filename){
 
 	token = strtok(strcp, delimiters);
 	if(strcmp(token, "T") == 0){
-	    tmp = (trade*)malloc(sizeof(trade));
+	    t = (trade*)malloc(sizeof(trade));
 
-	    tmp->row = h;
-
-	    token = strtok(NULL, delimiters);
-	    strcpy(tmp->time, token);
+	    t->row = h;
 
 	    token = strtok(NULL, delimiters);
-	    token = strtok(NULL, delimiters);
-	    strcpy(tmp->price, token);
+	    strcpy(t->time, token);
 
 	    token = strtok(NULL, delimiters);
-	    strcpy(tmp->size, token);
+	    token = strtok(NULL, delimiters);
+	    strcpy(t->price, token);
 
 	    token = strtok(NULL, delimiters);
-	    strcpy(tmp->mine, token);
+	    strcpy(t->size, token);
 
-	    LL_APPEND(head, tmp);
+	    token = strtok(NULL, delimiters);
+	    strcpy(t->mine, token);
+
+	    LL_APPEND(head, t);
 
 	    i++;
 	}
@@ -97,8 +97,9 @@ SEXP getTrades(SEXP filename){
 	SET_STRING_ELT(retVector, j, mkChar(t->mine));
 	j++;
     }
-    LL_FOREACH_SAFE(head, tmp, elt){
-	LL_DELETE(head, elt);
+    LL_FOREACH_SAFE(head, t, tmp){
+	LL_DELETE(head, t);
+	free(t);
     }
     UNPROTECT(1);
 

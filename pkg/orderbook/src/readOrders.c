@@ -12,34 +12,34 @@
 #define MAX_LEN 100
 
 struct order{
-    int id;
-    long time;
+    char id[MAX_LEN];
     char type[MAX_LEN];
+    char trade[MAX_LEN];
+    long time;
     double price;
     int size;
-    char trade[MAX_LEN];
     UT_hash_handle hh;
 };
 
 struct order *orderbook = NULL;
 
 
-void add_order(int newid, long newtime, char* newtype, double newprice, int newsize, char* newtrade){
+void add_order(char* newid, long newtime, char* newtype, double newprice, int newsize, char* newtrade){
     struct order *s;
 
     s = malloc(sizeof(struct order));
-    s->id = newid;
+    strcpy(s->id, newid);
     s->time = newtime;
     strcpy(s->type, newtype);
     s->price = newprice;
     s->size = newsize;
     strcpy(s->trade, newtrade);
-    HASH_ADD_INT(orderbook, id, s);
+    HASH_ADD_STR(orderbook, id, s);
 }
 
-struct order *find_order(int key){
+struct order *find_order(char key[MAX_LEN]){
     struct order *s;
-    HASH_FIND_INT(orderbook, &key, s);
+    HASH_FIND_STR(orderbook, key, s);
     return s;
 }
 void cancel_order(struct order *s){
@@ -77,8 +77,7 @@ SEXP iterate_orders(){
 	SET_STRING_ELT(retVector, i, mkChar(tmp));
 	i++;
 
-	sprintf(tmp, "%d", s->id);
-	SET_STRING_ELT(retVector, i, mkChar(tmp));
+	SET_STRING_ELT(retVector, i, mkChar(s->id));
 	i++;
 
 	SET_STRING_ELT(retVector, i, mkChar(s->type));
@@ -113,10 +112,10 @@ SEXP readOrders(SEXP filename, SEXP msgs){
      */
     struct order *s;
     FILE *f;
-    char str[MAX_LEN], type[MAX_LEN], trade[MAX_LEN];
+    char str[MAX_LEN], type[MAX_LEN], trade[MAX_LEN], id[MAX_LEN];
     const char delimiters[] = ",";
     char *token, *strcp;
-    int i = 1, id, size;
+    int i = 1, size;
     long time;
     double price;
 
@@ -138,7 +137,7 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 	    time = atol(token);
 
 	    token = strtok(NULL, delimiters);
-	    id = atoi(token);
+	    strcpy(id, token);
 
 	    token = strtok(NULL, delimiters);
 	    price = atof(token);
@@ -158,7 +157,7 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 	    token = strtok(NULL, delimiters);
 	    token = strtok(NULL, delimiters);
 
-	    id = atoi(token);
+	    strcpy(id, token);
 	    s = find_order(id);
 	    cancel_order(s);
 
@@ -167,7 +166,7 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 
 	    token = strtok(NULL, delimiters);
 	    token = strtok(NULL, delimiters);
-	    id = atoi(token);
+	    strcpy(id, token);
 
 	    token = strtok(NULL, delimiters);
 	    size = atoi(token);

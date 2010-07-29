@@ -1007,6 +1007,8 @@ setMethod("[",
               ## erase the rownames.
 
               tmp <- current.ob[current.ob$price == i,]
+              tmp <- tmp[order(tmp$time),]
+
               rownames(tmp) <- NULL
 
               ## Return tmp.

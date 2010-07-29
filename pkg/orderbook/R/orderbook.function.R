@@ -1,23 +1,23 @@
+## orderbook.function.R: Returns an object of class limitob
+##
+##
+## orderbook is free software: you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 2 of the License, or
+## (at your option) any later version.
+##
+## orderbook is distributed in the hope that it will be useful, but
+## WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with orderbook.  If not, see <http://www.gnu.org/licenses/>.
+
+## Create an empty data frame with price, size, type, time, and id
+## as the columns
+
 orderbook <- function(file = NULL, trader = TRUE) {
-
-    ## orderbook.function.R: Returns an object of class limitob
-    ##
-    ##
-    ## orderbook is free software: you can redistribute it and/or modify it
-    ## under the terms of the GNU General Public License as published by
-    ## the Free Software Foundation, either version 2 of the License, or
-    ## (at your option) any later version.
-    ##
-    ## orderbook is distributed in the hope that it will be useful, but
-    ## WITHOUT ANY WARRANTY; without even the implied warranty of
-    ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    ## GNU General Public License for more details.
-    ##
-    ## You should have received a copy of the GNU General Public License
-    ## along with orderbook.  If not, see <http://www.gnu.org/licenses/>.
-
-    ## Create an empty data frame with price, size, type, time, and id
-    ## as the columns
 
     current.ob <- data.frame(price = numeric(0), size =
                              numeric(0), type = character(0), time
@@ -47,7 +47,7 @@ orderbook <- function(file = NULL, trader = TRUE) {
     ## distinguish his or trades from everybody elses. So we load that
     ## data in.
 
-    if(trader){
+    if(isTRUE(trader)){
 
         ## Mine is a logical indicating whether or not the trade
         ## belongs to the trader.
@@ -75,7 +75,7 @@ orderbook <- function(file = NULL, trader = TRUE) {
         my.trades <- trade.data[trade.data$mine == TRUE,]
         rownames(my.trades) <- NULL
 
-    } else {
+    } else{
 
         ## If trader is false then just create the trade.data data
         ## frame without mine.

@@ -239,7 +239,6 @@
 
         object <- read.time(object, time[i])
         current.ob[[i]] <- object@current.ob
-        sub[[i]] <- ""
 
         x <- .combine.size(object, 1)
         mid <- mid.point(object)
@@ -288,7 +287,7 @@
     for (i in 1:length(current.ob)){
 
         tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits,
-                                  y.limits, sub[[i]], time[i])
+                                  y.limits, time[i])
 
         name[i] <- paste("y", i, sep = ".")
         assign(paste("y", i, sep = "."), tmp.plot)
@@ -497,14 +496,4 @@
     }
 
     return(round(twap - trdprice, 3))
-}
-
-## Return a vector with all trades marked true
-
-.get.my.trades <- function(object){
-    x <- object@trade.data
-
-    x <- x$row[x$mine == TRUE,]
-
-    invisible(x)
 }

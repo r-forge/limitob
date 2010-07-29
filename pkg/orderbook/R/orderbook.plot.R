@@ -372,7 +372,7 @@
 
 }
 
-.animate.plot <- function(x, x.at, x.limits, y.limits, sub, time){
+.animate.plot <- function(x, x.at, x.limits, y.limits, time){
 
     ## Creating the data to be plotted
 
@@ -442,7 +442,6 @@
                     ylab = "Price", xlab = "Size (Shares)",
                     groups = chartgroups,
                     main = paste("Order Book", time, sep = " -- "),
-                    sub = sub,
                     stack = TRUE,
                     col = colors,
                     border = "transparent",

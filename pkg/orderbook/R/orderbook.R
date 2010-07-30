@@ -792,15 +792,11 @@ setMethod("load.animation",
 
               } else if(isTRUE(by %in% "msg")){
 
-                  ## Get object to the correct message number.
-
-                  object <- read.orders(object, from - object@file.index)
-                  n <- to - from
-
                   ## Run helper function to do actual creation of the
                   ## Trellis objects.
 
-                  invisible(.animate.orders(object, n, bounds))
+                  invisible(.animate.orders(object, seq(from, to),
+                                            bounds))
 
               }
           }
@@ -845,6 +841,10 @@ setMethod("load.trade.animation",
                   time <- seq.POSIXt(from, to, "sec")
                   time <- format(time, format ="%H:%M:%S")
 
+                  ## Convert back to milliseconds
+
+                  time <- sapply(time, .to.ms, USE.NAMES = FALSE)
+
                   object <- .animate.seconds(object, time, bounds)
               }
 
@@ -854,17 +854,10 @@ setMethod("load.trade.animation",
 
                   traderow <- trade[[1]]
 
-                  ## n is the row 30 messages before the specified trade.
-
-                  n <- traderow - before - object@file.index
-
-                  ## Create an orderbook at message n.
-
-                  object <- read.orders(object, n)
-
                   ## Animate the orderbook from n to before + after messages after n.
 
-                  object <- .animate.orders(object, before + after, bounds)
+                  object <- .animate.orders(object, seq(traderow -
+                                                        before, traderow + after), bounds)
 
               }
 

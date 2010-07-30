@@ -35,10 +35,6 @@ setClass("orderbook", representation(current.ob   = "data.frame",
 if(!isGeneric("spread"))
     setGeneric("spread", function(object, ...) standardGeneric("spread"))
 
-if(!isGeneric("get.order.info"))
-    setGeneric("get.order.info", function(object, id, ...)
-               standardGeneric("get.order.info"))
-
 if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)
                standardGeneric("display"))
@@ -99,10 +95,6 @@ if (!isGeneric("market.order"))
     setGeneric("market.order", function(object, size, type, ...)
                standardGeneric("market.order"))
 
-if (!isGeneric("market.order.price"))
-    setGeneric("market.order.price", function(object, size, price, ...)
-               standardGeneric("market.order.price"))
-
 if (!isGeneric("view.trade"))
     setGeneric("view.trade", function(object, n = 1)
                standardGeneric("view.trade"))
@@ -122,14 +114,6 @@ if(!isGeneric("read.orders"))
 if(!isGeneric("read.time"))
     setGeneric("read.time", function(object, n)
                standardGeneric("read.time"))
-
-if(!isGeneric("next.trade"))
-    setGeneric("next.trade", function(object)
-               standardGeneric("next.trade"))
-
-if(!isGeneric("previous.trade"))
-    setGeneric("previous.trade", function(object)
-               standardGeneric("previous.trade"))
 
 if(!isGeneric("load.animation"))
     setGeneric("load.animation", function(object, from, to, by =

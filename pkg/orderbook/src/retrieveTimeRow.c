@@ -13,7 +13,7 @@
 #define MAX_LEN 100
 
 
-void retrieveTimeRow(char** filename, int *a, int *b){
+SEXP retrieveTimeRow(SEXP filename, SEXP Rtimes){
     /* defining stuff, f is the file that we open, str is what we put
        strings into delimiters is comma because its a csv file, token
        and strcp are where we copy str and other things into so that
@@ -24,38 +24,38 @@ void retrieveTimeRow(char** filename, int *a, int *b){
     char str[MAX_LEN];
     const char delimiters[] = ",";
     char *token, *strcp;
-    int i = 1;
+    int j = 0, i = 1, n;
+    int *times;
+    SEXP retVector;
 
-    f = fopen(filename[0], "r");
+    times = INTEGER(Rtimes);
+    n = length(Rtimes);
+
+    PROTECT(retVector = allocVector(INTSXP, n));
+
+    f = fopen(CHAR(STRING_ELT(filename, 0)), "r");
 
     if(f == NULL)
 	error("failed to open file");
 
-    while(fgets(str, MAX_LEN, f) != NULL){
+    while(j < n && fgets(str, MAX_LEN, f) != NULL){
 	strcp = strdup(str);
 
 	token = strtok(strcp, delimiters);
 	token = strtok(NULL, delimiters);
 
-	if(atoi(token) >= *a){
-	    *b = i;
-	    break;
+	if(atoi(token) >= times[j]){
+	    INTEGER(retVector)[j] = i;
+	    j++;
 	}
 	free(strcp);
 	i++;
     }
 
     fclose(f);
-}
 
-static R_NativePrimitiveArgType retrieve[3] = {STRSXP, INTSXP, INTSXP};
+    UNPROTECT(1);
 
-static const R_CMethodDef cMethods[] = {
-    {"retrieveTimeRow", (DL_FUNC) &retrieveTimeRow, 3, retrieve},
-    {NULL, NULL, 0}
-};
+    return(retVector);
 
-void R_init_retrieveTimeRow(DllInfo *info){
-
-    R_registerRoutines(info,cMethods, NULL, NULL, NULL);
 }

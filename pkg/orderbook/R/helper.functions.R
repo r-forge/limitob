@@ -57,9 +57,9 @@
 
 ## Returns the row number of the first order after the specified time.
 
-.get.time.row <- function(file, n, skip = 1){
+.get.time.row <- function(file, n){
 
-    .C("retrieveTimeRow", as.character(file), as.integer(n), as.integer(0))[[3]]
+    invisible(.Call("retrieveTimeRow", as.character(file), as.integer(n)))
 }
 
 ## Returns the time of a row number
@@ -85,11 +85,37 @@
     return(as.numeric(x[2]))
 }
 
-## read.orders generates the orderbook at a specified number of
+## .read.orders.c generates the orderbook at a specified number of
 ## messages.
 
 .read.orders.c <- function(ob, n){
     x <- .Call("readOrders", as.character(ob@file), as.integer(n))
+
+
+    ## Set indices for current location in the orderbook.
+
+    ob@current.ob <- .update(x)
+    ob@file.index <- n
+    ob@current.time <- max(object@current.ob$time)
+    invisible(ob)
+
+}
+
+## read.orders.multiple does what the above does, but returns a list
+## with the orderbook at each row number specified
+
+.read.orders.multiple <- function(ob, n){
+    x <- .Call("readOrdersMultiple", as.character(ob@file), as.integer(n))
+    x <- lapply(x, .update)
+
+    invisible(x)
+
+}
+
+## Takes the a vector that is the output of .Call "readOrders" and
+## turns it into a data frame.
+
+.update <- function(x){
 
     ## Remove new line indicators
 
@@ -115,15 +141,9 @@
 
     names(x) <- c("price", "size", "type", "time", "id", "mine")
 
-    ## Set indeces for current location in the orderbook.
-
-    ob@file.index <- n
-    ob@current.time <- max(time)
-    ob@current.ob <- x
-    invisible(ob)
+    invisible(x)
 
 }
-
 
 ## Takes in object and number of lines of the data file to be
 ## read. Returns an object with updated current.ob,
@@ -223,8 +243,10 @@
     ## time, as well as the variables that hold the y and x
     ## limits. sub is for the subtitles.
 
-    current.ob = list()
-    sub = list()
+    rows <- .get.time.row(object@file, time)
+
+    time <- .to.time(time)
+    current.ob = .read.orders.multiple(object, rows)
     y.limits = c(Inf, 0)
     max.size = 0
 
@@ -237,8 +259,7 @@
         ## into our list, and put "" in the subtitle (no subtitles
         ## until slow).
 
-        object <- read.time(object, time[i])
-        current.ob[[i]] <- object@current.ob
+        object@current.ob <- current.ob[[i]]
 
         x <- .combine.size(object, 1)
         mid <- mid.point(object)
@@ -319,36 +340,20 @@
     ## time, as well as the variables that hold the y and x
     ## limits. sub is for the subtitles.
 
-    current.ob = list()
-    sub = list()
-    time = vector()
-    y.limits = c(Inf, 0)
-    max.size = 0
+    current.ob <- .read.orders.multiple(object, as.integer(n))
 
-    ## Ex: startrow is 1500 and file index is 1000, then we read in
-    ## 500 rows so tmp.ob is now through file.index 1500. Then we skip
-    ## 1499 rows and read in the next one, so our scan is at 1500.
-
-    file <- file(object@file, open = "r")
-
-    x <- scan(file, nline = 1, sep = ",", what = "character", quiet =
-              TRUE, skip = object@file.index - 1)
+    time <- vector()
+    y.limits <- c(Inf, 0)
+    max.size <- 0
 
     ## Use a for loop to create all the current.ob and take the
     ## smallest/biggest axes.
 
-    for(i in 1:n){
+    for(i in 1:length(n)){
 
-        ## Generate the object for the next time, put the current.ob
-        ## into our list, and put "" in the subtitle (no subtitles
-        ## until slow).
+        object@current.ob <- current.ob[[i]]
 
-        object <- read.orders(object, 1)
-        current.ob[[i]] <- object@current.ob
-        time[i] <- .to.time(object@current.time)
-
-        sub[[i]] <- scan(file, nline = 1, sep = ",", what = "character",
-                            quiet = TRUE)
+        time[i] <- .to.time(max(current.ob[[i]]$time))
 
         x <- .combine.size(object, 1)
         mid <- mid.point(object)
@@ -383,8 +388,6 @@
 
     }
 
-    close(file)
-
     ## Creating the x limits and tick locations
 
     x.at <- pretty(c(0, max.size))
@@ -399,7 +402,7 @@
     for (i in 1:length(current.ob)){
 
         tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits,
-                                  y.limits, sub[i], time[i])
+                                  y.limits, time[i])
 
         name[i] <- paste("y", i, sep = ".")
         assign(paste("y", i, sep = "."), tmp.plot)

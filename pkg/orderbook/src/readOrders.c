@@ -24,33 +24,6 @@ struct order{
 struct order *orderbook = NULL;
 
 
-void add_order(char* newid, long newtime, char* newtype, double newprice, int newsize, char* newtrade){
-    struct order *s;
-
-    s = malloc(sizeof(struct order));
-    strcpy(s->id, newid);
-    s->time = newtime;
-    strcpy(s->type, newtype);
-    s->price = newprice;
-    s->size = newsize;
-    strcpy(s->trade, newtrade);
-    HASH_ADD_STR(orderbook, id, s);
-}
-
-struct order *find_order(char key[MAX_LEN]){
-    struct order *s;
-    HASH_FIND_STR(orderbook, key, s);
-    return s;
-}
-void cancel_order(struct order *s){
-    HASH_DEL(orderbook, s);
-    free(s);
-}
-
-
-void replace_order(struct order *s, int newsize){
-	s->size = newsize;
-}
 
 void delete_all() {
   struct order *s;
@@ -112,13 +85,10 @@ SEXP readOrders(SEXP filename, SEXP msgs){
      */
     struct order *s;
     FILE *f;
-    char str[MAX_LEN], type[MAX_LEN], trade[MAX_LEN], id[MAX_LEN];
+    char str[MAX_LEN];
     const char delimiters[] = ",";
-    char *token, *strcp;
+    char *token, *strcp, *ptr;
     int i = 1, size;
-    long time;
-    double price;
-
 
     f = fopen(CHAR(STRING_ELT(filename, 0)), "r");
 
@@ -133,46 +103,53 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 
 	if(strcmp(token, "A") == 0){
 
-	    token = strtok(NULL, delimiters);
-	    time = atol(token);
+	    s = malloc(sizeof(struct order));
 
 	    token = strtok(NULL, delimiters);
-	    strcpy(id, token);
+	    s->time = atol(token);
 
 	    token = strtok(NULL, delimiters);
-	    price = atof(token);
+	    strcpy(s->id, token);
 
 	    token = strtok(NULL, delimiters);
-	    size = atoi(token);
+	    s->price = atof(token);
 
 	    token = strtok(NULL, delimiters);
-	    strcpy(type, token);
+	    s->size = atoi(token);
 
 	    token = strtok(NULL, delimiters);
-	    strcpy(trade, token);
+	    strcpy(s->type, token);
 
+	    token = strtok(NULL, delimiters);
+	    strcpy(s->trade, token);
 
-	    add_order(id, time, type, price, size, trade);
+	    HASH_ADD_STR(orderbook, id, s);
 	} else if(strcmp(token, "C") == 0){
 	    token = strtok(NULL, delimiters);
 	    token = strtok(NULL, delimiters);
 
-	    strcpy(id, token);
-	    s = find_order(id);
-	    cancel_order(s);
+	    // Get rid of the new line character
+
+	    if((ptr = strchr(token, '\n')) != NULL)
+		*ptr = '\0';
+
+	    HASH_FIND(hh, orderbook, token, strlen(token), s);
+
+	    HASH_DEL(orderbook, s);
+	    free(s);
 
 
 	} else if(strcmp(token, "R") == 0){
 
 	    token = strtok(NULL, delimiters);
 	    token = strtok(NULL, delimiters);
-	    strcpy(id, token);
+
+	    HASH_FIND_STR(orderbook, token, s);
 
 	    token = strtok(NULL, delimiters);
 	    size = atoi(token);
 
-	    s = find_order(id);
-	    replace_order(s, size);
+	    s->size = size;
 
 	}
 	/*

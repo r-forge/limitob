@@ -811,8 +811,7 @@ setMethod("load.trade.animation",
 
               ## Extract the desired trade from my trades.
 
-              trade <- object@my.trades
-              trade <- trade[tradenum,]
+              trade <- object@my.trades[tradenum,]
 
               if(isTRUE(by %in% "sec") | isTRUE(by %in% "both")){
 
@@ -958,7 +957,7 @@ setMethod("reset",
 
 setMethod("animate",
           signature(object = "orderbook"),
-          function(object, pause = 0.25, type = "sec"){
+          function(object, type = "sec", start = NULL, end = NULL, pause = 0.25, initPause = 2){
 
               ## Load the trade animation stored in object@animation
               ## according to type.
@@ -970,9 +969,29 @@ setMethod("animate",
 
               name <- name[-length(name)]
 
+              ## Initial pause
+
+              Sys.sleep(initPause)
+
+              ## If start is null, then make it 1, otherwise its the
+              ## middle of name - start
+
+              if(is.null(start))
+                  start <- 1
+              else
+                  start <- ceiling(length(name)/2) - start
+
+              ## If end is null, then make it the length of name,
+              ## otherwise its the middle of name + start
+
+              if(is.null(end))
+                 end <- length(name)
+              else
+                 end <- floor(length(name)/2) + end
+
               ## Loop through name to print all the objects.
 
-              for(i in 1:length(name)){
+              for(i in start:end){
 
                   print(get(name[i]))
 

@@ -425,25 +425,15 @@
         ans
     }
 
-    ## Deciding groups/colors based on if trader or not
-
-    if(TRUE %in% x$mine){
-        colors = c("gray", "red")
-        chartgroups = interaction(x$mine, x$time)
-    } else {
-        colors = c("gray")
-        chartgroups = x$time
-    }
-
     ## Actually plotting it
 
     tmp <- barchart(price ~ size | type, data = x,
 
                     ylab = "Price", xlab = "Size (Shares)",
-                    groups = chartgroups,
+                    groups = interaction(x$status, x$time),
                     main = paste("Order Book", time, sep = " -- "),
                     stack = TRUE,
-                    col = colors,
+                    col = c("gray", "blue", "green", "red"),
                     border = "transparent",
                     scale = list(x = list(relation = "free", at = x.at,
                                  limits = x.limits, axs = "i", rot = 45),

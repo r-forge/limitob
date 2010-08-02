@@ -128,8 +128,9 @@ if(!isGeneric("load.trade.animation"))
                standardGeneric("load.trade.animation"))
 
 if(!isGeneric("animate"))
-    setGeneric("animate", function(object, pause = 0.25, type =
-                                   "sec")
+    setGeneric("animate", function(object, type = "sec", start = NULL,
+                                   end = NULL, pause = 0.25, initPause
+                                   = 2)
                standardGeneric("animate"))
 
 if(!isGeneric("initialize.trades"))

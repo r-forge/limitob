@@ -133,12 +133,30 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 	    if((ptr = strchr(token, '\n')) != NULL)
 		*ptr = '\0';
 
-	    HASH_FIND(hh, orderbook, token, strlen(token), s);
-
+	    HASH_FIND_STR(orderbook, token, s);
 	    HASH_DEL(orderbook, s);
+
 	    free(s);
+/*
+	} else if(strcmp(token, "T") == 0){
+	    token = strtok(NULL, delimiters);
+	    token = strtok(NULL, delimiters);
 
+	    HASH_FIND_STR(orderbook, token, s);
 
+	    if(s){
+
+		token = strtok(NULL, delimiters);
+		token = strtok(NULL, delimiters);
+
+		size = atoi(token);
+		if(s->size == size){
+		    HASH_DEL(orderbook, s);
+		    free(s);
+		} else
+		    s->size = s->size - size;
+	    }
+*/
 	} else if(strcmp(token, "R") == 0){
 
 	    token = strtok(NULL, delimiters);
@@ -150,19 +168,8 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 	    size = atoi(token);
 
 	    s->size = size;
+	}
 
-	}
-	/*
-	if(strcmp(token, "T") == 0){
-	    while(token != NULL){
-		if(strcmp(token, "TRUE\n") == 0){
-		    trades[j] = i;
-		    j++;
-		}
-		token = strtok(NULL, delimiters);
-	    }
-	}
-	*/
 	free(strcp);
 	i++;
     }

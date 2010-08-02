@@ -106,7 +106,19 @@
 
 .read.orders.multiple <- function(ob, n){
     x <- .Call("readOrdersMultiple", as.character(ob@file), as.integer(n))
-    x <- lapply(x, .update)
+
+    len <- length(x)
+
+    trades <- x[[len]][x[[len]] != ""]
+    trades <- unique(trades)
+
+    cancels <- x[[len - 1]][x[[len - 1]] != ""]
+    cancels <- setdiff(cancels, trades)
+
+    x <- lapply(x[1:(len - 2)], .update)
+
+    x[[len - 1]] <- cancels
+    x[[len]] <- trades
 
     invisible(x)
 
@@ -243,17 +255,19 @@
     ## time, as well as the variables that hold the y and x
     ## limits. sub is for the subtitles.
 
-    rows <- .get.time.row(object@file, time)
+    n <- .get.time.row(object@file, time)
 
     time <- .to.time(time)
-    current.ob = .read.orders.multiple(object, rows)
+    current.ob = .read.orders.multiple(object, n)
     y.limits = c(Inf, 0)
     max.size = 0
+    cancels <- current.ob[[length(current.ob) - 1]]
+    trades <- current.ob[[length(current.ob)]]
 
     ## Use a for loop to create all the current.ob and take the
     ## smallest/biggest axes.
 
-    for(i in 1:length(time)){
+    for(i in 1:length(n)){
 
         ## Generate the object for the next time, put the current.ob
         ## into our list, and put "" in the subtitle (no subtitles
@@ -305,10 +319,17 @@
 
     name = vector()
 
-    for (i in 1:length(current.ob)){
+    for (i in 1:length(n)){
 
-        tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits,
-                                  y.limits, time[i])
+        x <- current.ob[[i]]
+        x$status[x$mine == FALSE] = "a"
+        x$status[x$id %in% cancels] = "b"
+        x$status[x$id %in% trades] = "c"
+        x$status[x$mine == TRUE] = "d"
+        x$status <- factor(x$status, levels = c("a", "b", "c", "d"))
+
+        tmp.plot <- .animate.plot(x, x.at, x.limits, y.limits,
+                                  time[i])
 
         name[i] <- paste("y", i, sep = ".")
         assign(paste("y", i, sep = "."), tmp.plot)
@@ -345,6 +366,8 @@
     time <- vector()
     y.limits <- c(Inf, 0)
     max.size <- 0
+    cancels <- current.ob[[length(current.ob) - 1]]
+    trades <- current.ob[[length(current.ob)]]
 
     ## Use a for loop to create all the current.ob and take the
     ## smallest/biggest axes.
@@ -399,10 +422,17 @@
 
     name = vector()
 
-    for (i in 1:length(current.ob)){
+    for (i in 1:length(n)){
 
-        tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits,
-                                  y.limits, time[i])
+        x <- current.ob[[i]]
+        x$status[x$mine == FALSE] = "a"
+        x$status[x$id %in% cancels] = "b"
+        x$status[x$id %in% trades] = "c"
+        x$status[x$mine == TRUE] = "d"
+        x$status <- factor(x$status, levels = c("a", "b", "c", "d"))
+
+        tmp.plot <- .animate.plot(x, x.at, x.limits, y.limits,
+                                  time[i])
 
         name[i] <- paste("y", i, sep = ".")
         assign(paste("y", i, sep = "."), tmp.plot)

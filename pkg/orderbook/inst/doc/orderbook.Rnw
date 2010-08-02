@@ -267,6 +267,12 @@ is stored in the \texttt{animation} slot within the \texttt{orderbook}
 object. A single Trellis object generated using \texttt{by = 'msg'} is
 shown below.
 
+\begin{figure}
+  \centering
+  \vspace*{.1in}
+  \includegraphics{orderbook-fig1}
+\end{figure}
+
 Black lines separate individual orders. The order nearest to (furthest
 from) the middle axis has the highest (lowest) time priority for that
 price level. \texttt{loadanimation} fixes the y- and x-axis labels

@@ -23,17 +23,20 @@
 
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
-                                     file         = "character",
-                                     file.index   = "numeric",
-                                     trade.data   = "data.frame",
-                                     my.trades    = "data.frame",
-                                     animation    = "list",
-                                     trader       = "logical",
-                                     trade.index  = "numeric"
+                                     feed         = "character",
+                                     feed.index   = "numeric",
+                                     ob.data      = "hash",
+                                     trade.data   = "hash",
+                                     my.trades    = "hash",
+                                     animation    = "list"
                                      ))
 
 if(!isGeneric("spread"))
     setGeneric("spread", function(object, ...) standardGeneric("spread"))
+
+if(!isGeneric("get.order.info"))
+    setGeneric("get.order.info", function(object, id, ...)
+               standardGeneric("get.order.info"))
 
 if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)
@@ -95,6 +98,10 @@ if (!isGeneric("market.order"))
     setGeneric("market.order", function(object, size, type, ...)
                standardGeneric("market.order"))
 
+if (!isGeneric("market.order.price"))
+    setGeneric("market.order.price", function(object, size, price, ...)
+               standardGeneric("market.order.price"))
+
 if (!isGeneric("view.trade"))
     setGeneric("view.trade", function(object, n = 1)
                standardGeneric("view.trade"))
@@ -115,39 +122,25 @@ if(!isGeneric("read.time"))
     setGeneric("read.time", function(object, n)
                standardGeneric("read.time"))
 
+if(!isGeneric("next.trade"))
+    setGeneric("next.trade", function(object)
+               standardGeneric("next.trade"))
+
+if(!isGeneric("previous.trade"))
+    setGeneric("previous.trade", function(object)
+               standardGeneric("previous.trade"))
+
 if(!isGeneric("load.animation"))
     setGeneric("load.animation", function(object, from, to, by =
                                          "sec", bounds = 0.05)
                standardGeneric("load.animation"))
 
 if(!isGeneric("load.trade.animation"))
-    setGeneric("load.trade.animation", function(object, tradenum,
-                                                before = 30, after =
-                                                30, by = "both", bounds
-                                                = 0.02)
+    setGeneric("load.trade.animation", function(object, before = 30,
+                                                after = 30, by = "sec", bounds = 0.05)
                standardGeneric("load.trade.animation"))
 
 if(!isGeneric("animate"))
-    setGeneric("animate", function(object, type = "sec", start = NULL,
-                                   end = NULL, pause = 0.25, initPause
-                                   = 2)
+    setGeneric("animate", function(object, pause = 0.25, type =
+                                   "sec")
                standardGeneric("animate"))
-
-if(!isGeneric("initialize.trades"))
-    setGeneric("initialize.trades", function(object, time = c(5, 300))
-               standardGeneric("initialize.trades"))
-
-if(!isGeneric("load.next.trade"))
-    setGeneric("load.next.trade", function(object, before = 30, after
-                                           = 30, by = "both",
-                                           bounds = 0.05)
-               standardGeneric("load.next.trade"))
-
-if(!isGeneric("load.previous.trade"))
-    setGeneric("load.previous.trade", function(object, before = 30, after
-                                           = 30, by = "both",
-                                           bounds = 0.05)
-               standardGeneric("load.previous.trade"))
-
-
-

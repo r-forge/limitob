@@ -1,3 +1,6 @@
+################################################################################
+##
+##
 ## orderbook.function.R: Returns an object of class limitob
 ##
 ##
@@ -13,94 +16,99 @@
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with orderbook.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
 
-## Create an empty data frame with price, size, type, time, and id
-## as the columns
+## Returns an orderbook object. For input it takes a data frame, and names for
+## price, size, type, time, id, as well as what ASK and BID are denoted as.
 
-orderbook <- function(file = NULL, trader = TRUE) {
+orderbook <- function(x     = data.frame(),
+                      price = "price",
+                      size  = "size",
+                      type  = "type",
+                      time  = "time",
+                      id    = "id",
+                      ask   = "ASK",
+                      bid   = "BID",
+                      file  = NULL)
+{
 
-    current.ob <- data.frame(price = numeric(0), size =
-                             numeric(0), type = character(0), time
-                             = numeric(0), id = character(0))
+    ## Make sure the user inputted correct names for the columns, ie the
+    ## columns named actually exist in data frame x. If x isn't empty do the
+    ## following.
 
-    ## Look through the input file and return a vector of trade
-    ## data. .Call calls C routines. The vector consists looks like
-    ## c(row, time, price, size, mine, row, time, price, size,
-    ## mine...).
+    if(nrow(x) != 0){
+        if(!(id %in% names(x) &
+             price %in% names(x) &
+             size %in% names(x) &
+             type %in% names(x) &
+             time %in% names(x))){
+            stop("Wrong variable name")
+        }
 
-    trade.data <- .Call("getTrades", as.character(file))
 
-    ## Find the length of the vector.
 
-    len <- length(trade.data)
+        ## Casting everything to make sure it is the desired data type. For some
+        ## reason ID doesn't really get casted so I'll cast it again later.
 
-    ## Vector is row, time, price, size, mine repeating over and over
-    ## again. These are all numbers so we cast as.numeric. We pull
-    ## them out from the trade data using sequence.
+        x[price] <- as.numeric(x[,price])
+        x[size] <- as.numeric(x[,size])
+        x[type] <- as.factor(x[,type])
+        x[time] <- as.numeric(x[,time])
+        x[id] <- as.character(x[,id])
 
-    row <- as.numeric(trade.data[seq(1, len, 5)])
-    time <- as.numeric(trade.data[seq(2, len, 5)])
-    price <- as.numeric(trade.data[seq(3, len, 5)])
-    size <- as.numeric(trade.data[seq(4, len, 5)])
+        ## Get rid of junk data--rows with no time information, rows that are
+        ## not of type ask or bid, and rows where price/size is 0.
 
-    ## If trader flag is true that means the user wants to be able to
-    ## distinguish his or trades from everybody elses. So we load that
-    ## data in.
+        x <- x[!is.na(x[,time]),]
+        x <- x[x[type] == ask | x[type] == bid,]
+        x <- x[x[price] != 0,]
+        x <- x[x[size] != 0,]
 
-    if(isTRUE(trader)){
+        ## Rearrange the rows of the current.ob data frame and rename the columns.
 
-        ## Mine is a logical indicating whether or not the trade
-        ## belongs to the trader.
+        current.ob <- data.frame(x[[price]], x[[size]], x[[type]],
+                                 x[[time]], x[[id]])
 
-        mine <- trade.data[seq(5, len, 5)]
+        names(current.ob) <- c("price", "size", "type", "time", "id")
 
-        ## Since this is the last entry of the line it has a newline,
-        ## and here we get rid of it.
+        ## Rename to "ASK" and "BID"
 
-        mine[mine == "FALSE\n"] <- "FALSE"
-        mine[mine == "TRUE\n"] <- "TRUE"
+        x[type][x[type] == ask] = "ASK"
+        x[type][x[type] == bid] = "BID"
 
-        ## Cast as logical.
 
-        mine <- as.logical(mine)
+        ## Put a time on the order book. We assume that it is the last timestamp
+        ## in the order book.
 
-        ## Create trade.data data frame and then name it.
+        end <- max(x[[time]]) + 1
 
-        trade.data <- data.frame(row, time, price, size, mine)
-        names(trade.data) <- c("row", "time", "price", "size", "mine")
+        ## Return a new orderbook object.
 
-        ## Create my.trades data frame by pulling out all rows where
-        ## mine == TRUE. Reset the rownames to 1,2,3,4,5....
+        invisible(new("orderbook",
+                      current.ob   = current.ob,
+                      current.time = end,
+                      ob.data      = hash(),
+                      trade.data   = hash(),
+                      file         = file,
+                      my.trades    = hash()
+                      ))
+    } else {
 
-        my.trades <- trade.data[trade.data$mine == TRUE,]
-        rownames(my.trades) <- NULL
+        ## x was empty so just create an ``empty'' orderbook object.
 
-    } else{
+        current.ob <- data.frame(price = numeric(0), size =
+                                 numeric(0), type = character(0), time
+                                 = numeric(0), id = character(0))
 
-        ## If trader is false then just create the trade.data data
-        ## frame without mine.
-
-        trade.data <- data.frame(row, time, price, size)
-        names(trade.data) <- c("row", "time", "price", "size")
-
-        ## Make mytrades the same as trade.data to ensure other useful
-        ## functions also work.
-
-        my.trades = trade.data
-
+        invisible(new("orderbook",
+                      current.ob   = current.ob,
+                      current.time = 0,
+                      ob.data      = hash(),
+                      trade.data   = hash(),
+                      file         = file,
+                      my.trades    = hash()
+                      ))
     }
 
-    ## Create a new orderbook object and return it.
-
-    invisible(new("orderbook",
-                  current.ob   = current.ob,
-                  current.time = 0,
-                  trade.data   = trade.data,
-                  my.trades    = my.trades,
-                  file         = file,
-                  trader       = trader
-                  ))
 }
-
-
 

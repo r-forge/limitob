@@ -1,6 +1,5 @@
-useDynLib(orderbook, .registration = TRUE)
-
 importFrom("graphics", plot)
+importFrom("hash", "copy")
 
 export(
        "orderbook"
@@ -10,35 +9,44 @@ exportClasses(
               "orderbook"
               )
 
-exportMethods("read.orders",
-              "read.time",
+exportMethods(
+              "show",
+	      "summary",
+	      "plot",
+              "plotTrade",
+              "display",
+              "[",
+              "copy",
+
               "best.bid",
               "best.ask",
-              "show",
-              "plot",
-              "plotTrade",
-              "summary",
-              "display",
+              "get.order.info",
+
+   	      "bid.price.levels",
+	      "ask.price.levels",
+	      "total.price.levels",
+
+	      "bid.orders",
+	      "ask.orders",
+	      "total.orders",
+
+	      "mid.point",
+	      "inside.market",
+
+	      "spread",
+
               "add.order",
+              "remove.order",
               "replace.order",
               "market.order",
-              "bid.price.levels",
-              "ask.price.levels",
-              "total.price.levels",
-              "bid.orders",
-              "ask.orders",
-              "total.orders",
-              "mid.point",
-              "inside.market",
-              "spread",
-              "remove.order",
+
+              "read.orders",
+              "read.time",
               "view.trade",
-              "load.animation",
-              "load.trade.animation",
-              "load.next.trade",
-              "load.previous.trade",
-              "sort",
               "reset",
+              "next.trade",
+              "previous.trade",
+
               "animate",
-              "[",
-              "initialize.trades")
+              "load.animation",
+              "load.trade.animation")

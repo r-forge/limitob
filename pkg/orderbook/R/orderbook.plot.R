@@ -372,7 +372,7 @@
 
 }
 
-.animate.plot <- function(x, x.at, x.limits, y.limits, time){
+.animate.plot <- function(x, x.at, x.limits, y.limits, sub, time){
 
     ## Creating the data to be plotted
 
@@ -382,7 +382,7 @@
     ask <- ask[ask$price < y.limits[2] + .001,]
 
     bid <- x[x[["type"]] == "BID",]
-    bid <- bid[bid$price > y.limits[1] - .001,]
+    bid <- bid[bid$price > y.limits[1] + .001,]
 
     x <- rbind(ask, bid)
 
@@ -430,11 +430,11 @@
     tmp <- barchart(price ~ size | type, data = x,
 
                     ylab = "Price", xlab = "Size (Shares)",
-                    groups = interaction(x$status, x$time),
+
                     main = paste("Order Book", time, sep = " -- "),
+                    sub = sub,
                     stack = TRUE,
-                    col = c("gray", "blue", "green", "red"),
-                    border = "transparent",
+                    col = c("gray"),
                     scale = list(x = list(relation = "free", at = x.at,
                                  limits = x.limits, axs = "i", rot = 45),
                     y = list(alternating = 3)),

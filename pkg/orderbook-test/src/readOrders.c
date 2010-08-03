@@ -14,7 +14,7 @@
 struct order{
     char id[MAX_LEN];
     char type[MAX_LEN];
-    char trade[MAX_LEN];
+    char status[MAX_LEN];
     long time;
     double price;
     int size;
@@ -64,7 +64,7 @@ SEXP iterate_orders(){
 	SET_STRING_ELT(retVector, i, mkChar(tmp));
 	i++;
 
-	SET_STRING_ELT(retVector, i, mkChar(s->trade));
+	SET_STRING_ELT(retVector, i, mkChar(s->status));
 	i++;
 
     }
@@ -121,7 +121,11 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 	    strcpy(s->type, token);
 
 	    token = strtok(NULL, delimiters);
-	    strcpy(s->trade, token);
+
+	    if((ptr = strchr(token, '\n')) != NULL)
+		*ptr = '\0';
+
+	    strcpy(s->status, token);
 
 	    HASH_ADD_STR(orderbook, id, s);
 	} else if(strcmp(token, "C") == 0){
@@ -137,26 +141,7 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 	    HASH_DEL(orderbook, s);
 
 	    free(s);
-/*
-	} else if(strcmp(token, "T") == 0){
-	    token = strtok(NULL, delimiters);
-	    token = strtok(NULL, delimiters);
 
-	    HASH_FIND_STR(orderbook, token, s);
-
-	    if(s){
-
-		token = strtok(NULL, delimiters);
-		token = strtok(NULL, delimiters);
-
-		size = atoi(token);
-		if(s->size == size){
-		    HASH_DEL(orderbook, s);
-		    free(s);
-		} else
-		    s->size = s->size - size;
-	    }
-*/
 	} else if(strcmp(token, "R") == 0){
 
 	    token = strtok(NULL, delimiters);

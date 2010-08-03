@@ -806,7 +806,7 @@ setMethod("load.animation",
 
 setMethod("load.trade.animation",
           signature(object = "orderbook"),
-          function(object, tradenum, before = 30, after = 30, by =
+          function(object, tradenum, before = 30, after = 30, rate = 1, by =
                    "both", bounds = 0.02){
 
               ## Extract the desired trade from my trades.
@@ -832,19 +832,12 @@ setMethod("load.trade.animation",
 
                   ## Establish the range of time to observe in the animation.
 
-                  from <- tradetime - before
-                  to <- tradetime + after
+                  from <- format(tradetime - before, format = "%H:%M:%S")
+                  to <- format(tradetime + after, format = "%H:%M:%S")
 
-                  ## Generate our vector of times.
+                  time <- seq(.to.ms(from), .to.ms(to), 1000/rate)
 
-                  time <- seq.POSIXt(from, to, "sec")
-                  time <- format(time, format ="%H:%M:%S")
-
-                  ## Convert back to milliseconds
-
-                  time <- sapply(time, .to.ms, USE.NAMES = FALSE)
-
-                  object <- .animate.seconds(object, time, bounds)
+                  object <- .animate.seconds(object, time, bounds, trade)
               }
 
               if(isTRUE(by %in% "msg") | isTRUE(by %in% "both")){
@@ -856,7 +849,10 @@ setMethod("load.trade.animation",
                   ## Animate the orderbook from n to before + after messages after n.
 
                   object <- .animate.orders(object, seq(traderow -
-                                                        before, traderow + after), bounds)
+                                                        before,
+                                                        traderow +
+                                                        after),
+                                            bounds, trade)
 
               }
 
@@ -878,7 +874,7 @@ setMethod("load.next.trade",
 
               object <- load.trade.animation(object,
                                              object@trade.index,
-                                             before, after, by,
+                                             before, after, rate, by,
                                              bounds)
 
               object@trade.index <- object@trade.index + 1
@@ -899,7 +895,7 @@ setMethod("load.previous.trade",
 
                   object <- load.trade.animation(object,
                                                  object@trade.index - 1,
-                                                 before, after, by,
+                                                 before, after, rate, by,
                                                  bounds)
 
                   object@trade.index <- object@trade.index - 1

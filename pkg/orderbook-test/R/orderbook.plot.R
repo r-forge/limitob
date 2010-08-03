@@ -23,21 +23,6 @@
 
     x <- object@trade.data
 
-    ## Turn hash into a list.
-
-    x <- as.list(x)
-    x <- unlist(x, use.names = FALSE)
-    x <- x[x!=TRUE]
-
-    len <- length(x)
-
-    price <- as.numeric(x[seq(4, len, 5)])
-    size <- as.numeric(x[seq(5, len, 5)])
-
-    x <- data.frame(price, size)
-
-    ## Aggregating by price.
-
     x <- aggregate(x$size, by = list(price = x$price), sum)
 
     ## Creating the x axis values.
@@ -372,11 +357,9 @@
 
 }
 
-.animate.plot <- function(x, x.at, x.limits, y.limits, time){
+.animate.plot <- function(x, x.at, x.limits, y.limits, time, ycolors, sub){
 
     ## Creating the data to be plotted
-
-    x <- x[order(x$price),]
 
     ask <- x[x[["type"]] == "ASK",]
     ask <- ask[ask$price < y.limits[2] + .001,]
@@ -384,7 +367,8 @@
     bid <- x[x[["type"]] == "BID",]
     bid <- bid[bid$price > y.limits[1] - .001,]
 
-    x <- rbind(ask, bid)
+    x <- do.call(rbind, list(ask, bid))
+    x <- x[order(x$price),]
 
     price <- round(seq(y.limits[1], y.limits[2], .01), 2)
 
@@ -432,15 +416,13 @@
                     ylab = "Price", xlab = "Size (Shares)",
                     groups = interaction(x$status, x$time),
                     main = paste("Order Book", time, sep = " -- "),
-                    stack = TRUE,
-                    col = c("gray", "blue", "green", "red"),
+                    stack = TRUE, sub = sub,
+                    col = c("gray", "blue", "green", "red", "black"),
                     border = "transparent",
                     scale = list(x = list(relation = "free", at = x.at,
                                  limits = x.limits, axs = "i", rot = 45),
                     y = list(alternating = 3)),
-
                     yscale.components = new.yscale.components
-
                     )
 
     invisible(tmp)

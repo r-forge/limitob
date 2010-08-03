@@ -96,7 +96,7 @@
 
     ob@current.ob <- .update(x)
     ob@file.index <- n
-    ob@current.time <- max(object@current.ob$time)
+    ob@current.time <- max(ob@current.ob$time)
     invisible(ob)
 
 }
@@ -106,20 +106,7 @@
 
 .read.orders.multiple <- function(ob, n){
     x <- .Call("readOrdersMultiple", as.character(ob@file), as.integer(n))
-
-    len <- length(x)
-
-    trades <- x[[len]][x[[len]] != ""]
-    trades <- unique(trades)
-
-    cancels <- x[[len - 1]][x[[len - 1]] != ""]
-    cancels <- setdiff(cancels, trades)
-
-    x <- lapply(x[1:(len - 2)], .update)
-
-    x[[len - 1]] <- cancels
-    x[[len]] <- trades
-
+    x <- lapply(x, .update)
     invisible(x)
 
 }
@@ -144,14 +131,16 @@
     type <- as.factor(x[seq(3, len, 6)])
     time <- as.numeric(x[seq(1, len, 6)])
     id <- as.character(x[seq(2, len, 6)])
-    mine <- as.logical(x[seq(6, len, 6)])
+    status <- factor(x[seq(6, len, 6)], levels = c("a", "b", "c", "d",
+                                        "e"))
 
     ## Create a dataframe containg all vectors above.
 
-    x <- data.frame(price, size, type, time, id, mine,
+    x <- data.frame(price, size, type, time, id, status,
                     stringsAsFactors = FALSE)
 
-    names(x) <- c("price", "size", "type", "time", "id", "mine")
+    names(x) <- c("price", "size", "type", "time", "id", "status")
+
 
     invisible(x)
 
@@ -249,7 +238,7 @@
 
 }
 
-.animate.seconds <- function(object, time, bounds){
+.animate.seconds <- function(object, time, bounds, trade = NULL){
 
     ## Create a list that will store the current orderbooks for each
     ## time, as well as the variables that hold the y and x
@@ -257,12 +246,15 @@
 
     n <- .get.time.row(object@file, time)
 
-    time <- .to.time(time)
     current.ob = .read.orders.multiple(object, n)
     y.limits = c(Inf, 0)
     max.size = 0
-    cancels <- current.ob[[length(current.ob) - 1]]
-    trades <- current.ob[[length(current.ob)]]
+
+    if(is.null(trade))
+        sub <- ""
+    else
+        sub <- paste("Start:", .to.time(time[1]), " Trade:",
+                     .to.time(trade[[2]]), " End:", .to.time(time[length(time)]))
 
     ## Use a for loop to create all the current.ob and take the
     ## smallest/biggest axes.
@@ -314,22 +306,27 @@
     x.limits <- list(c(x.at[length(x.at)], 0),
                      c(0, x.at[length(x.at)]))
 
+
+
     ## Use a for-loop to create all the Trellis objects. Create a name
     ## vector.
 
-    name = vector()
+    name <- vector()
 
     for (i in 1:length(n)){
 
-        x <- current.ob[[i]]
-        x$status[x$mine == FALSE] = "a"
-        x$status[x$id %in% cancels] = "b"
-        x$status[x$id %in% trades] = "c"
-        x$status[x$mine == TRUE] = "d"
-        x$status <- factor(x$status, levels = c("a", "b", "c", "d"))
+        if(is.null(trade) | n[i] >= trade[[1]])
+            ycolors <- c("black")
+        else{
 
-        tmp.plot <- .animate.plot(x, x.at, x.limits, y.limits,
-                                  time[i])
+            ycolors <- c(rep("black", round((trade[[3]] - y.limits[1]) * 100)),
+                         "red",
+                         rep("black",round((y.limits[2] - trade[[3]]) *  100)))
+
+        }
+
+        tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits, y.limits,
+                                  .to.time(time[i]), ycolors, sub)
 
         name[i] <- paste("y", i, sep = ".")
         assign(paste("y", i, sep = "."), tmp.plot)
@@ -355,7 +352,7 @@
 
 }
 
-.animate.orders <- function(object, n, bounds){
+.animate.orders <- function(object, n, bounds, trade = NULL){
 
     ## Create a list that will store the current orderbooks for each
     ## time, as well as the variables that hold the y and x
@@ -366,8 +363,6 @@
     time <- vector()
     y.limits <- c(Inf, 0)
     max.size <- 0
-    cancels <- current.ob[[length(current.ob) - 1]]
-    trades <- current.ob[[length(current.ob)]]
 
     ## Use a for loop to create all the current.ob and take the
     ## smallest/biggest axes.
@@ -376,7 +371,7 @@
 
         object@current.ob <- current.ob[[i]]
 
-        time[i] <- .to.time(max(current.ob[[i]]$time))
+        time[i] <- max(current.ob[[i]]$time)
 
         x <- .combine.size(object, 1)
         mid <- mid.point(object)
@@ -417,6 +412,15 @@
     x.limits <- list(c(x.at[length(x.at)], 0),
                      c(0, x.at[length(x.at)]))
 
+    ## Create subtitles
+
+    if(is.null(trade))
+        sub <- ""
+    else
+        sub <- paste("Start:", .to.time(time[1]), " Trade:",
+                     .to.time(trade[[2]]), " End:", .to.time(time[length(time)]))
+
+
     ## Use a for-loop to create all the Trellis objects and create
     ## name vector.
 
@@ -424,15 +428,18 @@
 
     for (i in 1:length(n)){
 
-        x <- current.ob[[i]]
-        x$status[x$mine == FALSE] = "a"
-        x$status[x$id %in% cancels] = "b"
-        x$status[x$id %in% trades] = "c"
-        x$status[x$mine == TRUE] = "d"
-        x$status <- factor(x$status, levels = c("a", "b", "c", "d"))
+        if(is.null(trade) | n[i] >= trade[[1]])
+            ycolors <- c("black")
+        else{
 
-        tmp.plot <- .animate.plot(x, x.at, x.limits, y.limits,
-                                  time[i])
+            ycolors <- c(rep("black", round((trade[[3]] - y.limits[1]) * 100)),
+                        "red",
+                        rep("black", round((y.limits[2] - trade[[3]]) * 100)))
+        }
+
+
+        tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits, y.limits,
+                                  .to.time(time[i]), ycolors, sub)
 
         name[i] <- paste("y", i, sep = ".")
         assign(paste("y", i, sep = "."), tmp.plot)

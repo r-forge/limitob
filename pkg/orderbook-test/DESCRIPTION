@@ -1,4 +1,4 @@
-Package: orderbook-test
+Package: orderbook
 Type: Package
 Title: Orderbook visualization/Charting software
 Depends: R (>= 2.11.0), methods, graphics, lattice, grid

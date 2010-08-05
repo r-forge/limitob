@@ -19,7 +19,7 @@
 
 ## Plots the number of shares traded at each price level up till the current time.
 
-.plot.trade<-function(object){
+.plot.trade <- function(object){
 
     x <- object@trade.data
 
@@ -77,7 +77,7 @@
 ## Asks on the right with Price and Size on the Y- and X-axes, respectively.
 ## Only prices within 10% above and below the midpoint value are shown.
 
-.plot.ob <-function(object, bounds){
+.plot.ob <- function(object, bounds){
 
     ## Use combine size to find the total size at each price level. This
     ## function returns a data frame. Also get the names for the columns.
@@ -178,7 +178,7 @@
 
 ## Plot top ask vs top bid, 2nd best ask vs 2nd best bid, etc.
 
-.plot.side.ob <-function(object, n){
+.plot.side.ob <- function(object, n){
 
     x <- .combine.size(object, 1)
     midpoint = mid.point(object)
@@ -235,8 +235,8 @@
     }
 
 
-    new.par.settings = list(
-    layout.widths = list(left.padding = 2, right.padding = 5))
+    new.par.settings <- list(
+    layout.widths <- list(left.padding = 2, right.padding = 5))
 
     tmp <- barchart(y ~ size, data = x, groups = x$type, auto.key = TRUE,
                     ylab = "Bid Price Levels", xlab = "Size (Shares)",
@@ -372,19 +372,44 @@
 
 }
 
-.animate.plot <- function(x, x.at, x.limits, y.limits, sub, time){
 
-    ## Creating the data to be plotted
 
-    x <- x[order(x$price),]
+.animate.plot <- function(object, bounds){
+
+    x <- .combine.size(object, 1)
+    mid <- mid.point(object)
+
+    ## Find the min ask and max bid price for this current.ob
+
+    ask <- x[x[["type"]] == "ASK",]
+    ask <- ask[ask$price < min(ask$price) + bounds - .001,]
+
+    bid <- x[x[["type"]] == "BID",]
+    bid <- bid[bid$price > max(bid$price) - bounds + .001,]
+
+    ## Set y limits
+
+    y.limits <- c(min(bid$price), max(ask$price))
+
+    ## Find the max size for this current.ob
+
+    max.size <- max(x$size[x$price <= y.limits[2] & x$price >=
+                               y.limits[1]])
+
+    x.at <- pretty(c(0, max.size))
+    x.limits <- list(c(x.at[length(x.at)], 0),
+                     c(0, x.at[length(x.at)]))
+
+    x <- object@current.ob
 
     ask <- x[x[["type"]] == "ASK",]
     ask <- ask[ask$price < y.limits[2] + .001,]
 
     bid <- x[x[["type"]] == "BID",]
-    bid <- bid[bid$price > y.limits[1] + .001,]
+    bid <- bid[bid$price > y.limits[1] - .001,]
 
-    x <- rbind(ask, bid)
+    x <- do.call(rbind, list(ask, bid))
+    x <- x[order(x$price),]
 
     price <- round(seq(y.limits[1], y.limits[2], .01), 2)
 
@@ -430,21 +455,25 @@
     tmp <- barchart(price ~ size | type, data = x,
 
                     ylab = "Price", xlab = "Size (Shares)",
+                    groups = interaction(x$status, x$time),
 
-                    main = paste("Order Book", time, sep = " -- "),
-                    sub = sub,
+                    main = paste("Order Book",
+                    .to.time(object@current.time), sep = " -- "),
+
                     stack = TRUE,
-                    col = c("gray"),
+
+                    col = c("gray", "red"),
+
+
                     scale = list(x = list(relation = "free", at = x.at,
                                  limits = x.limits, axs = "i", rot = 45),
                     y = list(alternating = 3)),
-
                     yscale.components = new.yscale.components
-
                     )
 
     invisible(tmp)
 }
+
 
 .supply.demand.plot <- function(object, bounds){
 
@@ -490,5 +519,8 @@
                       panel.abline(h = 0)
                   }
                   )
+
     invisible(tmp)
+
 }
+

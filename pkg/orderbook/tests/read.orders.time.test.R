@@ -1,4 +1,4 @@
-## read.orders.test.R: Tests for read order functions
+## read.orders.time.test.R: Tests for read order functions
 ##
 ## limitob is free software: you can redistribute it and/or modify it
 ## under the terms of the GNU General Public License as published by
@@ -15,31 +15,28 @@
 
 
 library(orderbook)
-load("read.orders.test.Rdata")
+load("read.orders.time.test.RData")
 
-#something is wrong. This returns TRUE in R, but fail with test
-ob <- orderbook(file = "sample.txt")
+filename <- system.file("data", "sample.txt",
+                        package = "orderbook")
 
-# read 20 orders
-ob <- read.orders(ob, n=20)
+ob <- orderbook(file = filename)
 
-stopifnot(
-	isTRUE(identical(ob.next.20@current.ob,
-	                 ob@current.ob))
-)
+# read 5000 orders
+ob <- read.orders(ob, 5000)
 
-# go back 5 orders
-ob <- read.orders(ob, n=-5)
-stopifnot(
-	isTRUE(identical(ob.go.back.5@current.ob,
-	                 ob@current.ob))
-)
+stopifnot(isTRUE(identical(test, ob@current.ob)))
 
-# reset
-ob <- reset(ob)
-ob <- read.orders(ob, n=2000)
-ob <- view.trade(ob, n=1)
-stopifnot(
-	isTRUE(identical(ob.1st.trade@current.ob,
-	                 ob@current.ob))
-)
+
+# go back 5 orders and then forward 5 orders
+ob <- read.orders(ob, -5)
+ob <- read.orders(ob, 5)
+
+stopifnot(isTRUE(identical(test, ob@current.ob)))
+
+## Read time, should take us to 4981 orders
+
+ob <- read.time(ob, "9:32:11")
+ob <- read.orders(ob, 19)
+
+stopifnot(isTRUE(identical(test, ob@current.ob)))

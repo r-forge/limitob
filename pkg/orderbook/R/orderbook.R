@@ -22,9 +22,8 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      file         = "character",
                                      file.index   = "numeric",
                                      ob.data      = "hash",
-                                     trade.data   = "hash",
-                                     my.trades    = "hash",
-                                     animation    = "list"
+                                     trade.data   = "vector",
+                                     trader       = "logical"
                                      ),
 
          prototype(current.ob   = data.frame(),
@@ -32,10 +31,8 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                    file		= character(),
                    file.index   = 0,
                    ob.data      = hash(),
-                   trade.data   = hash(),
-                   my.trades    = hash(),
-                   animation = list(sec = character(), msg =
-                   character())
+                   trade.data   = vector(),
+                   trader       = FALSE
                    )
          )
 
@@ -192,6 +189,11 @@ setMethod("plot",
                   tmp <- .supply.demand.plot(x, bounds)
                   print(tmp)
 
+              } else if(isTRUE(type %in% "t")){
+
+                  tmp <- .animate.plot(x, bounds)
+                  print(tmp)
+
               } else {
 
                   print("Invalid type")
@@ -206,23 +208,6 @@ setMethod("plotTrade",
           signature(x = "orderbook"),
           function(x){
               .plot.trade(x)
-          }
-          )
-
-
-## Takes ID as input, returns vector of price and size for that ID.
-
-setMethod("get.order.info",
-          signature(object = "orderbook"),
-          function(object, id, ...){
-              x <- object@current.ob
-
-              ## Pulls out information
-
-              tmp.price <- x[["price"]][x[["id"]] == id]
-              tmp.size <- x[["size"]][x[["id"]] == id]
-
-              return(c(price = tmp.price, size = tmp.size))
           }
           )
 
@@ -257,7 +242,7 @@ setMethod("summary",
               if(!identical(nchar(check), 5))
                  formatC(mid, format = "f", digits = 2)
 
-              cat("Mid point: ", mid, "\n")
+              cat("Mid point:         ", mid, "\n")
               cat("-----------------------------\n")
               cat("Inside market \n \n")
 
@@ -336,66 +321,6 @@ setMethod("display",
           }
           )
 
-## Add an order, you need price, size, type. You should probably
-## specify ID but if you don't the orderbook will add it for you
-## anyways and automatically make it 1 greater than the current
-## greatest ID.
-
-setMethod("add.order",
-          signature(object = "orderbook"),
-
-          function(object, price, size, type, time = NULL, id = NULL,
-          ...){
-
-              ## Some checks to make sure the order is valid
-
-              stopifnot(price > 0 & size > 0)
-              stopifnot(type == "ASK" | type == "BID")
-
-
-              x <- object@current.ob
-              y <- copy(object@ob.data)
-
-              ## If user doesn't specify a time make the new time
-              ## 1000ms after the current time
-
-              if(is.null(time)){
-                  new.time <- object@current.time + 1000
-              } else {
-                  new.time <- time
-              }
-
-              ## If user doesn't specify an ID make the new id
-              ## 1 larger than the largest
-
-              if(is.null(id) & nrow(x) != 0){
-                  id <- max(as.numeric(x[["id"]])) + 1
-              } else if(is.null(id)){
-                  id <- 1
-              }
-
-              ## Create the new order
-
-              new.order <- data.frame(price, size, type, new.time, id)
-              names(new.order) <- c("price", "size", "type",
-                                    "time", "id")
-
-              ## Bind it to current.ob and add it to ob.data
-
-              x <- rbind(x, new.order)
-              y[id] <- c(time, id, price, size, type)
-
-              ## Store it into object
-
-              object@current.ob <- x
-              object@current.time <- new.time
-              object@ob.data <- y
-
-              invisible(object)
-
-          }
-          )
-
 ## Go to next trade after current time.
 
 setMethod("next.trade",
@@ -414,144 +339,24 @@ setMethod("next.trade",
 setMethod("previous.trade",
           signature(object = "orderbook"),
           function(object){
-              ## Use the trade.data to find the row of the previous
-              ## trade
+
+              if(isTRUE(object@trader))
+                  skip <- 5
+              else
+                  skip <- 4
 
               x <- object@trade.data
 
-              trade.index <- length(x)
+              trdrow = as.integer(x[length(x) - skip])
 
-              nextindex <- sort(as.numeric(names(x)))[trade.index]
-              nextindex <- nextindex - object@file.index
+              if(trdrow >= object@file.index)
+                  trdrow = as.integer(x[length(x) - skip * 2 - 1])
 
-              invisible(read.orders(object, nextindex))
+              invisible(read.orders(object, trdrow - object@file.index))
+
           }
           )
 
-
-## Replace an order. You need to specify ID and size.
-
-setMethod("replace.order",
-          signature(object = "orderbook"),
-          function(object, id, size, ...){
-
-              ## If size is 0 just remove the order.
-
-              if(identical(size, 0)){
-                    invisible(remove.order(object, id))
-              } else {
-                   x <- object@current.ob
-                   y <- copy(object@ob.data)
-
-                   stopifnot(size > 0)
-
-                   ## Make sure the new size isn't greater than the
-                   ## current size.
-
-                   tmp.size <- x[["size"]][x[["id"]] == id]
-                   if(tmp.size < size){
-
-                       print("Warning size greater than current size")
-
-                   } else {
-
-                       ## Do the replacement
-
-                       x[["size"]][x[["id"]] == id] <- min(size,
-                                         tmp.size)
-
-                       y[[as.character(id)]][4] <- size
-
-                       object@current.ob <- x
-                       object@ob.data <- y
-                       invisible(object)
-
-                   }
-               }
-          }
-          )
-
-## Runs a market order. If there is not enough volume to fill the
-## order will be partially filled and cancelled.
-
-setMethod("market.order",
-          signature(object = "orderbook"),
-          function(object, size, type, ...){
-
-              stopifnot(type == "BUY" | type == "SELL")
-              stopifnot(size > 0)
-
-              x <- object@current.ob
-
-              ## Take out ask and bid dataframes.
-
-              ask <- x[x[["type"]] == "ASK",]
-              bid <- x[x[["type"]] == "BID",]
-
-              ## If its a buy, then remove orders until you run out
-              ## then replace the last one.
-
-              if(type == "BUY" & nrow(ask) > 0){
-
-                  ## Order ask by lowest price, time
-
-                  ask <- ask[order(ask[["price"]], ask[["time"]]),]
-
-                  while(size > 0 & nrow(ask) > 0){
-
-                      ## Decrement size.
-
-                      size = size - ask[["size"]][1]
-
-                      ## Either remove or replace.
-
-                      if(size >= 0){
-
-                          object <- remove.order(object,
-                                                 ask[["id"]][1])
-
-                          ask <- ask[-1,]
-
-                      } else if(size < 0){
-
-                          object <- replace.order(object,
-                                                  ask[["id"]][1],
-                                                  abs(size))
-
-                      }
-                  }
-
-                  ## See above
-
-              } else if(type == "SELL" & nrow(bid) > 0){
-
-                  bid <- bid[order(bid[["time"]]),]
-
-                  bid <- bid[order(bid[["price"]], decreasing =
-                                   TRUE),]
-
-                  while(size > 0 & nrow(bid) > 0){
-
-                      size <- size - bid[["size"]][1]
-
-                      if(size >= 0){
-
-                          object <- remove.order(object,
-                                                 bid[["id"]][1])
-
-                          bid <- bid[-1,]
-
-                      } else if(size < 0){
-
-                          object <- replace.order(object,
-                                                  bid[["id"]][1],
-                                                  abs(size))
-                      }
-                  }
-              }
-              invisible(object)
-          }
-          )
 
 ## Returns the number of bid price levels.
 
@@ -704,136 +509,6 @@ setMethod("spread",
           }
           )
 
-## Remove an order by ID.
-
-setMethod("remove.order",
-          signature(object = "orderbook"),
-          function(object, id, ...){
-
-              x <- object@current.ob
-              y <- copy(object@ob.data)
-
-              ## Remove from ob.data and current.ob
-
-              x <- x[x[["id"]] != id,]
-              y[id] <- NULL
-
-              object@current.ob <- x
-              object@ob.data <- y
-              invisible(object)
-          }
-          )
-
-## Jump to trade index. Need to read in the entire orderbook first
-## though to build trade.data.
-
-setMethod("view.trade",
-          signature(object = "orderbook"),
-          function(object, n = 1){
-              x <- object@trade.data
-
-              currentindex <- object@file.index
-              nextindex <- sort(as.numeric(names(x)))[n]
-
-              n <- nextindex - currentindex
-
-              invisible(read.orders(object, n))
-          }
-          )
-
-## Preload the animations.
-
-setMethod("load.animation",
-          signature(object = "orderbook"),
-          function(object, from, to, by = "sec", bounds = 0.05)
-      {
-              if(isTRUE(by %in% "sec")){
-
-                  ## Create the vector of times
-
-                  from <- as.POSIXlt(from, format = "%H:%M:%S")
-                  to <- as.POSIXlt(to, format = "%H:%M:%S")
-                  time <- seq.POSIXt(from, to, by)
-                  time <- format(time, format ="%H:%M:%S")
-
-                  ## Run helper function
-
-                  invisible(.animate.seconds(object, time, bounds))
-
-              } else if(isTRUE(by %in% "msg")){
-
-                  ## Get tmp.ob to the correct order
-
-                  tmp.ob <- copy(object)
-                  tmp.ob <- read.orders(tmp.ob, from - tmp.ob@file.index)
-                  n <- to - from
-
-                  ## Run helper function
-
-                  invisible(.animate.orders(tmp.ob, n, bounds, object))
-
-              }
-          }
-          )
-
-## Load trade animation.
-
-setMethod("load.trade.animation",
-          signature(object = "orderbook"),
-          function(object, before = 30, after = 30, by = "sec", bounds
-                   = 0.05){
-
-              if(isTRUE(by %in% "sec")){
-
-                  ## Find row of next trade.
-
-                  traderow <- .get.next.trade(object@file,
-                                              object@file.index)
-
-                  ## Find the time at that row.
-
-                  tradetime <- .get.row.time(object@file, traderow)
-
-                  ## Find the time 30 seconds before and 30 seconds after that time.
-
-                  tradetime <- .to.time(tradetime)
-
-                  tradetime <- as.POSIXlt(tradetime, format = "%H:%M:%S")
-
-                  from <- tradetime - before
-                  to <- tradetime + after
-
-                  ## Generate our vector of times.
-
-                  time <- seq.POSIXt(from, to, by)
-                  time <- format(time, format ="%H:%M:%S")
-
-                  invisible(.animate.seconds(object, time, bounds))
-
-              } else if(isTRUE(by %in% "message")){
-
-                  ## Find row of next trade.
-
-                  traderow <- .get.next.trade(object@file,
-                                              object@file.index)
-
-                  ## Create a copy of the object
-
-                  tmp.ob <- copy(object)
-
-                  ## We want to read to x orders before the tradrow.
-
-                  n <- traderow - before - tmp.ob@file.index
-
-                  ## Read to 30 orders before the traderow
-
-                  tmp.ob <- read.orders(tmp.ob, n)
-
-                  invisible(.animate.orders(tmp.ob, before + after, bounds, object))
-              }
-          }
-          )
-
 ## Reset to beginning, does not clear trade data or my trades.
 
 setMethod("reset",
@@ -850,34 +525,12 @@ setMethod("reset",
               names(current.ob) <- c("price", "size", "type", "time",
                                      "id")
 
-              invisible(new("orderbook",
-                            current.ob   = current.ob,
-                            current.time = 0,
-                            file         = object@file,
-                            file.index   = 0,
-                            ob.data      = hash(),
-                            trade.data   = object@trade.data,
-                            my.trades    = object@my.trades))
-          }
-          )
+              object@current.ob <- current.ob
+              object@current.time <- 0
+              object@file.index <- 0
+              object@trade.data <- vector()
 
-## Animate, run preload first to generate the .Rdata file
-
-setMethod("animate",
-          signature(object = "orderbook"),
-          function(object, pause = 0.25, type = "sec"){
-
-              ## "Animates" using a for loop.
-
-              filename <- object@animation[[type]]
-              load(filename)
-              name <- name[-length(name)]
-
-              for(i in 1:length(name)){
-                  print(get(name[i]))
-                  Sys.sleep(pause)
-              }
-
+              invisible(object)
           }
           )
 
@@ -916,3 +569,264 @@ setMethod("copy",
 ## e.g. c(5, 10, 60, 120) means find the midpoint return for 5s, 10s,
 ## 1 min, 2 min after the trade.
 
+setMethod("midpoint.return",
+          signature(object = "orderbook"),
+          function(object, tradenum, time){
+
+              trade.data <- object@trade.data
+
+              if(isTRUE(object@trader))
+                  skip <- 6
+              else
+                  skip <- 5
+
+              trdprice <- as.numeric(trade.data[4 + (tradenum - 1) * skip])
+              trdrow <- as.numeric(trade.data[1 + (tradenum - 1) * skip])
+
+              midpoint <- .midpoint.returns(object, trdprice, trdrow,
+                                           time)
+
+              midpoint <- cbind(midpoint)
+              rownames(midpoint) <- paste(time, "second return")
+
+              return(midpoint)
+
+          }
+          )
+
+## Add an order, you need price, size, type. You should probably
+## specify ID but if you don't the orderbook will add it for you
+## anyways and automatically make it 1 greater than the current
+## greatest ID.
+
+setMethod("add.order",
+          signature(object = "orderbook"),
+          function(object, price, size, type, time = NULL, id = NULL,
+                   status = FALSE){
+
+              ## Some checks to make sure the order is
+              ## valid. Specifically, making sure the price and size
+              ## are positive and a valid type has been specified.
+
+              stopifnot(price > 0 & size > 0)
+              stopifnot(type == "ASK" | type == "BID")
+
+              ## Pull out the order book data frame.
+
+              x <- object@current.ob
+
+              ## If user doesn't specify a time make the new time
+              ## 1000ms after the current time
+
+              if(is.null(time)){
+                  new.time <- object@current.time + 1000
+              } else {
+                  new.time <- time
+              }
+
+              ## If user doesn't specify an ID make the new id 1
+              ## larger than the largest ID.
+
+              if(is.null(id) & nrow(x) != 0){
+                  id <- max(as.numeric(x[["id"]])) + 1
+              } else if(is.null(id)){
+                  id <- 1
+              }
+
+              ## Create the new order as a data frame and name it.
+
+              if(isTRUE(object@trader)){
+                  new.order <- data.frame(price, size, type, new.time, id, status)
+                  names(new.order) <- c("price", "size", "type", "time",
+                                        "id", "status")
+              } else{
+                  new.order <- data.frame(price, size, type, new.time, id)
+                  names(new.order) <- c("price", "size", "type", "time",
+                                        "id")
+              }
+
+              ## Rbind it to current.ob.
+
+              x <- do.call(rbind, list(x, new.order))
+
+              ## Store it into object and return the object.
+
+              object@current.ob <- x
+              object@current.time <- new.time
+
+              invisible(object)
+
+          }
+          )
+
+## Replace the size of an order.. You need to specify ID and new size.
+
+setMethod("replace.order",
+          signature(object = "orderbook"),
+          function(object, id, size){
+
+              ## If size is 0 just remove the order.
+
+              if(identical(size, 0)){
+
+                    invisible(remove.order(object, id))
+
+              } else {
+
+                  ## Pull out the order book data frame.
+
+                   x <- object@current.ob
+
+                   ## Make sure the new size isn't greater than the
+                   ## current size.
+
+                   tmp.size <- x[["size"]][x[["id"]] == id]
+                   if(tmp.size < size){
+
+                       print("Warning size greater than current size")
+
+                   } else {
+
+                       ## Do the replacement.
+
+                       x[["size"]][x[["id"]] == id] <- min(size,
+                                    tmp.size)
+
+                       ## Store the new order book data frame then
+                       ## return the object.
+
+                       object@current.ob <- x
+                       invisible(object)
+
+                   }
+               }
+          }
+          )
+
+## Runs a market order. If there is not enough volume to fill the
+## order will be partially filled and cancelled. Might be removed.
+
+setMethod("market.order",
+          signature(object = "orderbook"),
+          function(object, size, type){
+
+              stopifnot(type == "BUY" | type == "SELL")
+              stopifnot(size > 0)
+
+              x <- object@current.ob
+
+              ## Take out ask and bid dataframes.
+
+              ask <- x[x[["type"]] == "ASK",]
+              bid <- x[x[["type"]] == "BID",]
+
+              ## If its a buy, then remove orders until you run out
+              ## then replace the last one.
+
+              if(type == "BUY" & nrow(ask) > 0){
+
+                  ## Order ask by lowest price, time
+
+                  ask <- ask[order(ask[["price"]], ask[["time"]]),]
+
+                  while(size > 0 & nrow(ask) > 0){
+
+                      ## Decrement size.
+
+                      size = size - ask[["size"]][1]
+
+                      ## Either remove or replace.
+
+                      if(size >= 0){
+
+                          object <- remove.order(object,
+                                                 ask[["id"]][1])
+
+                          ask <- ask[-1,]
+
+                      } else if(size < 0){
+
+                          object <- replace.order(object,
+                                                  ask[["id"]][1],
+                                                  abs(size))
+                      }
+                  }
+
+                  ## See above
+
+              } else if(type == "SELL" & nrow(bid) > 0){
+
+                  bid <- bid[order(bid[["time"]]),]
+
+                  bid <- bid[order(bid[["price"]], decreasing =
+                                   TRUE),]
+
+                  while(size > 0 & nrow(bid) > 0){
+
+                      size <- size - bid[["size"]][1]
+
+                      if(size >= 0){
+
+                          object <- remove.order(object,
+                                                 bid[["id"]][1])
+
+                          bid <- bid[-1,]
+
+                      } else if(size < 0){
+
+                          object <- replace.order(object,
+                                                  bid[["id"]][1],
+                                                  abs(size))
+                      }
+                  }
+              }
+              invisible(object)
+          }
+          )
+
+## Remove an order by ID.
+
+setMethod("remove.order",
+          signature(object = "orderbook"),
+          function(object, id){
+
+              x <- object@current.ob
+
+              ## Remove from current.ob
+
+              x <- x[x[["id"]] != id,]
+
+              ## Store it back into the object and return the object.
+
+              object@current.ob <- x
+              invisible(object)
+          }
+          )
+
+## View a trade by number
+
+setMethod("view.trade",
+          signature(object = "orderbook"),
+          function(object, tradenum){
+
+              x <- object@trade.data
+
+              if(isTRUE(object@trader)){
+                  skip <- 6
+                  names <- c("row", "time", "id", "price", "size", "status")
+              }else{
+                  skip <- 5
+                  names <- c("row", "time", "id", "price", "size")
+              }
+
+              start <- (tradenum - 1) * skip + 1
+              end <- start + skip - 1
+
+              trade <- as.data.frame(x[start:end])
+
+              names(trade) <- paste("Trade", tradenum)
+              rownames(trade) <- names
+
+              return(trade)
+          }
+          )

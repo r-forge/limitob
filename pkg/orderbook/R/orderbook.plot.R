@@ -450,19 +450,27 @@
         ans
     }
 
+    if(isTRUE(object@trader)){
+        groups <- interaction(x$status, x$time)
+        colors <- c("gray", "red")
+    }else{
+        groups <- x$time
+        colors <- "gray"
+    }
+
     ## Actually plotting it
 
     tmp <- barchart(price ~ size | type, data = x,
 
                     ylab = "Price", xlab = "Size (Shares)",
-                    groups = interaction(x$status, x$time),
+                    groups = groups,
 
                     main = paste("Order Book",
                     .to.time(object@current.time), sep = " -- "),
 
                     stack = TRUE,
 
-                    col = c("gray", "red"),
+                    col = colors,
 
 
                     scale = list(x = list(relation = "free", at = x.at,

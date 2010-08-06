@@ -10,19 +10,20 @@
 object = read.time(object, n)
 }
 \arguments{
-  \item{object}{Object of class \code{"orderbook"}}
-  \item{n}{Object of class \code{"character"}. A string in the form \code{"HH:MM:SS"}.}
+  \item{object}{Object of class \code{orderbook}}
+  \item{n}{ A \code{character} in the form \code{"HH:MM:SS"}.}
 }
-\details{Displays the orderbook at the specified time. Can be used to
+\details{Sets the state of the orderbook to the specified time. Can be used to
   move backwards or forwards in time.}
 \value{
   Return an object of class \code{orderbook}
 }
 \examples{
-## The examples must be run in the same directory as the sample.txt input file
+library(orderbook)
+filename <- system.file("data", "sample.txt",
+                        package = "orderbook")
 
-## ob <- orderbook(file = "sample.txt")
-## ob <- read.orders(ob, n = 1000)
-## ob <- read.time(ob, "09:30:00")
+ob <- orderbook(file = filename, trader = FALSE)
+ob <- read.time(ob, "9:30:00")
 }
 \keyword{file}

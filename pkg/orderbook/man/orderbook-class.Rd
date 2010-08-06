@@ -16,11 +16,6 @@
 \alias{mid.point,orderbook-method}
 \alias{inside.market,orderbook-method}
 \alias{spread,orderbook-method}
-\alias{snapshot,orderbook-method}
-\alias{add.order,orderbook-method}
-\alias{remove.order,orderbook-method}
-\alias{replace.order,orderbook-method}
-\alias{market.order,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
 \alias{[,orderbook,character,ANY,ANY-method}
@@ -36,11 +31,6 @@
 \alias{get.order.info}
 \alias{inside.market}
 \alias{spread}
-\alias{snapshot}
-\alias{add.order}
-\alias{remove.order}
-\alias{replace.order}
-\alias{market.order}
 \alias{display}
 \alias{best.ask}
 \alias{best.bid}
@@ -73,16 +63,12 @@ an orderbook}
       currently in the orderbook. Essentially the same as current.ob,
       but a different data structure.
     }
-    \item{\code{trade.data}:}{A \code{hash} that contains data on all
+    \item{\code{trade.data}:}{A \code{vector} that contains data on all
       trades that occurred before current.time.
     }
-    \item{\code{my.trades}:}{A \code{hash} that contains data on the
-      users trades.
-    }
-    \item{\code{animation}:}{A \code{list} that contains the
-      location of the last created animation as well as the number of
-      slow frames.
-    }
+    \item{\code{trader}:}{A \code{logical} indicating whether the order
+      book should expect data with user orders and trades marked.
+      }
   }
 }
 
@@ -113,22 +99,6 @@ an orderbook}
     \item{display}{\code{signature(object="orderbook")}: Prints the state
       of the orderbook. The result is similar to \code{plot}
     }
-    \item{add.order}{\code{signature(object="orderbook")}: Adds an order
-      to this orderbook. Returns an orderbook object with updated
-      information.
-    }
-    \item{remove.order}{\code{signature(object="orderbook")}: Removes an
-      order from this orderbook. Returns an orderbook object with updated
-      information.
-    }
-    \item{replace.order}{\code{signature(object="orderbook")}: Replaces
-      an order in this orderbook. Returns an orderbook object with updated
-      information.
-    }
-    \item{market.order}{\code{signature(object="orderbook")}: Insert a
-      market order to this orderbook. Returns an orderbook object with
-      updated information.
-    }
     \item{bid.price.levels}{\code{signature(object="orderbook")}: Returns
       the number of bid price levels.
     }
@@ -157,7 +127,6 @@ an orderbook}
    \item{spread}{\code{signature(object="orderbook")}: Returns the
      spread between the best ask and best bid .
    }
-
    \item{reset}{\code{signature(object="orderbook")}: Reset the
      orderbook to its initial state.
    }
@@ -168,29 +137,17 @@ an orderbook}
 
 
 \examples{
+library(orderbook)
 
-## The examples  must be run in the same directory as the sample.txt input file
+filename <- system.file("data", "sample.txt",
+                        package = "orderbook")
 
-#ob <- orderbook(file="sample.txt")
-#ob <- read.orders(ob, n=50)
-#summary(ob)
+ob <- orderbook(file = filename)
+ob <- read.orders(ob, 500)
 
-##read the input orders from the file
-
-#ob <- read.orders(ob, n=1000)
-
-## examine the orderbook when the 4th trade occurs
-#ob <- view.trade(ob, n=4)
-
-## go back a little to see the orderbook before thhe 4th trade
-
-#ob <- read.orders(ob, n=-5)
-
-## move forward from the current position on the file.
-#ob <- read.orders(ob, n=50)
-
-## jump to the next trade
-#ob <- next.trade(ob)
+show(ob)
+summary(ob)
+display(ob)
 
 }
 \keyword{classes}

@@ -1,28 +1,29 @@
-\name{read.order.function}
+\name{read.orders.function}
 \alias{read.orders,orderbook-method}
 \alias{read.orders}
 
 \title{read.order}
-\description{Read the next n orders of the data file.}
+\description{Read the next n messages of the data file.}
 \usage{
-read.orders(object, n=1000)
+read.orders(object, n = 1000)
 }
 \arguments{
-  \item{object}{ Object of class \code{"orderbook"}}
-  \item{n}{ Object of class \code{"numeric"}. The number of orders we
-    want to read.}
+  \item{object}{ Object of class \code{orderbook}}
+  \item{n}{ number of messages we want to read.}
 }
 \details{The orderbook keeps track of its current position within the
   data file. The read.orders function will read and
-  process the next n orders from the file.
+  process the next n messages from the file.
 }
 \value{
   Return an object of class \code{orderbook}
 }
 \examples{
-## The examples must be run in the same directory as the sample.txt input file
+library(orderbook)
+filename <- system.file("data", "sample.txt",
+                        package = "orderbook")
 
-## ob <- orderbook(file="sample.txt")
-## ob <- read.orders(ob, n=100)
+ob <- orderbook(file = filename, trader = FALSE)
+ob <- read.orders(ob, 100)
 }
 \keyword{file}

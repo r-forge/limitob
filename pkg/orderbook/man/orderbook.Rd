@@ -5,42 +5,14 @@
   Create an orderbook objects from input data.
 }
 \usage{
- ob <- orderbook(x     = data.frame(),
-                 price = "price",
-                 size  = "size",
-                 type  = "type",
-	         time  = "time",
-	         id    = "id",
-	         ask   = "ASK",
-                 bid   = "BID",
-                 file  = NULL)
+ ob <- orderbook(file, trader = FALSE)
 }
 
 \arguments{
-  \item{x}{A data frame containing an orderbook at a moment in time.}
-  \item{price}{ Object of class \code{"character"} specifying the name
-  of the price column in x.
-  }
-  \item{size}{ Object of class \code{"character"} specifying
-    the name of the size column in x.
-  }
-  \item{type}{ Object of class \code{"character"} specifying
-    the name of the type column in x.
-  }
-  \item{time}{ Object of class \code{"character"} specifying
-    the name of the time column in x.
-  }
-  \item{id}{ Object of class \code{"character"} specifying
-    the name of the id column in x.
-  }
-  \item{ask}{ Object of class \code{"character"} specifying
-    the ASK values for the orderbook.
-  }
-  \item{bid}{ Object of class \code{"character"} specifying
-    the BID values for the orderbook.
-  }
   \item{file}{ Object of class \code{"character"} specifying the
-    location of the data file.
+    location of the data file.}
+  \item{trader}{Object of class \code{"logical"} indicating whether or
+  not the order book should read user orders and executions from the data.
 
   }
 }
@@ -53,7 +25,10 @@
   Return an object of class \code{orderbook}
 }
 \examples{
-## ob = orderbook(file = "sample.txt")
+library(orderbook)
+filename <- system.file("data", "sample.txt",
+                        package = "orderbook")
+ob = orderbook(file = filename, trader = FALSE)
 }
 
 

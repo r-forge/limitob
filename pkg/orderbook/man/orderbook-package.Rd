@@ -16,9 +16,9 @@ of analysis can help in researching short-term trading strategies.
 \tabular{ll}{
 Package: \tab orderbook\cr
 Type: \tab Package\cr
-Version: \tab 0.0.1\cr
+Version: \tab 1.0\cr
 Date: \tab 2010-07-01\cr
-Depends: \tab R (>= 2.3.0), hash, methods, grid, lattice\cr
+Depends: \tab R (>= 2.11.0), hash, methods, grid, lattice\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }

@@ -26,17 +26,12 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      feed         = "character",
                                      feed.index   = "numeric",
                                      ob.data      = "hash",
-                                     trade.data   = "hash",
-                                     my.trades    = "hash",
-                                     animation    = "list"
+                                     trade.data   = "vector",
+                                     trader       = "logical"
                                      ))
 
 if(!isGeneric("spread"))
     setGeneric("spread", function(object, ...) standardGeneric("spread"))
-
-if(!isGeneric("get.order.info"))
-    setGeneric("get.order.info", function(object, id, ...)
-               standardGeneric("get.order.info"))
 
 if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)
@@ -74,10 +69,6 @@ if(!isGeneric("inside.market"))
     setGeneric("inside.market", function(object, invis = FALSE, ...)
                standardGeneric("inside.market"))
 
-if(!isGeneric("add.order"))
-    setGeneric("add.order", function(object, price, size, type, time=NULL,
-               id = NULL, ...) standardGeneric("add.order"))
-
 if(!isGeneric("best.bid"))
     setGeneric("best.bid", function(object, ...)
 			   standardGeneric("best.bid"))
@@ -86,25 +77,22 @@ if(!isGeneric("best.ask"))
     setGeneric("best.ask", function(object, ...)
 	           standardGeneric("best.ask"))
 
+if(!isGeneric("add.order"))
+    setGeneric("add.order", function(object, price, size, type,
+               time=NULL, id = NULL, status = FALSE)
+               standardGeneric("add.order"))
+
 if(!isGeneric("remove.order"))
-    setGeneric("remove.order", function(object, id, ...)
+    setGeneric("remove.order", function(object, id)
                standardGeneric("remove.order"))
 
 if(!isGeneric("replace.order"))
-    setGeneric("replace.order", function(object, id, size, ...)
+    setGeneric("replace.order", function(object, id, size)
                standardGeneric("replace.order"))
 
 if (!isGeneric("market.order"))
-    setGeneric("market.order", function(object, size, type, ...)
+    setGeneric("market.order", function(object, size, type)
                standardGeneric("market.order"))
-
-if (!isGeneric("market.order.price"))
-    setGeneric("market.order.price", function(object, size, price, ...)
-               standardGeneric("market.order.price"))
-
-if (!isGeneric("view.trade"))
-    setGeneric("view.trade", function(object, n = 1)
-               standardGeneric("view.trade"))
 
 if(!isGeneric("reset"))
     setGeneric("reset", function(object)
@@ -130,17 +118,10 @@ if(!isGeneric("previous.trade"))
     setGeneric("previous.trade", function(object)
                standardGeneric("previous.trade"))
 
-if(!isGeneric("load.animation"))
-    setGeneric("load.animation", function(object, from, to, by =
-                                         "sec", bounds = 0.05)
-               standardGeneric("load.animation"))
+if(!isGeneric("midpoint.return"))
+    setGeneric("midpoint.return", function(object, tradenum, time)
+               standardGeneric("midpoint.return"))
 
-if(!isGeneric("load.trade.animation"))
-    setGeneric("load.trade.animation", function(object, before = 30,
-                                                after = 30, by = "sec", bounds = 0.05)
-               standardGeneric("load.trade.animation"))
-
-if(!isGeneric("animate"))
-    setGeneric("animate", function(object, pause = 0.25, type =
-                                   "sec")
-               standardGeneric("animate"))
+if(!isGeneric("view.trade"))
+    setGeneric("view.trade", function(object, tradenum)
+               standardGeneric("view.trade"))

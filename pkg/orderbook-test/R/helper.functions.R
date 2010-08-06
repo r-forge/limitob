@@ -315,18 +315,8 @@
 
     for (i in 1:length(n)){
 
-        if(is.null(trade) | n[i] >= trade[[1]])
-            ycolors <- c("black")
-        else{
-
-            ycolors <- c(rep("black", round((trade[[3]] - y.limits[1]) * 100)),
-                         "red",
-                         rep("black",round((y.limits[2] - trade[[3]]) *  100)))
-
-        }
-
         tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits, y.limits,
-                                  .to.time(time[i]), ycolors, sub)
+                                  .to.time(time[i]), sub)
 
         name[i] <- paste("y", i, sep = ".")
         assign(paste("y", i, sep = "."), tmp.plot)
@@ -470,13 +460,7 @@
 ## e.g. c(5, 10, 60, 120) means find the midpoint return for 5s, 10s,
 ## 1 min, 2 min after the trade.
 
-.midpoint.return <- function(object, row, time){
-
-
-    ## Now the orderbook is at the start order
-
-    object <- read.orders(object, row - object@file.index)
-    startmidpt <- mid.point(object)
+.midpoint.return <- function(object, trdprice, trdrow, trdtime, time){
 
     ## Time is in seconds so multiply it to find milliseconds
 
@@ -484,37 +468,51 @@
 
     ## Pull out current time and add it to time
 
-    time <- object@current.time + time
+    time <- trdtime + time
+
+    ## Find rows for time
+
+    n <- .get.time.row(object@file, time)
+
+    ## Append n to the trade row
+
+    n <- append(trdrow, n)
+
+    ## Get the order book at the rows desired.
+
+    x <- .read.orders.multiple(object, n)
+
+    ## Get the midpoint when the trade happens
+
+    object@current.ob <- x[[1]]
+
+    startmidpt <- mid.point(object)
+
+    ## Loop through and calculate midpoints at the other times
 
     midpoints <- vector()
 
-    for(i in 1:length(time)){
+    for(i in 2:length(n)){
 
-        ## Pull out current row the object is at in the data file
-
-        currentrow <- object@file.index
-
-        ## Find the next time
-
-        row <- .get.time.row(object@file, time[i], currentrow)
-
-        ## Read to that time and then save the midpoint
-
-        object <- read.orders(object, row - currentrow)
-        midpoints[i] <- mid.point(object)
+        object@current.ob <- x[[i]]
+        midpoints[i - 1] <- mid.point(object)
     }
 
-    return(round(midpoints - startmidpt, 3))
+    ## If startmidpt > trdprice then it was a buy, otherwise a
+    ## short. Calculate returns accordingly.
+
+    if(startmidpt > trdprice)
+        return(list(round(midpoints - trdprice, 3), startmidpt))
+    else
+        return(list(round(trdprice - midpoints, 3), startmidpt))
 }
 
 ## Trade weighted average price for the vector of times given the
 ## order number and a vector of times (like above).
 
-.twap.return <- function(object, row, time){
+.twap.return <- function(object, trdprice, trdtime, time, startmidpt){
 
     trade.data <- object@trade.data
-    trdtime <- trade.data[trade.data$row == row,][[2]]
-    trdprice <- trade.data[trade.data$row == row,][[3]]
 
     ## Time is in seconds so multiply it to find milliseconds
 
@@ -535,5 +533,12 @@
 
     }
 
-    return(round(twap - trdprice, 3))
+    ## If startmidpt > trdprice then it was a buy, otherwise a
+    ## short. Calculate returns accordingly.
+
+    if(startmidpt > trdprice)
+        return(round(twap - trdprice, 3))
+    else
+        return(round(trdprice - twap, 3))
+
 }

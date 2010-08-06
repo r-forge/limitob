@@ -357,7 +357,7 @@
 
 }
 
-.animate.plot <- function(x, x.at, x.limits, y.limits, time, ycolors, sub){
+.animate.plot <- function(x, x.at, x.limits, y.limits, time, sub){
 
     ## Creating the data to be plotted
 
@@ -417,7 +417,10 @@
                     groups = interaction(x$status, x$time),
                     main = paste("Order Book", time, sep = " -- "),
                     stack = TRUE, sub = sub,
-                    col = c("gray", "blue", "green", "red", "black"),
+
+                    col = hcl(h = c(30, 210, 30, 120, 300), l = 70),
+
+
                     border = "transparent",
                     scale = list(x = list(relation = "free", at = x.at,
                                  limits = x.limits, axs = "i", rot = 45),

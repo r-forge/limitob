@@ -768,22 +768,12 @@ setMethod("view.trade",
 
 setMethod("load.animation",
           signature(object = "orderbook"),
-          function(object, from, to, by = "sec", bounds =
+          function(object, from, to, fps = 1, by = "sec", bounds =
                    0.02){
 
               if(isTRUE(by %in% "sec")){
 
-                  ## Create the vector of times by converting from and
-                  ## to POSIX objects and then using sequence to
-                  ## create a sequence between the two times.
-
-                  from <- as.POSIXlt(from, format = "%H:%M:%S")
-                  to <- as.POSIXlt(to, format = "%H:%M:%S")
-                  time <- seq.POSIXt(from.time, to, "sec")
-
-                  ## Format to get rid of the dates.
-
-                  time <- format(time, format ="%H:%M:%S")
+                  time <- seq(.to.ms(from), .to.ms(to), 1000/fps)
 
                   ## Run helper function to do the actual creation of
                   ## the Trellis objects.
@@ -806,7 +796,7 @@ setMethod("load.animation",
 
 setMethod("load.trade.animation",
           signature(object = "orderbook"),
-          function(object, tradenum, before = 30, after = 30, rate = 1, by =
+          function(object, tradenum, before = 30, after = 30, fps = 1, by =
                    "both", bounds = 0.02){
 
               ## Extract the desired trade from my trades.
@@ -835,7 +825,7 @@ setMethod("load.trade.animation",
                   from <- format(tradetime - before, format = "%H:%M:%S")
                   to <- format(tradetime + after, format = "%H:%M:%S")
 
-                  time <- seq(.to.ms(from), .to.ms(to), 1000/rate)
+                  time <- seq(.to.ms(from), .to.ms(to), 1000/fps)
 
                   object <- .animate.seconds(object, time, bounds, trade)
               }
@@ -869,12 +859,12 @@ setMethod("load.trade.animation",
 
 setMethod("load.next.trade",
           signature(object = "orderbook"),
-          function(object, before = 30, after = 30, by = "both",
-                   bounds = .02){
+          function(object, before = 30, after = 30, fps = 1, by =
+                   "both", bounds = .02){
 
               object <- load.trade.animation(object,
                                              object@trade.index,
-                                             before, after, rate, by,
+                                             before, after, fps, by,
                                              bounds)
 
               object@trade.index <- object@trade.index + 1
@@ -888,14 +878,14 @@ setMethod("load.next.trade",
 
 setMethod("load.previous.trade",
           signature(object = "orderbook"),
-          function(object, before = 30, after = 30, by = "both",
-                   bounds = .02){
+          function(object, before = 30, after = 30, fps = 1, by =
+                   "both", bounds = .02){
 
               if(object@trade.index > 1){
 
                   object <- load.trade.animation(object,
                                                  object@trade.index - 1,
-                                                 before, after, rate, by,
+                                                 before, after, fps, by,
                                                  bounds)
 
                   object@trade.index <- object@trade.index - 1
@@ -1047,14 +1037,21 @@ setMethod("initialize.trades",
 
               for(i in 1:nrow(mytrades)){
 
-                  ## Find its row within the data file
+                  ## Find its row, price, and time within the data
+                  ## file
 
-                  row <- mytrades$row[i]
+                  trdrow <- mytrades$row[i]
+                  trdprice <- mytrades$price[i]
+                  trdtime <- mytrades$time[i]
 
                   ## Given that information find the midpoint and twap
 
-                  tmp <- c(.midpoint.return(object, row, time),
-                               .twap.return(object, row, time))
+                  midpt.ret <- .midpoint.return(object, trdprice,
+                                                trdrow, trdtime, time)
+
+                  tmp <- c(midpt.ret[[1]],
+                           .twap.return(object, trdprice, trdtime,
+                                        time, midpt.ret[[2]]))
 
                   ## Put that vector into a list
 

@@ -108,10 +108,7 @@ SEXP readOrdersMultiple(SEXP filename, SEXP Rrows){
 		    free(s);
 		} else
 		    Rprintf("%d\n", i);
-	    } else if(strcmp(token, "T") == 0){
-		free(strcp);
-		i++;
-		continue;
+
 	    }else if(strcmp(token, "R") == 0){
 
 		token = strtok(NULL, delimiters);

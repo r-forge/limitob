@@ -120,14 +120,15 @@ symbol NVDA. Consider the order book for NVDA at a leading electronic
 exchange on June 8, 2010. We create the \texttt{orderbook} object by
 specifying the location of our data file.
 
-<<results = hide>>=
+<<results = hide, echo = TRUE>>=
 library(orderbook)
 filename <- system.file("data", "sample.txt",
                         package = "orderbook")
+
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, 10000)
 @
-<<>>=
+<<echo = TRUE>>=
 ob
 @
 
@@ -173,7 +174,7 @@ plot(ob)
 x-axis. The maximum and minimum price levels are 10\% above and below
 the midpoint. Note the large number of shares at \$11.01. It is
 helpful to know whether the depth at that price level is comprised of
-a single order, or several. Using the \texttt{[} method we can view
+a single order, or several. Using the \texttt{``[''} method we can view
 the order information at particular price levels.
 
 <<echo = TRUE>>=
@@ -322,7 +323,7 @@ executes an order, it should be accompanied by a cancel/replace
 message. Since trade messages do not alter the order book, they do not
 need to be included if the user wants to build the order book.
 
-<<>>=
+<<echo = TRUE>>=
 filename <- system.file("data", "tradersample.txt",
                         package = "orderbook")
 ob <- orderbook(file = filename, trader = TRUE)
@@ -332,7 +333,8 @@ Creating the \texttt{orderbook} object this way lets it know to expect
 an additional column in trade and add messages that indicate whether
 or not the trade belongs to the user.
 
-<<>>=
+<<echo = TRUE>>=
+ob <- read.time(ob, "9:30:05")
 ob <- next.trade(ob)
 @
 
@@ -341,22 +343,42 @@ after the current time occurs. There is also a \texttt{previous.trade}
 function that sets the order book to when the trade before the current
 time occurs.
 
-<<>>=
-midpoint.return(ob, trade = 1, time = 5)
+<<echo = TRUE>>=
+view.trade(ob, tradenum = 584)
+mid.point(ob)
+@
+
+Since the trade price is higher than the midpoint price, we know that
+the trade occurred as a result of an ask order getting hit. Note that
+trade data is stored into the order book only after it has read
+through the corresponding trade message.
+
+<<echo = TRUE>>=
+midpoint.return(ob, tradenum = 584, time = 10)
 @
 
 The \emph{midpoint return} is the difference in cents between the
 execution price and the midpoint price after a specified period of
-time. For example, the above calculates the 5-second midpoint return
-for the first trade. Note that trade data is stored into the order
-book only after it has read through the corresponding trade message.
+time. For example, the above calculates the ten second midpoint return
+for the first trade. Since it was a sell order, the midpoint return
+will be positive if the stock price decreases, and negative if the
+stock price increases.
 
-<<>>=
+\begin{figure}
+\centering
+\vspace*{.1in}
+<<echo = TRUE, fig = TRUE>>=
+ob <- read.time(ob, "9:30:15")
 plot(ob, type = "t", bounds = 0.02)
 @
-
+\end{figure}
 This plot shows two pennies above and below the best bid and best
-ask. The users orders are displayed in red.
+ask. We see that the midpoint has dropped to 25.875, confirming the
+midpoint return above. This graph shows two pennies above and below
+the best bid and ask. Orders at these price levels are shown in time
+priority, with the earliest submitted order being closest to the
+middle y-axis. Note the red order--this is an order marked
+\texttt{TRUE} by the user, indicating that it belonged to her.
 
 \section*{Simulation}
 

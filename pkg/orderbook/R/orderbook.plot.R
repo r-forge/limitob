@@ -452,7 +452,7 @@
 
     if(isTRUE(object@trader)){
         groups <- interaction(x$status, x$time)
-        colors <- c("gray", "red")
+        colors <- c("red", "gray")
     }else{
         groups <- x$time
         colors <- "gray"

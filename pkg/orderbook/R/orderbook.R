@@ -819,10 +819,13 @@ setMethod("view.trade",
                   names <- c("row", "time", "id", "price", "size")
               }
 
+
               start <- (tradenum - 1) * skip + 1
               end <- start + skip - 1
 
-              trade <- as.data.frame(x[start:end])
+              trade <- x[start:end]
+              trade[2] <- .to.time(as.numeric(trade[2]))
+              trade <- as.data.frame(trade)
 
               names(trade) <- paste("Trade", tradenum)
               rownames(trade) <- names

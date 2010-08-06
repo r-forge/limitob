@@ -122,7 +122,8 @@ specifying the location of our data file.
 
 <<results = hide, echo = TRUE>>=
 library(orderbook)
-filename <- system.file("data", "sample.txt",
+filename <- system.file("data",
+                        "sample.txt",
                         package = "orderbook")
 
 ob <- orderbook(file = filename)
@@ -324,7 +325,8 @@ message. Since trade messages do not alter the order book, they do not
 need to be included if the user wants to build the order book.
 
 <<echo = TRUE>>=
-filename <- system.file("data", "tradersample.txt",
+filename <- system.file("data",
+                        "tradersample.txt",
                         package = "orderbook")
 ob <- orderbook(file = filename, trader = TRUE)
 @
@@ -508,7 +510,7 @@ simulate <- function(ob, n=1000,
 }
 @
 
-<<echo = TRUE, eval = FALSE>>=
+<<echo = TRUE>>=
 ob <- simulate(ob)
 @
 \begin{figure}

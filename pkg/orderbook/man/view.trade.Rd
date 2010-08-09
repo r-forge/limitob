@@ -49,7 +49,7 @@ library(orderbook)
 filename <- system.file("data", "sample.txt",
                         package = "orderbook")
 
-ob <- orderbook(file = filename, trader = FALSE)
+ob <- orderbook(file = filename)
 ob <- next.trade(ob)
 view.trade(ob, 1)
 midpoint.return(ob, 1, c(5, 10))

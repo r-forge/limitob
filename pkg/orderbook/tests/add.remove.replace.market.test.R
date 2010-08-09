@@ -3,7 +3,7 @@ library(orderbook)
 filename <- system.file("data", "sample.txt",
                         package = "orderbook")
 
-ob <- orderbook(file = filename, trader = FALSE)
+ob <- orderbook(file = filename)
 
 ## Add order Bid
 

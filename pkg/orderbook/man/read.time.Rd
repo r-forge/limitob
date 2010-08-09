@@ -23,7 +23,7 @@ library(orderbook)
 filename <- system.file("data", "sample.txt",
                         package = "orderbook")
 
-ob <- orderbook(file = filename, trader = FALSE)
+ob <- orderbook(file = filename)
 ob <- read.time(ob, "9:30:00")
 }
 \keyword{file}

@@ -31,16 +31,14 @@
 \section*{Introduction}
 
 The \pkg{orderbook} package provides facilities for exploring and
-visualizing the data associated with an order book. An order book
-keeps track of the outstanding limit orders for a financial
-instrument, e.g. a stock. A \emph{limit order} is an order to buy or
-sell a given quantity of stock at a specified limit price or
-better. The number of shares to be bought or sold is known as the
-\emph{size}.  An order remains in the order book until fully
-executed, i.e. until its size is zero as a result of trades. Partial
-executions occur as a result of trades for less than the entire size
-of the order. In this case the order remains in the order book at the
-same price, but with an appropriately reduced size.
+visualizing the data associated with an order book: the electronic
+collection of the outstanding limit orders for a financial instrument,
+e.g. a stock. A \emph{limit order} is an order to buy or sell a given
+quantity of stock at a specified limit price or better. The
+\emph{size} is the number of shares to be bought or sold.  An order
+remains in the order book until fully executed, i.e. until its size is
+zero as a result of trades. Partial executions occur as a result of
+trades for less than the entire size of the order.
 
 Consider a simple order book containing five limit orders: sell 150
 shares of IBM at \$11.11, sell 150 shares of IBM at \$11.08, buy 100
@@ -58,7 +56,7 @@ shares of IBM at \$11.05, buy 200 shares of IBM at \$11.05, and buy
 Bid Size         Price
 \end{verbatim}
 
-Orders on the \emph{bid} (\emph{ask}) side represent orders to buy
+\noindent Orders on the \emph{bid} (\emph{ask}) side represent orders to buy
 (sell). The price levels are \$11.11, \$11.08, \$11.05, and
 \$11.01. The \emph{best bid} at \$11.05 (highest bid price) and the
 \emph{best ask} at \$11.08 (lowest ask price) make up the \emph{inside
@@ -75,23 +73,31 @@ can issue a \emph{cancel/replace}, which cancels the order, then
 immediately replaces it with another order at the same price, but with
 a lower size. Every limit order is assigned a unique ID so that cancel
 and cancel/replace orders can identify the corresponding limit
-order. A trade occurs when an order is executed through a \emph{market
-  order}, which is an order to immediately buy or sell a given
-quantity of stock at the best available prices.
+order. A \emph{market order} is an order to immediately buy or sell a
+quantity of stock at the best available prices. A trade occurs when a
+market order is paired with the correspnding limit order in the inside market.
 
-All orders also have timestamps indicating the time at which they
-accepted into an order book. The timestamp determines the \emph{time
-  priority} or an order. Earlier orders are executed before later
+All orders have timestamps indicating the time at which they were
+accepted into the order book. The timestamp determines the \emph{time
+  priority} of an order. Earlier orders are executed before later
 orders. For example, suppose that the order to buy 100 shares at
 \$11.05 was submitted before the order to buy 200 shares at
-\$11.05. Suppose a market order selling 200 shares is submitted to the
-order book above. The first order will be fully executed, while the
-second order will only be partially executed. A limit order to buy 100
-shares at \$11.05 will remain in the order book. Market orders can
-also execute through price levels. Suppose a market order to buy 200
-shares is also submitted. The order at \$11.08 will be fully executed,
-while the order at \$11.11 will be partially executed. An order to
-sell 50 shares at \$11.11 in the order book.
+\$11.05. Now suppose a market order selling 200 shares is submitted to
+the order book. The limit order for 100 shares will be executed
+because it is at the front of the queue at the best bid. Then, 100
+shares of the order with 200 total shares will be executed, since it
+was second in the queue. 100 shares of the 200 share order remain in
+the order book at that price level.
+
+A market order for more shares than the size at the inside market will
+execute at worse price levels until it is complete. For example, if a
+market order to buy 200 shares is submitted to the order book, the
+order at \$11.08 will be fully executed. Since there are no more
+shares available at that price level, 100 shares at the \$11.11 price
+level will be transacted to complete the market order. An order to
+sell 50 shares at \$11.11 will remain in the order book. Executing
+these two market orders on our hypothetical order book results in a
+new state of the order book.
 
 \begin{verbatim}
                  Price          Ask Size
@@ -122,10 +128,7 @@ specifying the location of our data file.
 
 <<results = hide, echo = TRUE>>=
 library(orderbook)
-filename <- system.file("data",
-                        "sample.txt",
-                        package = "orderbook")
-
+filename <- system.file("data", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, 10000)
 @
@@ -134,33 +137,30 @@ ob
 @
 
 We read in the first 10,000 messages then \texttt{show} the object.
-The order book time is displayed in 24-hour time, so it is currently
-9:35:02 AM. The message index indicates which row in the data file the
-object has read through. The display also shows that there are 631
-bids and 1,856 asks outstanding, for a total of 2,487 orders. This
-indicates that many earlier orders have been removed through either
-cancels or trades.
+The current time is 9:35:02 AM. The message index indicates which row
+in the data file the object has read through. The display also shows
+that there are 631 bids and 1,856 asks outstanding, for a total of
+2,487 orders. This indicates that many earlier orders have been
+removed through either cancels or trades.
 
 <<echo = TRUE>>=
 summary(ob)
 @
 
 Using \texttt{summary} the total order information from \texttt{show}
-is repeated. We see that there are 540 ask and 179 bid price levels,
-for a total of 719. This indicates that many orders are have been
-submitted at the same price level.  The spread is \$0.02, and the
-midpoint is \$11.37. The inside market is composed of 2,700 shares
-offered at the best bid of \$11.36 and 400 shares offered at the best
-ask of \$11.38.
+is repeated. Additionally, we see that there are 540 ask and 179 bid
+price levels, for a total of 719. This indicates that many orders
+have been submitted at the same price level.  The spread is \$0.02,
+and the midpoint is \$11.37. The inside market is composed of 2,700
+shares offered at the best bid of \$11.36 and 400 shares offered at
+the best ask of \$11.38.
 
 <<echo = TRUE>>=
 display(ob)
 @
 
 \texttt{display} shows the inside market, along with the four next
-best bid and ask price levels and the size at each price level. This
-gives the user a snapshot of the supply and demand in the
-market.
+best bid and ask price levels and the size at each price level.
 
 \begin{figure}
 \centering
@@ -170,13 +170,13 @@ plot(ob)
 @
 \end{figure}
 
-\texttt{plot} is essentially a graphical representation of
-\texttt{display}. Price levels are on the y-axis, and size is on the
-x-axis. The maximum and minimum price levels are 10\% above and below
-the midpoint. Note the large number of shares at \$11.01. It is
-helpful to know whether the depth at that price level is comprised of
-a single order, or several. Using the \texttt{``[''} method we can view
-the order information at particular price levels.
+\texttt{plot} is a graphical representation of \texttt{display}. Price
+levels are on the y-axis, and size is on the x-axis. The maximum and
+minimum price levels displayed by default are 10\% above and below the
+midpoint. Note the large number of shares at \$11.01. It is helpful to
+know the number of orders which make up the large size at that price
+level. Using the \texttt{"["} method we can view the order information
+at particular price levels.
 
 <<echo = TRUE>>=
 ob["11.01"]
@@ -187,10 +187,9 @@ accounts for almost all of the size.  We can view a plot of the number
 of orders rather than the number of shares at each price level by
 specifying \texttt{type = 'o'} when using \texttt{plot}. In the
 previous plot the maximum and minimum price levels were 10\% off from
-the midpoint, but for this plot we specify a bound of only 3.3\% above
-and below the midpoint.
+the midpoint, but for this plot we specify a range of only 3.3\%.
 
-Note the large number of orders at \$11.00. The \texttt{[} method
+Note the large number of orders at \$11.00. The \texttt{"["} method
 returns a \texttt{data.frame}, so we can use \texttt{nrow} to return
 the number of orders at \$11.00.
 
@@ -209,14 +208,15 @@ plot(ob, bounds = 0.033, type = 'o')
 @
 \end{figure}
 
-The following plot shows the supply and demand curves for the order book. The
-demand (supply) curve is downsloping (upsloping). This is because more
-people want to buy (sell) a stock when the price decreases
-(increases). The ask (bid) prices are normalized by the absolute value
-of the difference between the highest (lowest) plotted ask (bid) price
-level and the the midpoint. The sizes are normalized by the sum of the
-sizes across all plotted price levels for each side. See
-\cite{cao:orderbook} for more details.
+The type argument on plot allows for an ``sd'' option which shows
+supply and demand curves for the order book. The demand (supply) curve
+is downsloping (upsloping). This is because more people want to buy
+(sell) a stock when the price decreases (increases). The ask (bid)
+prices are normalized by the absolute value of the difference between
+the highest (lowest) plotted ask (bid) price level and the the
+midpoint. Following \cite{cao:orderbook}, the sizes are normalized by
+the sum of the sizes across all plotted price levels for each
+side.
 
 \begin{figure}
   \centering
@@ -226,19 +226,10 @@ plot(ob, bounds = 0.01, type = "sd")
 @
 \end{figure}
 
-The following plot shows the supply and demand curves for the order book. The
-demand (supply) curve is downsloping (upsloping). This is because more
-people want to buy (sell) a stock when the price decreases
-(increases). The ask (bid) prices are normalized by the absolute value
-of the difference between the highest (lowest) plotted ask (bid) price
-level and the the midpoint. The sizes are normalized by the sum of the
-sizes across all plotted price levels for each side. See
-\cite{cao:orderbook} for more detail.
-
 \pkg{orderbook} has methods for creating new \texttt{orderbook}
-objects at different times of interest.
+objects at specified clock times of interest.
 
-<<eval = FALSE, echo = TRUE>>=
+<<echo = TRUE>>=
 ob <- read.time(ob, "9:30:00")
 @
 
@@ -264,86 +255,50 @@ scripts to automatically process all data formats. Consequently, raw
 data for an \texttt{orderbook} object must be in the following form:
 
 \begin{verbatim}
-type,time,id,price,size,type
-A,31285893,1231884,11.49,200,ASK
-R,31295779,1231884,150
-C,31295781,1231884
-\end{verbatim}
-
-where A, R, and C mean Add, Replace, and Cancel,
-respectively. The second column is the timestamp of the message in
-milliseconds after midnight of the users timezone, and the third
-column is the ID of the order. For a cancel/replace the next column is
-the new size, while for Add and Trade a column for price comes before
-the size column. Add messages also have the type of order (BID/ASK) in
-the sixth column.
-
-In this example an order to sell 200 shares at \$11.49 is added to the
-order book, followed by a cancel/replace that changes the size of the
-order to 150 shares, and finally a cancel order that removes the order
-from the book.
-
-Note that the cancel/replace and the trade have the same
-timestamp and ID. This is because the \texttt{orderbook} object needs
-to be told the new share size after the trade occurs, in addition to
-information on the trade. It will not adjust the size of a previous
-order after a trade occurs without an accompanying cancel/replace
-present. A trade that leads to a full execution should be accompanied
-by a cancel message. Since trade messages do not alter the
-order book, they are not necessary for the functions mentioned above,
-but can be included if the user wants to take advantage of added
-functionality.
-
-\section*{Trade Data}
-
-Users can choose to include trade data, as well as data on which
-orders and executions are theirs. This allows a user to create plots
-that show the time priority of her own orders, as well as the ability
-to calculate the returns of her trades. If users wish to take
-advantage of this functionality, the raw data should be in the
-following form:
-
-\begin{verbatim}
+type,time,id,price,size,type,status
 A,34226539,5920814,25.95,100,ASK,TRUE
 A,34226788,5933949,25.91,100,BID,FALSE
+R,34226900,5933949,50
 C,34226904,5920814
 T,34226904,755377,25.95,100,TRUE
 \end{verbatim}
 
-The main difference between the two data formats is that this one has
-an additional column for add and trade orders indicating TRUE if the
-order or trade belongs to her. If the user wants to be able to
-calculate the returns of trades, but has no orders or trades of her
-own, this new column can be omitted.
+\noindent where A, R, T, and C mean Add, Replace, Trade, and Cancel,
+respectively. The second column is the timestamp of the message in
+milliseconds after midnight, and the third column is the order ID. For
+a Replace the next column is the new size, while for Add and Trade a
+column for price comes before the size column. Add messages also have
+the type of order (BID/ASK) in the sixth column. The optional seventh
+(sixth) column is \texttt{TRUE} if the order (trade) belongs to the
+user, and \texttt{FALSE} otehrwise. This allows the user to create
+plots that show the time priority of his own orders. If the column is
+omitted, the first line of the data file should be \texttt{type, time,
+  id, price, size, type} and not include \texttt{status}.
 
-Note that the cancel and the trade have the same timestamp. This is
-because the \texttt{orderbook} object needs to be told that the trade
-has fully executed an order by submitting a cancel order removing the
-trade that was executed. In the same vein, if a trade partially
-executes an order, it should be accompanied by a cancel/replace
-message. Since trade messages do not alter the order book, they do not
-need to be included if the user wants to build the order book.
+In this example a user order to sell 100 shares at \$25.95 is added to the
+order book, followed by an order to buy 100 shares at \$25.91. The
+ size of the order at \$25.91 is then replaced to 50 shares. Finally,
+ the order at \$25.95 is cancelled, and a trade for 100 shares
+ at \$25.95 occurs.
 
-<<echo = TRUE>>=
-filename <- system.file("data",
-                        "tradersample.txt",
-                        package = "orderbook")
-ob <- orderbook(file = filename, trader = TRUE)
-@
+\section*{Analyzing Trades}
 
-Creating the \texttt{orderbook} object this way lets it know to expect
-an additional column in trade and add messages that indicate whether
-or not the trade belongs to the user.
+A user can create plots that show the time priority of his own orders
+if a \texttt{status} column is present in the data file.
 
 <<echo = TRUE>>=
+filename <- system.file("data", "tradersample.txt", package = "orderbook")
+ob <- orderbook(file = filename)
 ob <- read.time(ob, "9:30:05")
 ob <- next.trade(ob)
+ob
 @
 
-This function sets the state of the order book to when the trade
-after the current time occurs. There is also a \texttt{previous.trade}
-function that sets the order book to when the trade before the current
-time occurs.
+Note that this \texttt{orderbook} object is of type trader.  The
+\texttt{next.trade} function sets the state of the order book to when
+the trade after the current time occurs. There is also a
+\texttt{previous.trade} function with the same functionality moving
+backwards
 
 <<echo = TRUE>>=
 view.trade(ob, tradenum = 584)
@@ -374,13 +329,14 @@ ob <- read.time(ob, "9:30:15")
 plot(ob, type = "t", bounds = 0.02)
 @
 \end{figure}
+
 This plot shows two pennies above and below the best bid and best
 ask. We see that the midpoint has dropped to 25.875, confirming the
 midpoint return above. This graph shows two pennies above and below
 the best bid and ask. Orders at these price levels are shown in time
 priority, with the earliest submitted order being closest to the
 middle y-axis. Note the red order--this is an order marked
-\texttt{TRUE} by the user, indicating that it belonged to her.
+\texttt{TRUE} by the user, indicating that it belonged to him.
 
 \section*{Simulation}
 

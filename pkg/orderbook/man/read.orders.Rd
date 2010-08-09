@@ -23,7 +23,7 @@ library(orderbook)
 filename <- system.file("data", "sample.txt",
                         package = "orderbook")
 
-ob <- orderbook(file = filename, trader = FALSE)
+ob <- orderbook(file = filename)
 ob <- read.orders(ob, 100)
 }
 \keyword{file}

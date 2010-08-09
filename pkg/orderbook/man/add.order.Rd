@@ -49,7 +49,7 @@ library(orderbook)
 filename <- system.file("data", "sample.txt",
                         package = "orderbook")
 
-ob <- orderbook(file = filename, trader = FALSE)
+ob <- orderbook(file = filename)
 
 ob <- add.order(ob, price = 123, size = 123, type = "BID", time = 1, id = 1)
 ob <- replace.order(ob, 1, 100)

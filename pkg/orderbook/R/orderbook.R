@@ -29,7 +29,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
          prototype(current.ob   = data.frame(),
                    current.time = 0,
                    file		= character(),
-                   file.index   = 0,
+                   file.index   = 1,
                    ob.data      = hash(),
                    trade.data   = vector(),
                    trader       = FALSE
@@ -45,7 +45,7 @@ setMethod("read.orders",
               if(n > 0){
                   invisible(.read.orders(object, n))
               } else {
-                  n <- object@file.index + n
+                  n <- object@file.index + n - 1
                   object <- reset(object)
                   invisible(.read.orders(object, n))
               }
@@ -149,12 +149,17 @@ setMethod("best.ask",
 setMethod("show",
           signature(object = "orderbook"),
           function(object){
-              cat("An object of class orderbook\n")
+
+              if(isTRUE(object@trader))
+                  cat("An object of class orderbook (trader)\n")
+              else
+                  cat("An object of class orderbook (default)\n")
+
               cat("--------------------------\n")
               cat("Current orderbook time:   ",
                   .to.time(object@current.time), "\n")
               cat("Message Index:            ",
-                  .prettify(object@file.index, "s"), "\n")
+                  .prettify(object@file.index - 1, "s"), "\n")
               cat("Bid Orders:               ",
                   .prettify(bid.orders(object), "s"), "\n")
               cat("Ask Orders:               ",
@@ -527,7 +532,7 @@ setMethod("reset",
 
               object@current.ob <- current.ob
               object@current.time <- 0
-              object@file.index <- 0
+              object@file.index <- 1
               object@trade.data <- vector()
 
               invisible(object)
@@ -583,13 +588,13 @@ setMethod("midpoint.return",
               trdprice <- as.numeric(trade.data[4 + (tradenum - 1) * skip])
               trdrow <- as.numeric(trade.data[1 + (tradenum - 1) * skip])
 
-              midpoint <- .midpoint.returns(object, trdprice, trdrow,
-                                           time)
+              midpoint.return <- .midpoint.returns(object, trdprice,
+                                           trdrow, time)
 
-              midpoint <- cbind(midpoint)
-              rownames(midpoint) <- paste(time, "second return")
+              midpoint.return <- cbind(midpoint.return)
+              rownames(midpoint.return) <- paste(time, "second")
 
-              return(midpoint)
+              return(midpoint.return)
 
           }
           )
@@ -827,7 +832,7 @@ setMethod("view.trade",
               trade[2] <- .to.time(as.numeric(trade[2]))
               trade <- as.data.frame(trade)
 
-              names(trade) <- paste("Trade", tradenum)
+              names(trade) <- paste("trade", tradenum)
               rownames(trade) <- names
 
               return(trade)

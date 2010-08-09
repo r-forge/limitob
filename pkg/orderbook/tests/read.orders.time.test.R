@@ -37,6 +37,6 @@ stopifnot(isTRUE(identical(test, ob@current.ob)))
 ## Read time, should take us to 4981 orders
 
 ob <- read.time(ob, "9:32:11")
-ob <- read.orders(ob, 19)
+ob <- read.orders(ob, 18)
 
 stopifnot(isTRUE(identical(test, ob@current.ob)))

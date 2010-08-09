@@ -36,7 +36,7 @@ library(orderbook)
 filename <- system.file("data", "sample.txt",
                         package = "orderbook")
 
-ob <- orderbook(file = filename, trader = FALSE)
+ob <- orderbook(file = filename)
 ob <- read.orders(ob, n = 1000)
 plot(ob)
 plot(ob, type = "n")

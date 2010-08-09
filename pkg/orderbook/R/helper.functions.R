@@ -139,8 +139,7 @@
     ## As long as there are still entries, and we haven't found a time
     ## greater than the time we are looking for, keep going.
 
-    while(!is.null(x) && !identical(length(x), 0) && as.numeric(x[2])
-          <= n){
+    while(!identical(length(x), 0) && as.numeric(x[2]) <= n){
 
         x <- scan(file, nline = 1, sep = ",", what = "character",
                   quiet = TRUE)

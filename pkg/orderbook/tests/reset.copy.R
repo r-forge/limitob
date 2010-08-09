@@ -18,6 +18,6 @@ stopifnot(isTRUE(identical(ob@current.ob, ob.test@current.ob)))
 ob <- reset(ob)
 
 stopifnot(isTRUE(identical(0, ob@current.time)))
-stopifnot(isTRUE(identical(0, ob@file.index)))
+stopifnot(isTRUE(identical(1, ob@file.index)))
 stopifnot(isTRUE(identical(as.integer(0), nrow(ob@current.ob))))
 stopifnot(isTRUE(identical(as.integer(0), length(ob@ob.data))))

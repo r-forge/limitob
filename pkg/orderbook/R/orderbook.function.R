@@ -21,7 +21,7 @@
 ## Returns an orderbook object. For input it takes a data frame, and names for
 ## price, size, type, time, id, as well as what ASK and BID are denoted as.
 
-orderbook <- function(file  = NULL, trader = FALSE)
+orderbook <- function(file  = NULL)
 {
 
         ## Create an empty current order book data frame
@@ -29,6 +29,34 @@ orderbook <- function(file  = NULL, trader = FALSE)
         current.ob <- data.frame(price = numeric(0), size =
                                  numeric(0), type = character(0), time
                                  = numeric(0), id = character(0))
+
+        ## Check to see that the file is valid and can be opened
+
+        obfile <- file(file, open = "r")
+
+        stopifnot(isOpen(obfile, "r"))
+
+
+        ## Read header file
+
+         x <- scan(file, nline = 1, sep = ",", what = "character",
+              quiet = TRUE)
+
+        ## Close file
+
+        close(obfile)
+
+        stopifnot(identical(x[1], "type"), identical(x[2], "time"),
+                  identical(x[3], "id"), identical(x[4], "price"),
+                  identical(x[5], "size"), identical(x[6], "type"))
+
+        ## See if its a trader file or not
+
+        if(identical(x[7], "status"))
+            trader = TRUE
+        else
+            trader = FALSE
+
 
         ## Return a new order book object.
 

@@ -336,21 +336,17 @@
     ## Create a vector with the current time of the orderbook at that
     ## order number added to the times in the vector
 
-    current.time <- .to.time(tmp.ob@current.time)
+    time <- tmp.ob@current.time + time * 1000
 
-    current.time <- as.POSIXlt(current.time, format = "%H:%M:%S")
-
-    time <- current.time + time
-
-    time <- format(time, format = "%H:%M:%S")
+    rows <- sapply(time, function(x){.get.time.row(tmp.ob@file, x)})
 
     ## Find the first midpoint
 
     mid <- mid.point(tmp.ob)
     midpoints <- vector()
 
-    for(i in 1:length(time)){
-        tmp.ob <- read.time(tmp.ob, time[i])
+    for(i in 1:length(rows)){
+        tmp.ob <- read.orders(tmp.ob, rows[i] - tmp.ob@file.index)
         midpoints[i] <- mid.point(tmp.ob)
     }
 

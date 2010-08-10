@@ -42,7 +42,9 @@ setClass("orderbook", representation(current.ob   = "data.frame",
 setMethod("read.orders",
           signature(object = "orderbook"),
           function(object, n = 1000){
-              if(n > 0){
+              if(identical(n, 0))
+                  invisible(object)
+              else if(n > 0){
                   invisible(.read.orders(object, n))
               } else {
                   n <- object@file.index + n - 1

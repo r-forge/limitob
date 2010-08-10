@@ -67,4 +67,4 @@ stopifnot(isTRUE(identical(ids, ob["11.41"]$id)))
 midpoints <- midpoint.return(ob, 5, c(5, 10))
 
 stopifnot(isTRUE(identical(round(midpoints[[1]], 2), 0.02)))
-stopifnot(isTRUE(identical(round(midpoints[[2]], 2), 0.00)))
+stopifnot(isTRUE(identical(round(midpoints[[2]], 2), 0.02)))

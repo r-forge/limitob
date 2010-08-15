@@ -1,7 +1,7 @@
 ################################################################################
 ##
 ##
-## orderbook.R: Generic functions for the limitob class
+## orderbook.R: Generic functions for the orderbook class
 ##
 ##
 ## limitob is free software: you can redistribute it and/or modify it
@@ -93,7 +93,7 @@ if(!isGeneric("read.time"))
 
 if(!isGeneric("load.animation"))
     setGeneric("load.animation", function(object, from, to, fps = 1,
-                                         by = "sec", bounds = 0.05)
+                                         by = "sec", bounds = 0.02)
                standardGeneric("load.animation"))
 
 if(!isGeneric("load.trade.animation"))
@@ -104,7 +104,7 @@ if(!isGeneric("load.trade.animation"))
                standardGeneric("load.trade.animation"))
 
 if(!isGeneric("animate"))
-    setGeneric("animate", function(object, type = "sec", start = NULL,
+    setGeneric("animate", function(object, by = "sec", start = NULL,
                                    end = NULL, pause = 0.25, initPause
                                    = 2)
                standardGeneric("animate"))
@@ -116,13 +116,13 @@ if(!isGeneric("initialize.trades"))
 if(!isGeneric("load.next.trade"))
     setGeneric("load.next.trade", function(object, before = 30, after
                                            = 30, fps = 1, by = "both",
-                                           bounds = 0.05)
+                                           bounds = 0.02)
                standardGeneric("load.next.trade"))
 
 if(!isGeneric("load.previous.trade"))
     setGeneric("load.previous.trade", function(object, before = 30, after
                                            = 30, fps = 1, by = "both",
-                                           bounds = 0.05)
+                                           bounds = 0.02)
                standardGeneric("load.previous.trade"))
 
 

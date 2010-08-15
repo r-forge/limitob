@@ -713,12 +713,12 @@ setMethod("reset",
 
 setMethod("animate",
           signature(object = "orderbook"),
-          function(object, type = "sec", start = NULL, end = NULL, pause = 0.25, initPause = 2){
+          function(object, by = "sec", start = NULL, end = NULL, pause = 0.25, initPause = 2){
 
               ## Load the trade animation stored in object@animation
               ## according to type.
 
-              filename <- object@animation[[type]]
+              filename <- object@animation[[by]]
               load(filename)
 
               ## Remove "name" slot from the name vector.

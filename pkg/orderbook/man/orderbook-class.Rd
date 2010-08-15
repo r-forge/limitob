@@ -17,7 +17,7 @@
 \alias{spread,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
-\alias{[,orderbook,character,ANY,ANY-method}
+\alias{[,orderbook,character-method}
 
 \alias{bid.price.levels}
 \alias{ask.price.levels}
@@ -122,7 +122,6 @@ an orderbook}
    \item{spread}{\code{signature(object="orderbook")}: Returns the
      spread between the best ask and best bid .
    }
-
    \item{reset}{\code{signature(object="orderbook")}: Reset the
      orderbook to its initial state.
    }

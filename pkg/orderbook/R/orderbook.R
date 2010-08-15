@@ -86,13 +86,13 @@ setMethod("read.orders",
 
 setMethod("read.time",
            signature(object = "orderbook"),
-           function(object, n){
+           function(object, t){
 
                ## .get.time.row will return the row number of the
                ## first message with time greater than or equal to
                ## n. .to.ms converts n to milliseconds after midnight.
 
-               n <- .get.time.row(object@file, .to.ms(n))
+               t <- .get.time.row(object@file, .to.ms(t))
 
                ## Reset the object.
 
@@ -100,7 +100,7 @@ setMethod("read.time",
 
                ## Use read.orders to get to row n.
 
-               invisible(read.orders(object, n))
+               invisible(read.orders(object, t))
 
           }
           )
@@ -251,16 +251,6 @@ setMethod("plot",
                   print("Invalid type")
 
               }
-          }
-          )
-
-## Calls the .plot.trade method. See orderbook.plot.R. Might get rid
-## of this altogether.
-
-setMethod("plotTrade",
-          signature(x = "orderbook"),
-          function(x){
-              .plot.trade(x)
           }
           )
 

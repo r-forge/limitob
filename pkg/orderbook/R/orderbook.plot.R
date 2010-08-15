@@ -350,16 +350,22 @@
 
 .animate.plot <- function(x, x.at, x.limits, y.limits, time, sub){
 
-    ## Creating the data to be plotted Basically take out the data
+    ## Creating the data to be plotted. Basically take out the data
     ## inbetween the two limits, adding and subtracting .001 because
     ## there is numerical fuzziness.
 
-    x <- x[x$price > y.limits[1] - .001 & x$price < y.limits[2] +
-           .001,]
+    ask <- x[x[["type"]] == "ASK",]
+    ask <- ask[ask$price < y.limits[2] + .001,]
 
-    ## Order x by price.
+    bid <- x[x[["type"]] == "BID",]
+    bid <- bid[bid$price > y.limits[1] - .001,]
+
+    x <- do.call(rbind, list(ask, bid))
+
+    ## Order x by price
 
     x <- x[order(x$price),]
+
 
     ## Create a sequence of numbers from one y limit to the
     ## other. Round because of numerical fuzziness.

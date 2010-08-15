@@ -3,26 +3,34 @@
 \alias{animate,orderbook-method}
 \alias{load.animation,orderbook-method}
 \alias{load.trade.animation,orderbook-method}
+\alias{load.next.trade,orderbook-method}
+\alias{load.previous.trade,orderbook-method}
+
 \alias{animate}
 \alias{load.animation}
 \alias{load.trade.animation}
+\alias{load.next.trade}
+\alias{load.previous.trade}
 
 \title{animate}
 \description{Animate the orderbook between two times}
 \usage{
+load.animation(object, from, to, fps = 1, by = "sec", bounds = 0.05)
 
-load.animation(object, from, to, by = "sec", bounds = 0.05)
-
-animate(object, pause = 0.25, type = "sec")
+animate(object, type = "sec", start = NULL, end = NULL, pause = 0.25,
+initPause = 2)
 }
 \arguments{
   \item{object}{ Object of class \code{"orderbook"}
   }
-  \item{from}{ Object of class \code{"character"}. The start time of the
-    animation in the form \code{"HH:MM:SS"}.
+
+  \item{from}{
+    The start time of the animation in the form
+    \code{"HH:MM:SS"}.
   }
-  \item{to}{ Object of class \code{"character"}. The end time of the
-    animation in the form \code{"HH:MM:SS"}.
+  \item{to}{
+    The end time of the animation in the form
+    \code{"HH:MM:SS"}.
   }
   \item{by}{ Object of class \code{"character"}. Descides the skip of
     the orderbook.

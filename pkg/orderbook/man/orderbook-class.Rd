@@ -11,20 +11,13 @@
 \alias{total.price.levels,orderbook-method}
 \alias{bid.orders,orderbook-method}
 \alias{ask.orders,orderbook-method}
-\alias{get.order.info,orderbook-method}
 \alias{total.orders,orderbook-method}
 \alias{mid.point,orderbook-method}
 \alias{inside.market,orderbook-method}
 \alias{spread,orderbook-method}
-\alias{snapshot,orderbook-method}
-\alias{add.order,orderbook-method}
-\alias{remove.order,orderbook-method}
-\alias{replace.order,orderbook-method}
-\alias{market.order,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
 \alias{[,orderbook,character,ANY,ANY-method}
-\alias{copy,orderbook-method}
 
 \alias{bid.price.levels}
 \alias{ask.price.levels}
@@ -33,20 +26,13 @@
 \alias{ask.orders}
 \alias{total.orders}
 \alias{mid.point}
-\alias{get.order.info}
 \alias{inside.market}
 \alias{spread}
-\alias{snapshot}
-\alias{add.order}
-\alias{remove.order}
-\alias{replace.order}
-\alias{market.order}
 \alias{display}
 \alias{best.ask}
 \alias{best.bid}
 \alias{reset}
 \alias{[}
-\alias{copy}
 
 \title{Class "orderbook"}
 \description{Functions for manipulating and extractiong information from
@@ -57,38 +43,32 @@ an orderbook}
 
 \section{Slots}{
   \describe{
-    \item{\code{current.ob}:}{A data frame containing the current state
+    \item{\code{current.ob}:}{A \code{data.frame} containing the current state
       of the orderbook.
     }
-    \item{\code{current.time}:}{A numeric value in milliseconds after
+    \item{\code{current.time}:}{A \code{numeric} in milliseconds after
       midnight that indicates the time of \code{current.ob}.
     }
-    \item{\code{file}:}{A character string which specifies the
+    \item{\code{file}:}{A \code{character} which specifies the
       location of the file containing the data file.
     }
-    \item{\code{file.index}:}{A numeric value that indicates the
+    \item{\code{file.index}:}{An \code{numeric} that indicates the
       current row number of the input file.
     }
-    \item{\code{ob.data}:}{A \code{hash} that contains all orders
-      currently in the orderbook. Essentially the same as current.ob,
-      but a different data structure.
-    }
-    \item{\code{trade.data}:}{A \code{hash} that contains data on all
+    \item{\code{trade.data}:}{A \code{data.frame} that contains data on all
       trades that occurred before current.time.
     }
     \item{\code{my.trades}:}{A \code{vector} that contains the file row
       numbers of the users trades.
     }
-    \item{\code{my.orders}:}{A \code{vector} that contains the IDs of
-      the users orders.
-    }
     \item{\code{animation}:}{A \code{list} that contains the
-      location of the last created animation as well as the number of
-      slow frames.
+      location of the last created message and time animations.
     }
     \item{\code{trader}:}{A \code{boolean} that indicates whether or not
       the order book will recognize the user's trades.
     }
+    \item{\code{trade.index}:}{A \code{numeric} that keeps track of the
+      last viewed trade animation.}
   }
 }
 
@@ -96,7 +76,7 @@ an orderbook}
 \section{Methods}{
   \describe{
     \item{show}{\code{signature(object = "orderbook")}:
-      Prints the variables used in the orderbook
+      Prints basic information about the \code{orderbook} object.
     }
     \item{best.bid}{\code{signature(object = "orderbook")}: Returns the
       current best bid.
@@ -105,35 +85,14 @@ an orderbook}
       current best ask.
     }
     \item{summary}{\code{signature(object="orderbook")}: Prints a
-      summary of the orderbook
+      summary of the \code{orderbook} object.
     }
     \item{[}{\code{signature(x = "orderbook", i = "character")}: Prints
       the orders at that price level.
     }
-    \item{copy}{\code{signature(x = "orderbook")}: Creates a copy of the
-      orderbook.
-      }
-    \item{get.order.info}{\code{signature(object = "orderbook")}: Returns
-      the price and size of the order with the specified ID.
-    }
-    \item{display}{\code{signature(object="orderbook")}: Prints the state
-      of the orderbook. The result is similar to \code{plot}
-    }
-    \item{add.order}{\code{signature(object="orderbook")}: Adds an order
-      to this orderbook. Returns an orderbook object with updated
-      information.
-    }
-    \item{remove.order}{\code{signature(object="orderbook")}: Removes an
-      order from this orderbook. Returns an orderbook object with updated
-      information.
-    }
-    \item{replace.order}{\code{signature(object="orderbook")}: Replaces
-      an order in this orderbook. Returns an orderbook object with updated
-      information.
-    }
-    \item{market.order}{\code{signature(object="orderbook")}: Insert a
-      market order to this orderbook. Returns an orderbook object with
-      updated information.
+    \item{display}{\code{signature(object="orderbook")}: Prints by
+      default the best 5 price levels and corresponding sizes for the bid
+      and ask.
     }
     \item{bid.price.levels}{\code{signature(object="orderbook")}: Returns
       the number of bid price levels.
@@ -167,36 +126,22 @@ an orderbook}
    \item{reset}{\code{signature(object="orderbook")}: Reset the
      orderbook to its initial state.
    }
-
  }
  }
 
 
 
 \examples{
+library(orderbook)
 
-## The examples  must be run in the same directory as the sample.txt input file
+filename <- system.file("data", "sample.txt",
+                        package = "orderbook")
 
-#ob <- orderbook(file="sample.txt")
-#ob <- read.orders(ob, n=50)
-#summary(ob)
+ob <- orderbook(file = filename)
+ob <- read.orders(ob, 500)
 
-##read the input orders from the file
-
-#ob <- read.orders(ob, n=1000)
-
-## examine the orderbook when the 4th trade occurs
-#ob <- view.trade(ob, n=4)
-
-## go back a little to see the orderbook before thhe 4th trade
-
-#ob <- read.orders(ob, n=-5)
-
-## move forward from the current position on the file.
-#ob <- read.orders(ob, n=50)
-
-## jump to the next trade
-#ob <- next.trade(ob)
-
+show(ob)
+summary(ob)
+display(ob)
 }
 \keyword{classes}

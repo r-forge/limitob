@@ -22,8 +22,8 @@
   price levels on the y-axis, and size on the x-axis. \code{type = "o"}
   is similar, except the number of orders for each price level are
   plotted. \code{type = "sd"} creates a supply and demand plot of the
-  order book. 
-
+  order book.
+}
 \value{
   Prints a Trellis object.
 }

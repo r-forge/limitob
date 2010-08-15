@@ -1,6 +1,6 @@
 \name{orderbook}
 \alias{orderbook}
-\title{Creating an Object of Class Backtest}
+\title{Creating an Object of Class Orderbook}
 \description{
   Create an orderbook object from input data.
 }

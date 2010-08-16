@@ -103,31 +103,31 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 
 	if(strcmp(token, "A") == 0){
 
-	    s = malloc(sizeof(struct order));
-
-	    token = strtok(NULL, delimiters);
-	    s->time = atol(token);
-
-	    token = strtok(NULL, delimiters);
-	    strcpy(s->id, token);
-
-	    token = strtok(NULL, delimiters);
-	    s->price = atof(token);
-
-	    token = strtok(NULL, delimiters);
-	    s->size = atoi(token);
-
-	    token = strtok(NULL, delimiters);
-	    strcpy(s->type, token);
-
-	    token = strtok(NULL, delimiters);
-
-	    if((ptr = strchr(token, '\n')) != NULL)
-		*ptr = '\0';
-
-	    strcpy(s->status, token);
-
-	    HASH_ADD_STR(orderbook, id, s);
+	  s = Realloc(NULL, sizeof(struct order), struct order);
+	  
+	  token = strtok(NULL, delimiters);
+	  s->time = atol(token);
+	  
+	  token = strtok(NULL, delimiters);
+	  strcpy(s->id, token);
+	  
+	  token = strtok(NULL, delimiters);
+	  s->price = atof(token);
+	  
+	  token = strtok(NULL, delimiters);
+	  s->size = atoi(token);
+	  
+	  token = strtok(NULL, delimiters);
+	  strcpy(s->type, token);
+	  
+	  token = strtok(NULL, delimiters);
+	  
+	  if((ptr = strchr(token, '\n')) != NULL)
+	    *ptr = '\0';
+	  
+	  strcpy(s->status, token);
+	  
+	  HASH_ADD_STR(orderbook, id, s);
 	} else if(strcmp(token, "C") == 0){
 	    token = strtok(NULL, delimiters);
 	    token = strtok(NULL, delimiters);
@@ -138,9 +138,10 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 		*ptr = '\0';
 
 	    HASH_FIND_STR(orderbook, token, s);
-	    HASH_DEL(orderbook, s);
+	    if(s)
+	      HASH_DEL(orderbook, s);
 
-	    free(s);
+	    Free(s);
 
 	} else if(strcmp(token, "R") == 0){
 
@@ -151,8 +152,8 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 
 	    token = strtok(NULL, delimiters);
 	    size = atoi(token);
-
-	    s->size = size;
+	    if(s)
+	      s->size = size;
 	}
 
 	free(strcp);

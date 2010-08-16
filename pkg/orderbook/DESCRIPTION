@@ -10,3 +10,8 @@ Description: Functions for visualizing and retrieving data for
 	     the state of an orderbook at a particular period in time.
 License: GPL (>= 2)
 LazyLoad: yes
+Repository: R-Forge
+Repository/R-Forge/Project: limitob
+Repository/R-Forge/Revision: 157
+Date/Publication: 2010-08-15 08:36:41
+Packaged: 2010-08-16 01:26:09 UTC; andy

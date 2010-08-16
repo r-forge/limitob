@@ -50,26 +50,26 @@ SEXP getTrades(SEXP filename){
 
 	token = strtok(strcp, delimiters);
 	if(strcmp(token, "T") == 0){
-	    t = (trade*)malloc(sizeof(trade));
+	  t = (trade*)Realloc(NULL, sizeof(trade), trade);
+	  
+	  t->row = h;
+	  
+	  token = strtok(NULL, delimiters);
+	  strcpy(t->time, token);
+	  
+	  token = strtok(NULL, delimiters);
+	  token = strtok(NULL, delimiters);
+	  strcpy(t->price, token);
 
-	    t->row = h;
-
-	    token = strtok(NULL, delimiters);
-	    strcpy(t->time, token);
-
-	    token = strtok(NULL, delimiters);
-	    token = strtok(NULL, delimiters);
-	    strcpy(t->price, token);
-
-	    token = strtok(NULL, delimiters);
-	    strcpy(t->size, token);
-
-	    token = strtok(NULL, delimiters);
-	    strcpy(t->mine, token);
-
-	    LL_APPEND(head, t);
-
-	    i++;
+	  token = strtok(NULL, delimiters);
+	  strcpy(t->size, token);
+	  
+	  token = strtok(NULL, delimiters);
+	  strcpy(t->mine, token);
+	  
+	  LL_APPEND(head, t);
+	  
+	  i++;
 	}
 	free(strcp);
 	h++;
@@ -99,7 +99,7 @@ SEXP getTrades(SEXP filename){
     }
     LL_FOREACH_SAFE(head, t, tmp){
 	LL_DELETE(head, t);
-	free(t);
+	Free(t);
     }
     UNPROTECT(1);
 

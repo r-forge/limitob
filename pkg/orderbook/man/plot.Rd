@@ -13,7 +13,7 @@
   \item{x}{ Object of class \code{orderbook}}
   \item{bounds}{ Percentage above and below the midpoint to determine the y limits.}
   \item{n}{ Number of price levels to plot.}
-  \item{type}{ Either \code{"n"}, \code{"o"}, \code{"sd"}, or \code{"s"}.}
+  \item{type}{ Either \code{"n"}, \code{"s"}, \code{"t"}, or \code{"c"}.}
 }
 \details{This function plots the orderbook. \code{n} is only needed
   for \code{type = "s"}, which plots the best bid vs. the best ask, and
@@ -21,9 +21,10 @@
   and asks. If \code{type = "n"} then the orderbook will be plotted with
   price levels on the y-axis, and size on the x-axis. \code{type = "o"}
   is similar, except the number of orders for each price level are
-  plotted. \code{type = "sd"} creates a supply and demand plot of the
-  order book.
-}
+  plotted. \code{type = "t"} makes a plot that shows the size of the
+  individual orders as well as the users own orders in the correct time priority.)
+
+  plotTrade plots the number of shares traded at each price level.}
 \value{
   Prints a Trellis object.
 }
@@ -35,8 +36,6 @@ filename <- system.file("data", "sample.txt",
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, n = 1000)
 plot(ob)
-plot(ob, type = "o")
-plot(ob, type = "sd")
-plot(ob, type = "s")
+plot(ob, type = "n")
 }
 \keyword{aplot}

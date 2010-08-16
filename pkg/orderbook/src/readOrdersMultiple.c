@@ -120,7 +120,8 @@ SEXP readOrdersMultiple(SEXP filename, SEXP Rrows){
 		token = strtok(NULL, delimiters);
 		size = atoi(token);
 
-		s->size = size;
+		if(s)
+		  s->size = size;
 
 	    }
 

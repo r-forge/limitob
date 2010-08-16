@@ -23,6 +23,7 @@
   is similar, except the number of orders for each price level are
   plotted. \code{type = "sd"} makes a plot that shows the supply and 
   demand curves of the order book.
+  }
 \value{
   Prints a Trellis object.
 }

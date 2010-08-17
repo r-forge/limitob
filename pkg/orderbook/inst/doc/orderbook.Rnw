@@ -10,8 +10,7 @@
 \DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
 \DefineVerbatimEnvironment{Scode}{Verbatim}{fontsize=\small,fontshape=sl}
 
-%% \SweaveOpts{prefix.string=graphics/portfolio}
-
+\SweaveOpts{keep.source=TRUE}
 \bibliographystyle{abbrvnat}
 
 \begin{document}

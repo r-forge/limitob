@@ -128,7 +128,8 @@ specifying the location of our data file.
 \begin{Schunk}
 \begin{Sinput}
 > library(orderbook)
-> filename <- system.file("data", "sample.txt", package = "orderbook")
+> filename <- system.file("data", "sample.txt",
++                         package = "orderbook")
 > ob <- orderbook(file = filename)
 > ob <- read.orders(ob, 10000)
 \end{Sinput}
@@ -381,7 +382,8 @@ if a \texttt{status} column is present in the data file.
 
 \begin{Schunk}
 \begin{Sinput}
-> filename <- system.file("data", "tradersample.txt", package = "orderbook")
+> filename <- system.file("data", "tradersample.txt",
++                         package = "orderbook")
 > ob <- orderbook(file = filename)
 > ob <- read.time(ob, "9:30:05")
 > ob <- next.trade(ob)

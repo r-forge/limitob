@@ -127,7 +127,8 @@ specifying the location of our data file.
 
 <<results = hide, echo = TRUE>>=
 library(orderbook)
-filename <- system.file("data", "sample.txt", package = "orderbook")
+filename <- system.file("data", "sample.txt",
+                        package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, 10000)
 @
@@ -286,7 +287,8 @@ A user can create plots that show the time priority of his own orders
 if a \texttt{status} column is present in the data file.
 
 <<echo = TRUE>>=
-filename <- system.file("data", "tradersample.txt", package = "orderbook")
+filename <- system.file("data", "tradersample.txt",
+                        package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- read.time(ob, "9:30:05")
 ob <- next.trade(ob)

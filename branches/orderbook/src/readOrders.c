@@ -83,7 +83,7 @@ SEXP readOrders(SEXP filename, SEXP msgs){
        and strcp are where we copy str and other things into so that
        we don't have problems with strtok
      */
-    struct order *s;
+    struct order *s, *t;
     FILE *f;
     char str[MAX_LEN];
     const char delimiters[] = ",";
@@ -103,31 +103,41 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 
 	if(strcmp(token, "A") == 0){
 
-	  s = Realloc(NULL, sizeof(struct order), struct order);
-	  
-	  token = strtok(NULL, delimiters);
-	  s->time = atol(token);
-	  
-	  token = strtok(NULL, delimiters);
-	  strcpy(s->id, token);
-	  
-	  token = strtok(NULL, delimiters);
-	  s->price = atof(token);
-	  
-	  token = strtok(NULL, delimiters);
-	  s->size = atoi(token);
-	  
-	  token = strtok(NULL, delimiters);
-	  strcpy(s->type, token);
-	  
-	  token = strtok(NULL, delimiters);
-	  
-	  if((ptr = strchr(token, '\n')) != NULL)
-	    *ptr = '\0';
-	  
-	  strcpy(s->status, token);
-	  
-	  HASH_ADD_STR(orderbook, id, s);
+	    s = malloc(sizeof(struct order));
+
+	    token = strtok(NULL, delimiters);
+	    s->time = atol(token);
+
+	    token = strtok(NULL, delimiters);
+	    strcpy(s->id, token);
+
+	    HASH_FIND_STR(orderbook, token, t);
+
+	    token = strtok(NULL, delimiters);
+	    s->price = atof(token);
+
+	    token = strtok(NULL, delimiters);
+	    s->size = atoi(token);
+
+	    token = strtok(NULL, delimiters);
+	    strcpy(s->type, token);
+
+	    token = strtok(NULL, delimiters);
+
+	    if((ptr = strchr(token, '\n')) != NULL)
+		*ptr = '\0';
+
+	    strcpy(s->status, token);
+
+	    if(t == NULL){
+		HASH_ADD_STR(orderbook, id, s);
+	    } else{
+		t->size = s->size;
+		free(s);
+	    }
+
+
+
 	} else if(strcmp(token, "C") == 0){
 	    token = strtok(NULL, delimiters);
 	    token = strtok(NULL, delimiters);
@@ -138,10 +148,11 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 		*ptr = '\0';
 
 	    HASH_FIND_STR(orderbook, token, s);
-	    if(s)
-	      HASH_DEL(orderbook, s);
 
-	    Free(s);
+	    if(s)
+		HASH_DEL(orderbook, s);
+
+	    free(s);
 
 	} else if(strcmp(token, "R") == 0){
 
@@ -152,8 +163,9 @@ SEXP readOrders(SEXP filename, SEXP msgs){
 
 	    token = strtok(NULL, delimiters);
 	    size = atoi(token);
+
 	    if(s)
-	      s->size = size;
+		s->size = size;
 	}
 
 	free(strcp);

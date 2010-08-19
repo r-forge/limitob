@@ -30,9 +30,9 @@ SEXP readOrdersMultiple(SEXP filename, SEXP Rrows){
        and strcp are where we copy str and other things into so that
        we don't have problems with strtok
      */
-    struct order *s;
+    struct order *s, *t;
     FILE *f;
-    char str[MAX_LEN], tempid[MAX_LEN];
+    char str[MAX_LEN];
     const char delimiters[] = ",";
     char *token, *strcp, *ptr;
     int *rows;
@@ -71,6 +71,8 @@ SEXP readOrdersMultiple(SEXP filename, SEXP Rrows){
 		token = strtok(NULL, delimiters);
 		strcpy(s->id, token);
 
+		HASH_FIND_STR(orderbook_multiple, token, t);
+
 		token = strtok(NULL, delimiters);
 		s->price = atof(token);
 
@@ -87,7 +89,13 @@ SEXP readOrdersMultiple(SEXP filename, SEXP Rrows){
 
 		strcpy(s->status, token);
 
-		HASH_ADD_STR(orderbook_multiple, id, s);
+		if(t == NULL){
+		    HASH_ADD_STR(orderbook_multiple, id, s);
+		} else{
+		    t->size = s->size;
+		    free(s);
+		}
+
 
 	    }else if(strcmp(token, "C") == 0){
 
@@ -99,29 +107,26 @@ SEXP readOrdersMultiple(SEXP filename, SEXP Rrows){
 		if((ptr = strchr(token, '\n')) != NULL)
 		    *ptr = '\0';
 
-		strcpy(tempid, token);
-
 		HASH_FIND_STR(orderbook_multiple, token, s);
 
 		if(s){
 		    HASH_DEL(orderbook_multiple, s);
 		    free(s);
-		} else
-		    Rprintf("%d\n", i);
+		}
 
 	    }else if(strcmp(token, "R") == 0){
 
 		token = strtok(NULL, delimiters);
 		token = strtok(NULL, delimiters);
 
-		strcpy(tempid, token);
 		HASH_FIND_STR(orderbook_multiple, token, s);
 
 		token = strtok(NULL, delimiters);
 		size = atoi(token);
 
 		if(s)
-		  s->size = size;
+		    s->size = size;
+
 
 	    }
 

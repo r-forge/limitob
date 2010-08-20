@@ -74,7 +74,8 @@ a lower size. Every limit order is assigned a unique ID so that cancel
 and cancel/replace orders can identify the corresponding limit
 order. A \emph{market order} is an order to immediately buy or sell a
 quantity of stock at the best available prices. A trade occurs when a
-market order is paired with the correspnding limit order in the inside market.
+market order ``hits'' a limit order on the other side of the inside
+market.
 
 All orders have timestamps indicating the time at which they were
 accepted into the order book. The timestamp determines the \emph{time
@@ -86,7 +87,7 @@ the order book. The limit order for 100 shares will be executed
 because it is at the front of the queue at the best bid. Then, 100
 shares of the order with 200 total shares will be executed, since it
 was second in the queue. 100 shares of the 200 share order remain in
-the order book at that price level.
+the order book at \$11.05.
 
 A market order for more shares than the size at the inside market will
 execute at worse price levels until it is complete. For example, if a
@@ -95,8 +96,9 @@ order at \$11.08 will be fully executed. Since there are no more
 shares available at that price level, 100 shares at the \$11.11 price
 level will be transacted to complete the market order. An order to
 sell 50 shares at \$11.11 will remain in the order book. Executing
-these two market orders on our hypothetical order book results in a
-new state of the order book.
+these two market orders (a sell of 200 shares and a buy of 200 shares)
+on our hypothetical order book results in a new state for the order
+book.
 
 \begin{verbatim}
                  Price          Ask Size
@@ -108,17 +110,15 @@ new state of the order book.
 Bid Size         Price
 \end{verbatim}
 
-Note that cancel/replace orders can lower the size of an
-order, but not increase it. Cancel/replace orders maintain the time
-priority of the original order, so if size increases were allowed,
-traders with orders at the highest time priority for a price level
-could perpetually increase the size of their order, preventing others
-from being able to buy or sell stock using limit orders at that price
-level.
+Note that cancel/replace orders can lower the size of an order, but
+not increase it. Cancel/replace orders maintain the time priority of
+the original order, so if size increases were allowed, traders with
+orders at the highest time priority for a price level could
+perpetually increase the size of their order, preventing others from
+being able to transact stock using limit orders at that price
+level. See \cite{johnson:barry} for more details on the order book.
 
-See \cite{johnson:barry} for more details on the order book.
-
-\section*{Examples}
+\section*{Example}
 
 NVIDIA is a graphics processing unit and chipset developer with ticker
 symbol NVDA. Consider the order book for NVDA at a leading electronic
@@ -134,6 +134,7 @@ specifying the location of our data file.
 > ob <- read.orders(ob, 10000)
 \end{Sinput}
 \end{Schunk}
+\newpage
 \begin{Schunk}
 \begin{Sinput}
 > ob
@@ -308,7 +309,11 @@ side.
 \end{figure}
 
 \pkg{orderbook} has methods for creating new \texttt{orderbook}
-objects at specified clock times of interest.
+objects at specified clock times of interest. \texttt{read.time}
+returns an \texttt{orderbook} object at the first message after the
+specified time. For example, this returns the \texttt{orderbook}
+object at 9:30:00.
+
 
 \begin{Schunk}
 \begin{Sinput}
@@ -316,9 +321,10 @@ objects at specified clock times of interest.
 \end{Sinput}
 \end{Schunk}
 
-\texttt{read.time} returns an \texttt{orderbook} object at the first
-message after the specified time. For example, this returns the
-\texttt{orderbook} object at 9:30:00.
+\texttt{read.orders} is used to move forwards or backwards in the
+order book by a specified number of messages. In this case, an
+\texttt{orderbook} object at 50 messages before the current message is
+returned.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -335,11 +341,6 @@ Ask Orders:                81
 Total Orders:              153 
 \end{Soutput}
 \end{Schunk}
-
-\texttt{read.orders} is used to move forwards or backwards in the
-order book by a specified number of messages. In this case, an
-\texttt{orderbook} object at 50 messages before the current message is
-returned.
 
 \section*{Data}
 
@@ -522,14 +523,11 @@ distribution. A  plot of this example simulation is shown below.
 \end{figure}
 
 \section*{Conclusion}
-The current release of the \pkg{orderbook} package is meant to serve
-as a proof-of-concept. Relatively sophisticated order book analytics
-are possible using an open source package. The \pkg{orderbook} package
-is part of a collection of packages for performing tests of financial
-conjectures. See \cite{kane:backtest} and \cite{kane:portfolio} for
-more information on the \pkg{backtest} and \pkg{portfolio} packages,
-respectively.
 
+The \pkg{orderbook} package is part of a collection of packages (see
+\cite{kane:backtest} and \cite{kane:portfolio}) for working with
+financial market data. \R provides all the necessary tools for
+managing institutional sized portfolios.
 
 \address{David Kane, Andrew Liu and Khanh Nguyen \\
   Kane Capital Management \\

@@ -17,61 +17,6 @@
 ## along with limitob.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-## Plots the number of shares traded at each price level up till the current time.
-
-.plot.trade <- function(object){
-
-    x <- object@trade.data
-
-    ## Turn hash into a list.
-
-    x <- as.list(x)
-    x <- unlist(x, use.names = FALSE)
-    x <- x[x!=TRUE]
-
-    len <- length(x)
-
-    price <- as.numeric(x[seq(4, len, 5)])
-    size <- as.numeric(x[seq(5, len, 5)])
-
-    x <- data.frame(price, size)
-
-    ## Aggregating by price.
-
-    x <- aggregate(x$size, by = list(price = x$price), sum)
-
-    ## Creating the x axis values.
-
-    max.size <- max(x$x)
-
-    x.at <- pretty(c(0, max.size))
-    x.limits <- c(0, x.at[length(x.at)])
-
-    ## Creating the y axis values.
-
-    y.labels <- formatC(x$price, format = "f", digits = 2)
-
-    new.yscale.components <- function(...) {
-        ans <- yscale.components.default(...)
-        ans$left$labels$labels <- y.labels
-        ans
-    }
-
-    ## Actually plotting it.
-
-    tmp <- barchart(price ~ x, data = x,
-                    ylab = "Price Levels", xlab = "Size (Shares)",
-                    main = "Trades",
-                    yscale.components = new.yscale.components,
-                    scales = list(x = list(axs = "i",
-                                  limits = x.limits,
-                                  at = x.at,
-                                  tck = c(1, 0)),
-                    y = list(alternating = 1))
-                    )
-
-    print(tmp)
-}
 
 ## Plots the orderbook object at current time. Displays Bids on the left and
 ## Asks on the right with Price and Size on the Y- and X-axes, respectively.

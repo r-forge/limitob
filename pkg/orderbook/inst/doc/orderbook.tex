@@ -16,8 +16,14 @@
 \begin{document}
 \begin{article}
 
-\title{orderbook}
+\title{Analyzing an Electronic Limit Order Book}
 \author{David Kane, Andrew Liu and Khanh Nguyen}
+
+\abstract{The \pkg{orderbook} package provides facilities for
+  exploring and visualizing the data associated with an order book:
+  the electronic collection of the outstanding limit orders for a
+  financial instrument. This article provides an overview of the
+  \pkg{orderbook} package and examples of its use.}
 
 %%\VignetteIndexEntry{Using the orderbook package}
 %%\VignetteDepends{orderbook}
@@ -27,14 +33,14 @@
 
 \setkeys{Gin}{width=0.95\textwidth}
 
-\section*{Introduction}
+\section{Introduction}
 
 The \pkg{orderbook} package provides facilities for exploring and
 visualizing the data associated with an order book: the electronic
 collection of the outstanding limit orders for a financial instrument,
-e.g. a stock. A \emph{limit order} is an order to buy or sell a given
+e.g. a stock. A \dfn{limit order} is an order to buy or sell a given
 quantity of stock at a specified limit price or better. The
-\emph{size} is the number of shares to be bought or sold.  An order
+\dfn{size} is the number of shares to be bought or sold.  An order
 remains in the order book until fully executed, i.e. until its size is
 zero as a result of trades. Partial executions occur as a result of
 trades for less than the entire size of the order.
@@ -55,30 +61,30 @@ shares of IBM at \$11.05, buy 200 shares of IBM at \$11.05, and buy
 Bid Size         Price
 \end{verbatim}
 
-\noindent Orders on the \emph{bid} (\emph{ask}) side represent orders to buy
+\noindent Orders on the \dfn{bid} (\dfn{ask}) side represent orders to buy
 (sell). The price levels are \$11.11, \$11.08, \$11.05, and
-\$11.01. The \emph{best bid} at \$11.05 (highest bid price) and the
-\emph{best ask} at \$11.08 (lowest ask price) make up the \emph{inside
-  market}. The \emph{spread} (\$0.03) is the difference between the
-best bid and best ask. The \emph{midpoint} (\$11.065) is the average
+\$11.01. The \dfn{best bid} at \$11.05 (highest bid price) and the
+\dfn{best ask} at \$11.08 (lowest ask price) make up the \dfn{inside
+  market}. The \dfn{spread} (\$0.03) is the difference between the
+best bid and best ask. The \dfn{midpoint} (\$11.065) is the average
 of the best bid and best ask.
 
 There are four types of messages that traders can submit to an order
-book: \emph{add}, \emph{cancel}, \emph{cancel/replace}, and
-\emph{market order}. A trader can \emph{add} a limit order into the
-order book.  She can also \emph{cancel} an order and remove it from
+book: \dfn{add}, \dfn{cancel}, \dfn{cancel/replace}, and
+\dfn{market order}. A trader can \dfn{add} a limit order in to the
+order book.  She can also \dfn{cancel} an order and remove it from
 the order book. If a trader wants to reduce the size of her order, she
-can issue a \emph{cancel/replace}, which cancels the order, then
+can issue a \dfn{cancel/replace}, which cancels the order, then
 immediately replaces it with another order at the same price, but with
 a lower size. Every limit order is assigned a unique ID so that cancel
 and cancel/replace orders can identify the corresponding limit
-order. A \emph{market order} is an order to immediately buy or sell a
+order. A \dfn{market order} is an order to immediately buy or sell a
 quantity of stock at the best available prices. A trade occurs when a
 market order ``hits'' a limit order on the other side of the inside
 market.
 
 All orders have timestamps indicating the time at which they were
-accepted into the order book. The timestamp determines the \emph{time
+accepted into the order book. The timestamp determines the \dfn{time
   priority} of an order. Earlier orders are executed before later
 orders. For example, suppose that the order to buy 100 shares at
 \$11.05 was submitted before the order to buy 200 shares at
@@ -118,7 +124,7 @@ perpetually increase the size of their order, preventing others from
 being able to transact stock using limit orders at that price
 level. See \cite{johnson:barry} for more details on the order book.
 
-\section*{Example}
+\section{Example}
 
 NVIDIA is a graphics processing unit and chipset developer with ticker
 symbol NVDA. Consider the order book for NVDA at a leading electronic
@@ -128,13 +134,13 @@ specifying the location of our data file.
 \begin{Schunk}
 \begin{Sinput}
 > library(orderbook)
-> filename <- system.file("data", "sample.txt",
+> filename <- system.file("data",
++                         "sample.txt",
 +                         package = "orderbook")
 > ob <- orderbook(file = filename)
 > ob <- read.orders(ob, 10000)
 \end{Sinput}
 \end{Schunk}
-\newpage
 \begin{Schunk}
 \begin{Sinput}
 > ob
@@ -342,7 +348,7 @@ Total Orders:              153
 \end{Soutput}
 \end{Schunk}
 
-\section*{Data}
+\section{Data}
 
 Most brokers and exchanges have their own format for transmitting raw
 order data to customers, so it would be unfeasible for us to write
@@ -376,14 +382,15 @@ order book, followed by an order to buy 100 shares at \$25.91. The
  the order at \$25.95 is cancelled, and a trade for 100 shares
  at \$25.95 occurs.
 
-\section*{Analyzing Trades}
+\section{Analyzing Trades}
 
 A user can create plots that show the time priority of his own orders
 if a \texttt{status} column is present in the data file.
 
 \begin{Schunk}
 \begin{Sinput}
-> filename <- system.file("data", "tradersample.txt",
+> filename <- system.file("data",
++                         "tradersample.txt",
 +                         package = "orderbook")
 > ob <- orderbook(file = filename)
 > ob <- read.time(ob, "9:30:05")
@@ -444,7 +451,7 @@ through the corresponding trade message.
 \end{Soutput}
 \end{Schunk}
 
-The \emph{midpoint return} is the difference in cents between the
+The \dfn{midpoint return} is the difference in cents between the
 execution price and the midpoint price after a specified period of
 time. For example, the above calculates the ten second midpoint return
 for the first trade. Since it was a sell order, the midpoint return
@@ -471,7 +478,7 @@ priority, with the earliest submitted order being closest to the
 middle y-axis. Note the red order--this is an order marked
 \texttt{TRUE} by the user, indicating that it belonged to him.
 
-\section*{Simulation}
+\section{Simulation}
 
 \pkg{orderbook} supports adding, replacing, and cancelling orders. Add
 orders require the price, size, and type (ASK/BID) of the limit
@@ -522,11 +529,11 @@ distribution. A  plot of this example simulation is shown below.
 \includegraphics{orderbook-019}
 \end{figure}
 
-\section*{Conclusion}
+\section{Conclusion}
 
 The \pkg{orderbook} package is part of a collection of packages (see
 \cite{kane:backtest} and \cite{kane:portfolio}) for working with
-financial market data. \R provides all the necessary tools for
+financial market data. R provides all the necessary tools for
 managing institutional sized portfolios.
 
 \address{David Kane, Andrew Liu and Khanh Nguyen \\

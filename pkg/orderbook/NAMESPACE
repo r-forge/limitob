@@ -13,7 +13,6 @@ exportMethods(
               "show",
 	      "summary",
 	      "plot",
-              "plotTrade",
               "display",
               "[",
               "copy",

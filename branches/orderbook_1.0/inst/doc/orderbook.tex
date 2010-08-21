@@ -128,7 +128,7 @@ specifying the location of our data file.
 \begin{Schunk}
 \begin{Sinput}
 > library(orderbook)
-> filename <- system.file("data",
+> filename <- system.file("extdata",
 +                         "sample.txt",
 +                         package = "orderbook")
 > ob <- orderbook(file = filename)
@@ -383,7 +383,7 @@ if a \texttt{status} column is present in the data file.
 
 \begin{Schunk}
 \begin{Sinput}
-> filename <- system.file("data",
+> filename <- system.file("extdata",
 +                         "tradersample.txt",
 +                         package = "orderbook")
 > ob <- orderbook(file = filename)

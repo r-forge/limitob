@@ -209,15 +209,6 @@ setMethod("plot",
           }
           )
 
-## Basically just calls the .plot.trade method. See orderbook.plot.R.
-
-setMethod("plotTrade",
-          signature(x = "orderbook"),
-          function(x){
-              .plot.trade(x)
-          }
-          )
-
 ## Displays summary information.
 
 setMethod("summary",

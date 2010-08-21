@@ -19,12 +19,6 @@
 \title{Analyzing an Electronic Limit Order Book}
 \author{David Kane, Andrew Liu and Khanh Nguyen}
 
-\abstract{The \pkg{orderbook} package provides facilities for
-  exploring and visualizing the data associated with an order book:
-  the electronic collection of the outstanding limit orders for a
-  financial instrument. This article provides an overview of the
-  \pkg{orderbook} package and examples of its use.}
-
 %%\VignetteIndexEntry{Using the orderbook package}
 %%\VignetteDepends{orderbook}
 

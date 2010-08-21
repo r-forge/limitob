@@ -20,7 +20,7 @@ object = read.time(object, n)
 }
 \examples{
 library(orderbook)
-filename <- system.file("data", "sample.txt",
+filename <- system.file("extdata", "sample.txt",
                         package = "orderbook")
 
 ob <- orderbook(file = filename)

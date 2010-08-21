@@ -127,7 +127,7 @@ specifying the location of our data file.
 
 <<results = hide, echo = TRUE>>=
 library(orderbook)
-filename <- system.file("data",
+filename <- system.file("extdata",
                         "sample.txt",
                         package = "orderbook")
 ob <- orderbook(file = filename)
@@ -288,7 +288,7 @@ A user can create plots that show the time priority of his own orders
 if a \texttt{status} column is present in the data file.
 
 <<echo = TRUE>>=
-filename <- system.file("data",
+filename <- system.file("extdata",
                         "tradersample.txt",
                         package = "orderbook")
 ob <- orderbook(file = filename)

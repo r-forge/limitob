@@ -94,7 +94,7 @@ once--one for messages and one for seconds.
 }
 \examples{
 library(orderbook)
-filename <- system.file("data", "sample.txt",
+filename <- system.file("extdata", "sample.txt",
                         package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- load.next.trade(ob)

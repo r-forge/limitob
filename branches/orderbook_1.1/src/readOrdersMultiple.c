@@ -89,6 +89,11 @@ SEXP readOrdersMultiple(SEXP filename, SEXP Rrows){
 
 		strcpy(s->status, token);
 
+		/*special feature--if you add something with the same
+		  ID, it will replace the order. that way we don't need to worry about
+		  having a "replace" message--we can just have add messages with
+		  different order size*/
+
 		if(t == NULL){
 		    HASH_ADD_STR(orderbook_multiple, id, s);
 		} else{

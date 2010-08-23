@@ -1,3 +1,5 @@
+//searches input file for all of the trades
+
 #include <R.h>
 #include <Rinternals.h>
 #include <stdio.h>
@@ -11,6 +13,8 @@
 //characters, probably true since there are a lot of characters
 
 #define MAX_LEN 100
+
+//this uses a singly linked list (utlist.h)
 
 typedef struct trade{
     int row;
@@ -50,6 +54,9 @@ SEXP getTrades(SEXP filename){
 
 	token = strtok(strcp, delimiters);
 	if(strcmp(token, "T") == 0){
+
+//allocate memory for trade
+
 	    t = (trade*)malloc(sizeof(trade));
 
 	    t->row = h;
@@ -67,6 +74,8 @@ SEXP getTrades(SEXP filename){
 	    token = strtok(NULL, delimiters);
 	    strcpy(t->mine, token);
 
+//store into the list
+
 	    LL_APPEND(head, t);
 
 	    i++;
@@ -78,6 +87,10 @@ SEXP getTrades(SEXP filename){
 
     len = i * 5;
     PROTECT(retVector = allocVector(STRSXP, len));
+
+//iterate through the list and put things into our R vector, I
+//decided not to directly put it into the R vector because we
+//don't know how many trades there are
 
     LL_FOREACH(head, t){
 

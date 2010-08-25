@@ -3,8 +3,8 @@ Type: Package
 Title: Orderbook visualization/Charting software
 Depends: R (>= 2.11.0), methods, lattice, grid
 Version: 1.1
-Date: 2010-01-15
-Author: Andrew Liu, Khanh Nguyen
+Date: 2010-08-25
+Author: Andrew Liu, David Kane, Khanh Nguyen
 Maintainer: Khanh Nguyen <knguyen@cs.umb.edu>
 Description: Functions for visualizing and retrieving data for
 	     the state of an orderbook at a particular period in time.

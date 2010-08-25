@@ -1,11 +1,11 @@
 Package: orderbook
 Type: Package
-Title: Orderbook visualization/Charting software
-Depends: R (>= 2.11.0), methods, lattice, grid
+Title: Orderbook: A package for working with limit orders
+Depends: R (>= 2.11.0), methods, lattice, grid, hash
 Version: 1.1
-Date: 2010-08-25
-Author: Andrew Liu, David Kane, Khanh Nguyen
-Maintainer: Khanh Nguyen <knguyen@cs.umb.edu>
+Date: 2010-08-21
+Author: Andrew Liu, Khanh Nguyen, David Kane
+Maintainer: Andrew Liu <Andrew.T.Liu@williams.edu>
 Description: Functions for visualizing and retrieving data for
 	     the state of an orderbook at a particular period in time.
 License: GPL (>= 2)

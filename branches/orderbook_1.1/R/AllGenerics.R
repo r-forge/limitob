@@ -1,25 +1,14 @@
-################################################################################
-##
-##
-## orderbook.R: Generic functions for the orderbook class
-##
-##
-## limitob is free software: you can redistribute it and/or modify it
-## under the terms of the GNU General Public License as published by
-## the Free Software Foundation, either version 2 of the License, or
-## (at your option) any later version.
-##
-## limitob is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-##
-## You should have received a copy of the GNU General Public License
-## along with limitob.  If not, see <http://www.gnu.org/licenses/>.
-
-################################################################################
+## Generic functions of the orderbook class. There should be more
+## documentation here. Is "AllGenerics" some sort of standard for S4
+## packages?
 
 .onLoad <- function(lib, pkg) require(methods)
+
+## current.ob is a silly name
+
+## Use and place index arguments similarly.
+
+## current.time should be time. Why not POSIXct?
 
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
@@ -31,6 +20,9 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      trader       = "logical",
                                      trade.index  = "numeric"
                                      ))
+
+
+## Is all this gibberish necessart.
 
 if(!isGeneric("spread"))
     setGeneric("spread", function(object, ...) standardGeneric("spread"))
@@ -67,6 +59,8 @@ if(!isGeneric("mid.point"))
     setGeneric("mid.point", function(object, ...)
                standardGeneric("mid.point"))
 
+## Ought to be invisible.
+
 if(!isGeneric("inside.market"))
     setGeneric("inside.market", function(object, invis = FALSE, ...)
                standardGeneric("inside.market"))
@@ -84,12 +78,14 @@ if(!isGeneric("reset"))
                standardGeneric("reset"))
 
 if(!isGeneric("read.orders"))
-    setGeneric("read.orders", function(object, n = 1000)
+    setGeneric("read.orders", function(object, n = 1000) #Why that default?
                standardGeneric("read.orders"))
 
 if(!isGeneric("read.time"))
-    setGeneric("read.time", function(object, t)
+    setGeneric("read.time", function(object, t) #Why t?
                standardGeneric("read.time"))
+
+## Not sure that I like these argument names.
 
 if(!isGeneric("load.animation"))
     setGeneric("load.animation", function(object, from, to, fps = 1,

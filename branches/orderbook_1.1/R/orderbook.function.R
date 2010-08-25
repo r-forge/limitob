@@ -1,23 +1,9 @@
-## orderbook.function.R: Returns an object of class limitob
-##
-##
-## orderbook is free software: you can redistribute it and/or modify it
-## under the terms of the GNU General Public License as published by
-## the Free Software Foundation, either version 2 of the License, or
-## (at your option) any later version.
-##
-## orderbook is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-##
-## You should have received a copy of the GNU General Public License
-## along with orderbook.  If not, see <http://www.gnu.org/licenses/>.
-
-## Create an empty data frame with price, size, type, time, and id
-## as the columns
-
 orderbook <- function(file, trader = TRUE) {
+
+    ## orderbook.function.R: Returns an object of class limitob. How
+    ## should this be structured? Don't like the trader arg much.
+
+
 
     current.ob <- data.frame(price = numeric(0), size =
                              numeric(0), type = character(0), time
@@ -34,6 +20,9 @@ orderbook <- function(file, trader = TRUE) {
     ## c(row, time, price, size, mine, row, time, price, size,
     ## mine...).
 
+                                        # Ought to stopifnot for file
+                                        # rather than coerce.
+
     trade.data <- .Call("getTrades", as.character(file))
 
     ## Find the length of the vector.
@@ -44,7 +33,7 @@ orderbook <- function(file, trader = TRUE) {
     ## again. These are all numbers so we cast as.numeric. We pull
     ## them out from the trade data using sequence.
 
-    row <- as.numeric(trade.data[seq(1, len, 5)])
+    row <- as.numeric(trade.data[seq(1, len, 5)]) #No idea.
     time <- as.numeric(trade.data[seq(2, len, 5)])
     price <- as.numeric(trade.data[seq(3, len, 5)])
     size <- as.numeric(trade.data[seq(4, len, 5)])
@@ -52,6 +41,8 @@ orderbook <- function(file, trader = TRUE) {
     ## If trader flag is true that means the user wants to be able to
     ## distinguish his or trades from everybody elses. So we load that
     ## data in.
+
+                                        # Dislike this structure.
 
     if(isTRUE(trader)){
 
@@ -65,6 +56,11 @@ orderbook <- function(file, trader = TRUE) {
         ## or false, because there can only be one type,
         ## e.g. character or logical per column
 
+                                        # Awkward! Must be better
+                                        # way. Perhaps change the
+                                        # input format so that the row
+                                        # has either "1" or nothing.
+
         mine[mine == "FALSE\n"] <- "FALSE"
         mine[mine == "TRUE\n"] <- "TRUE"
 
@@ -72,7 +68,7 @@ orderbook <- function(file, trader = TRUE) {
 
         mine <- as.logical(mine)
 
-        ## Create trade.data data frame and then name it.
+        ## Create trade.data data frame and then name it. Awkward!
 
         trade.data <- data.frame(row, time, price, size, mine)
         names(trade.data) <- c("row", "time", "price", "size", "mine")
@@ -102,7 +98,7 @@ orderbook <- function(file, trader = TRUE) {
 
     invisible(new("orderbook",
                   current.ob   = current.ob,
-                  current.time = 0,
+                  current.time = 0, # Should be first time in file.
                   trade.data   = trade.data,
                   my.trades    = my.trades,
                   file         = file,

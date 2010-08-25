@@ -1,18 +1,3 @@
-## orderbook.R: functions of the orderbook object
-##
-## orderbook is free software: you can redistribute it and/or modify it
-## under the terms of the GNU General Public License as published by
-## the Free Software Foundation, either version 2 of the License, or
-## (at your option) any later version.
-##
-## limitob is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-##
-## You should have received a copy of the GNU General Public License
-## along with orderbook.  If not, see <http://www.gnu.org/licenses/>.
-
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
                                      file         = "character",
@@ -24,8 +9,10 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      trade.index  = "numeric"
                                      ),
 
+         ## Orderbook class. Shouldn't we have more documentation.
+
          prototype(current.ob   = data.frame(),
-                   current.time = 0,
+                   current.time = 0, # Use first time in file.
                    file		= character(),
                    file.index   = 0,
                    trade.data   = data.frame(),
@@ -42,14 +29,20 @@ setClass("orderbook", representation(current.ob   = "data.frame",
 ## recreate the order book at a given time, all messages up to that
 ## point are incorporated.
 
-## The following function reads the next n messages from the file from
-## the current location within the orderbook (file.index). Use
-## negative n to read previous messages. For example, typing
-## read.orders(object, 100) would read 100 rows of the input file.
+                                        # Don't a lot of these methods
+                                        # belong in their own files,
+                                        # and with better help pages?
 
 setMethod("read.orders",
           signature(object = "orderbook"),
           function(object, n = 1000){
+
+              ## The following function reads the next n messages from the file from
+              ## the current location within the orderbook (file.index). Use
+              ## negative n to read previous messages. For example, typing
+              ## read.orders(object, 100) would read 100 rows of the input file.
+
+              stopifnot(is.numeric(n))
 
               if(identical(n, 0)){
 
@@ -81,12 +74,12 @@ setMethod("read.orders",
           }
           )
 
-## Reads orders from the file until the time specified. For example,
-## read.time(object, "9:30:00") returns the order book at 9:30:00.
-
 setMethod("read.time",
            signature(object = "orderbook"),
            function(object, t){
+
+               ## Reads orders from the file until the time specified. For example,
+               ## read.time(object, "9:30:00") returns the order book at 9:30:00.
 
                ## .get.time.row will return the row number of the
                ## first message with time greater than or equal to
@@ -107,13 +100,18 @@ setMethod("read.time",
 
 
 
-
-## Returns a vector with the price and size of the best bid at the
-## current order book state.
+                                        # Seems horribly redundant!
+                                        # Just give inside.market an
+                                        # argument which allows for
+                                        # "bid", "ask" or "both."
 
 setMethod("best.bid",
           signature(object = "orderbook"),
           function(object, ...){
+
+              ## Returns a vector with the price and size of the best bid at the
+              ## current order book state.
+
 
               ## Pull out current.ob into x.
 
@@ -124,6 +122,9 @@ setMethod("best.bid",
               x <- x[x[["type"]] == "BID",]
 
               ## Return -1 if x is empty, i.e. there are no bids.
+
+                                        # Hate this. Ought to return
+                                        # NA.x
 
               if(identical(nrow(x), 0)){
 
@@ -152,13 +153,19 @@ setMethod("best.bid",
           }
           )
 
-## Returns a vector with the price and size of the best ask at the
-## current order book state. See comments above. Code is identical
-## except we find min instead of max price.
 
 setMethod("best.ask",
           signature(object = "orderbook"),
           function(object, ...){
+
+              ## Returns a vector with the price and size of the best ask at the
+              ## current order book state. See comments above. Code is identical
+              ## except we find min instead of max price.
+
+                                        # What a hack! Only three
+                                        # letters are differennt!
+
+                                        # Easy enough to combine these.
 
               x <- object@current.ob
 
@@ -181,13 +188,16 @@ setMethod("best.ask",
           }
           )
 
-## Show basic information about the order book at its current
-## state. .prettify is a helper function to make the output print
-## nicely.
-
 setMethod("show",
           signature(object = "orderbook"),
           function(object){
+
+              ## Show basic information about the order book at its current
+              ## state. .prettify is a helper function to make the output print
+              ## nicely.
+
+                                        # Deserves own file.
+
               cat("An object of class orderbook\n")
               cat("--------------------------\n")
               cat("Current orderbook time:   ",
@@ -203,13 +213,14 @@ setMethod("show",
           }
           )
 
-
-## Plot calls helper plot methods. See orderbook.plot.R for more
-## details.
+                                        # Put all the plotting stuff together.
 
 setMethod("plot",
           signature(x = "orderbook"),
           function(x, bounds = 0.1, n = 10, type = "n"){
+
+              ## Plot calls helper plot methods. See orderbook.plot.R for more
+              ## details.
 
               ## Check the type of plot the user wants then calls the
               ## helper function. Most plot helper functions return a
@@ -254,11 +265,13 @@ setMethod("plot",
           }
           )
 
-## Displays summary information.
-
+                                        # Separate file.
 setMethod("summary",
           signature(object = "orderbook"),
           function(object){
+
+              ## Displays summary information.
+
               cat("\nCurrent time is",
                   .to.time(object@current.time), "\n\n")
               cat("Ask price levels:  ",
@@ -301,17 +314,19 @@ setMethod("summary",
               ## Calls inside.market function to print the inside
               ## market.
 
-              inside.market(object)
+              inside.market(object)   # Hmmmm. Does this (stupidly)
+                                      # drive inside.market() design?
               cat("\n")
           }
           )
 
-## Displays the price levels and sizes. n specifies the number of rows to be
-## displayed for ask and bid.
-
+                                        # Separate file.
 setMethod("display",
           signature(object = "orderbook"),
           function(object, n = 5, ...){
+
+              ## Displays the price levels and sizes. n specifies the number of rows to be
+              ## displayed for ask and bid.
 
               ## Combine size returns a data frame with the size
               ## aggregated for each price level. Output data frame is
@@ -377,11 +392,18 @@ setMethod("display",
           }
           )
 
-## Returns the number of bid price levels.
+
+                                        # Single function:
+                                        # ob.levels(). No need for
+                                        # these to be methods, I
+                                        # think.
 
 setMethod("bid.price.levels",
           signature(object = "orderbook"),
           function(object, ...) {
+
+              ## Returns the number of bid price levels.
+
               x <- object@current.ob
 
               ## Pull out the bids.
@@ -394,11 +416,13 @@ setMethod("bid.price.levels",
           }
           )
 
-## Returns the number of ask price levels. See above.
 
 setMethod("ask.price.levels",
           signature(object = "orderbook"),
           function(object, ...) {
+
+              ## Returns the number of ask price levels. See above.
+
               x <- object@current.ob
 
               x <- x[x[["type"]]=="ASK",]
@@ -408,11 +432,14 @@ setMethod("ask.price.levels",
           }
           )
 
-## Returns the total number of price levels.
+
+
 
 setMethod("total.price.levels",
           signature(object = "orderbook"),
           function(object, ...) {
+
+              ## Returns the total number of price levels.
 
               return(bid.price.levels(object) +
                      ask.price.levels(object))
@@ -420,11 +447,21 @@ setMethod("total.price.levels",
           }
           )
 
-## Returns the number of bid orders.
+                                        # Single function:
+                                        # ob.orders(). No need for
+                                        # these to be methods, I
+                                        # think. Or maybe, one
+                                        # function covers levels and
+                                        # orders. type %in% bid, ask,
+                                        # all.
+
 
 setMethod("bid.orders",
           signature(object = "orderbook"),
           function(object, ...) {
+
+              ## Returns the number of bid orders.
+
               x <- object@current.ob
 
               ## Isolate bids from order book.
@@ -437,11 +474,13 @@ setMethod("bid.orders",
           }
           )
 
-## Returns the number of ask orders. See above.
 
 setMethod("ask.orders",
           signature(object = "orderbook"),
           function(object, ...) {
+
+              ## Returns the number of ask orders. See above.
+
               x <- object@current.ob
 
               x = x[x[["type"]] == "ASK",]
@@ -450,65 +489,70 @@ setMethod("ask.orders",
           }
           )
 
-## Returns the total number of orders.
+
 
 setMethod("total.orders",
           signature(object = "orderbook"),
           function(object, ...) {
+
+              ## Returns the total number of orders.
 
               return(ask.orders(object) + bid.orders(object))
 
           }
           )
 
-## Returns the midpoint value, which is just the simple average of the
-## best bid and ask.
 
 setMethod("mid.point",
           signature(object = "orderbook"),
           function(object, ...) {
+
+              ## Returns the midpoint value, which is just the simple average of the
+              ## best bid and ask.
 
               return((best.bid(object)[1] + best.ask(object)[1])/2)
 
           }
           )
 
-## Returns a data frame with a row for the best ask and a row for the
-## best bid.  The columns are price, size, and type.
-
 setMethod("inside.market",
           signature(object = "orderbook"),
           function(object, invis = FALSE, ...){
 
-          ask <- best.ask(object)
-          bid <- best.bid(object)
+              ## Returns a data frame with a row for the best ask and a row for the
+              ## best bid.  The columns are price, size, and type.
 
-          ## If invis is TRUE it won't print but will return the
-          ## inside market object
+              ask <- best.ask(object)
+              bid <- best.bid(object)
 
-          if(invis == FALSE){
-              cat("Best Bid:          ",
-                  .prettify(bid["price"]), "\n")
-              cat("Size:              ",
-                  .prettify(bid["size"], "s"), "\n \n")
-              cat("Best Ask:          ",
-                  .prettify(ask["price"]), "\n")
-              cat("Size:              ",
+              ## If invis is TRUE it won't print but will return the
+              ## inside market object
+
+              if(invis == FALSE){
+                  cat("Best Bid:          ",
+                      .prettify(bid["price"]), "\n")
+                  cat("Size:              ",
+                      .prettify(bid["size"], "s"), "\n \n")
+                  cat("Best Ask:          ",
+                      .prettify(ask["price"]), "\n")
+                  cat("Size:              ",
                   .prettify(ask["size"], "s"), "\n")
-          }
+              }
 
-          ## Returns the inside market as an object
+              ## Returns the inside market as an object
 
-          invisible(rbind(ask, bid))
+              invisible(rbind(ask, bid))
 
           }
           )
 
-## Returns the spread.
-
 setMethod("spread",
           signature(object = "orderbook"),
           function(object, ...){
+
+              ## Returns the spread.
+                                        # Combine with midpoint?
+                                        # Test cases?
 
               ## Gets best bid and best ask.
 
@@ -532,14 +576,17 @@ setMethod("spread",
           }
           )
 
-## Create Trellis objects that are used for the animation and save
-## them using tempfile(). Put the location of tempfile() in
-## orderbook@animation. Can view by message or seconds.
+                                        # Put all animation together
+                                        # on separate page.
 
 setMethod("load.animation",
           signature(object = "orderbook"),
           function(object, from, to, fps = 1, by = "sec", bounds =
                    0.02){
+
+              ## Create Trellis objects that are used for the animation and save
+              ## them using tempfile(). Put the location of tempfile() in
+              ## orderbook@animation. Can view by message or seconds.
 
               if(isTRUE(by %in% "sec")){
 
@@ -562,12 +609,13 @@ setMethod("load.animation",
           }
           )
 
-## Load trade animation given a trade number.
 
 setMethod("load.trade.animation",
           signature(object = "orderbook"),
           function(object, tradenum, before = 30, after = 30, fps = 1, by =
                    "both", bounds = 0.02){
+
+              ## Load trade animation given a trade number.
 
               ## Extract the desired trade from my trades.
 
@@ -624,13 +672,18 @@ setMethod("load.trade.animation",
           }
           )
 
-## Loads trade animation for the current trade index then increments
-## it by 1.
+
+                                        # If these are only used by
+                                        # animation, then the names
+                                        # are bad.
 
 setMethod("load.next.trade",
           signature(object = "orderbook"),
           function(object, before = 30, after = 30, fps = 1, by =
                    "both", bounds = .02){
+
+              ## Loads trade animation for the current trade index then increments
+              ## it by 1.
 
               object <- load.trade.animation(object,
                                              object@trade.index,
@@ -643,13 +696,14 @@ setMethod("load.next.trade",
           }
           )
 
-## Loads trade animation for current trade index - 1 then decrements
-## it by 1.
 
 setMethod("load.previous.trade",
           signature(object = "orderbook"),
           function(object, before = 30, after = 30, fps = 1, by =
                    "both", bounds = .02){
+
+              ## Loads trade animation for current trade index - 1 then decrements
+              ## it by 1.
 
               if(object@trade.index > 1){
 
@@ -667,12 +721,16 @@ setMethod("load.previous.trade",
               }
               )
 
-## Sort my.trades by a user specified column and resets the
-## trade.index to 1.
+                                        # Should use by.var. Check
+                                        # by.var in x@my.trades. Need
+                                        # this function? As a method?
 
 setMethod("sort",
           signature(x = "orderbook"),
           function(x, by, decreasing = TRUE){
+
+              ## Sort my.trades by a user specified column and resets the
+              ## trade.index to 1.
 
               tmp <- x@my.trades
 
@@ -685,12 +743,13 @@ setMethod("sort",
           }
           )
 
-## Clears current.ob, does not clear trade data, my trades, or
-## trade.index.
 
 setMethod("reset",
           signature(object = "orderbook"),
           function(object){
+
+              ## Clears current.ob, does not clear trade data, my trades, or
+              ## trade.index. Hmmmm. Necessary?
 
               current.ob <- data.frame(numeric(0), numeric(0),
                                        character(0), numeric(0), character(0))
@@ -706,14 +765,16 @@ setMethod("reset",
           }
           )
 
-## Animate is to be used in conjunction with load.trade.animation or
-## load.animation. After an animation is created its location is
-## stored in object@animation. This function loads the animation and
-## uses a for loop to play through it.
 
 setMethod("animate",
           signature(object = "orderbook"),
           function(object, by = "sec", start = NULL, end = NULL, pause = 0.25, initPause = 2){
+
+              ## Animate is to be used in conjunction with
+              ## load.trade.animation or load.animation. After an
+              ## animation is created its location is stored in
+              ## object@animation. This function loads the animation
+              ## and uses a for loop to play through it.
 
               ## Load the trade animation stored in object@animation
               ## according to type.
@@ -759,17 +820,19 @@ setMethod("animate",
           }
           )
 
-## Accesses the orders at the specified price level.
 
 setMethod("[",
           signature(x = "orderbook", i = "character"),
           function(x, i){
 
+              ## Accesses the orders at the specified price
+              ## level. Does this pass R CMD check?
+
               ## Extract the current order book and cast i as a
               ## number.
 
               current.ob <- x@current.ob
-              i = as.numeric(i)
+              i <- as.numeric(i)
 
               ## Pull out all rows where the price is equal to i and
               ## erase the rownames.
@@ -785,15 +848,17 @@ setMethod("[",
           }
           )
 
-## Initialize Trades--calculate midpoint return/trade weighted average
-## price return for all trades in my.trades. Takes the object as well
-## as a vector of time in seconds to decide the times for finding the
-## returns.
+                                        # Why not just a function?
 
 setMethod("initialize.trades",
           signature(object = "orderbook"),
           function(object, time = c(5, 300)){
 
+              ## Initialize Trades--calculate midpoint return/trade
+              ## weighted average price return for all trades in
+              ## my.trades. Takes the object as well as a vector of
+              ## time in seconds to decide the times for finding the
+              ## returns.
 
               ## Get my trades.
 

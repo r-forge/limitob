@@ -1,25 +1,17 @@
-## orderbook.plot.R: Helper function for the plot method
-##
-## limitob is free software: you can redistribute it and/or modify it
-## under the terms of the GNU General Public License as published by
-## the Free Software Foundation, either version 2 of the License, or
-## (at your option) any later version.
-##
-## limitob is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-##
-## You should have received a copy of the GNU General Public License
-## along with orderbook.  If not, see <http://www.gnu.org/licenses/>.
-
-
-
-## Plots the orderbook object at current time. Displays Bids on the left and
-## Asks on the right with Price and Size on the Y- and X-axes, respectively.
-## Only prices within 10% above and below the midpoint value are shown.
+## Need to think hard about the three different choices we have for
+## functions: hidden, normal and methods. I *think* that methods
+## should only be used for true generics, like summary(), show() and
+## so on. I *think* that hiddens should only be used for functions
+## that the user should never call directly. Everything else should
+## just be a normal function.
 
 .plot.ob <-function(object, bounds){
+
+    ## Plots the orderbook object at current time. Displays Bids on
+    ## the left and Asks on the right with Price and Size on the Y-
+    ## and X-axes, respectively.  Only prices within 10% above and
+    ## below the midpoint value are shown.
+
 
     ## Use combine size to find the total size at each price level. This
     ## function returns a data frame. Also get the names for the columns.
@@ -160,7 +152,7 @@
     ## but shares at 25.66 and 25.68. This creates an entry for all
     ## price levels between the max and min.
 
-    y <- data.frame(price = c(seq(ask[1,1], ask[1,1] + (n-1)/100, .01),
+    y <- data.frame(price = c(seq(ask[1,1], ask[1,1] + (n-1)/100, .01), # Better way to do this?
                     seq(bid[nrow(bid),1],
                         bid[nrow(bid),1] - (n-1)/100, -.01)),
                     y = c(seq(n, 1, -1)))
@@ -185,9 +177,13 @@
     yask.at <- rev(x$price[x$price > midpoint])
     ybid.at <- x$price[x$price < midpoint]
 
+                                        # Utter hack to stick a
+                                        # function in the middle here!
+                                        # Especially since this exact
+                                        # same function is repeated
+                                        # later!
 
-
-   new.yscale.components <- function(...) {
+    new.yscale.components <- function(...) {
         ans <- yscale.components.default(...)
         ans$right <- ans$left
 
@@ -230,10 +226,12 @@
 
 }
 
-## Same as plot.ob, except # of orders instead of shares at each price
-## level.
+                                        # ARRRRGGGGHHHHHH!
 
 .plot.orders.ob <-function(object, bounds){
+
+    ## Same as plot.ob, except # of orders instead of shares at each
+    ## price level.
 
     x <- object@current.ob
 
@@ -346,9 +344,12 @@
 
 }
 
-## This function is for plotting the Trellis objects used for animation.
+
 
 .animate.plot <- function(x, x.at, x.limits, y.limits, time, sub){
+
+    ## This function is for plotting the Trellis objects used for
+    ## animation. Connection to methods?
 
     ## Creating the data to be plotted. Basically take out the data
     ## inbetween the two limits, adding and subtracting .001 because
@@ -370,7 +371,10 @@
     ## Create a sequence of numbers from one y limit to the
     ## other. Round because of numerical fuzziness.
 
-    price <- round(seq(y.limits[1], y.limits[2], .01), 2)
+    price <- round(seq(y.limits[1], y.limits[2], .01), 2) # Better
+                                                          # way? Built
+                                                          # ins?
+                                                          # ggplot2?
 
     ## Turn it into a column and merge it with x. This ensures that
     ## every price level in x has something within it.
@@ -413,7 +417,9 @@
         ans
     }
 
-    ## Actually plotting it
+    ## Actually plotting it.
+
+                                        # Comments, please!
 
     tmp <- barchart(price ~ size | type, data = x,
 
@@ -435,10 +441,12 @@
     invisible(tmp)
 }
 
-## Plots normalized supply and demand for the order book following
-## Cao.
+                                        # Separate file.
 
 .supply.demand.plot <- function(object, bounds){
+
+    ## Plots normalized supply and demand for the order book following
+    ## Cao.
 
     ## Find the size at each price level using .combine.size.
 

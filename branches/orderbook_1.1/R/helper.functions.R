@@ -1,12 +1,13 @@
-## $Id: helper.functions.R 1300 2008-08-27 21:01:11Z liu $
-##
-## Internal helper functions
-
-## This formats text for us. Type "p" means that its a price, adds
-## commas and has two decimal digits. "s" means that its a size, adds
-## commas and no decimal digits.
+## Internal helper functions. Not all of these belong here.
 
 .prettify <- function(x, type = "p"){
+
+    ## This formats text for us. Type "p" means that its a price, adds
+    ## commas and has two decimal digits. "s" means that its a size,
+    ## adds commas and no decimal digits.
+
+    stopifnot(type %in% c("p", "s"))
+
     if(type == "p"){
 
         x <- formatC(x, format = "f", big.mark = ",", digits = 2)
@@ -20,15 +21,21 @@
 }
 
 
-## Helper function that returns a data frame with the size aggregated
-## by price level and with data above 10% on either side of the
-## midpoint removed.  Takes an orderbook object as input. Returns
-## orderbook object with price, size, and type. Mainly needed for
-## plotting.
-
 .combine.size <- function(object, bounds){
 
-    x <- object@current.ob
+                                        #object a good name?
+                                        #Functions should be visible.
+
+    ## Helper function that returns a data frame with the size aggregated
+    ## by price level and with data above 10% on either side of the
+    ## midpoint removed.  Takes an orderbook object as input. Returns
+    ## orderbook object with price, size, and type. Mainly needed for
+    ## plotting.
+
+
+    x <- object@current.ob #Hate that slot name.
+
+                                        #Ought to check that current.ob has these vars.
 
     ## Save the midpoint
 
@@ -55,19 +62,21 @@
 }
 
 
-## Returns the row number of the first order after the specified time.
 
 .get.time.row <- function(file, n){
+
+    ## Returns the row number of the first order after the specified
+    ## time. Deserves own method?
 
     invisible(.Call("retrieveTimeRow", as.character(file), as.integer(n)))
 }
 
-## Returns the time of a row number
 
 .get.row.time <- function(file, n){
 
-    ## Open the file connection
+    ## Returns the time of a row number
 
+    ## Open the file connection
 
     file <- file(file, open = "r")
 
@@ -85,12 +94,13 @@
     return(as.numeric(x[2]))
 }
 
-## .read.orders.c generates the orderbook at a specified number of
-## messages.
 
 .read.orders.c <- function(ob, n){
-    x <- .Call("readOrders", as.character(ob@file), as.integer(n))
 
+    ## .read.orders.c generates the orderbook at a specified number of
+    ## messages.
+
+    x <- .Call("readOrders", as.character(ob@file), as.integer(n))
 
     ## Set indices for current location in the orderbook.
 
@@ -101,30 +111,37 @@
 
 }
 
-## read.orders.multiple does what the above does, but returns a list
-## with the orderbook at each row number specified
-
 .read.orders.multiple <- function(ob, n){
+
+    ## read.orders.multiple does what the above does, but returns a list
+    ## with the orderbook at each row number specified
+
+                                        # Do we really need to methods
+                                        # like this?
+
     x <- .Call("readOrdersMultiple", as.character(ob@file), as.integer(n))
     x <- lapply(x, .update)
     invisible(x)
 
 }
 
-## Takes the a vector that is the output of .Call "readOrders" and
-## turns it into a data frame.
 
 .update <- function(x){
 
+    ## Takes the a vector that is the output of .Call "readOrders" and
+    ## turns it into a data frame.
+
     ## Remove new line indicators
 
-    x[x == "TRUE\n"] = "TRUE"
+    x[x == "TRUE\n"] = "TRUE"     #Awkward! Must be a better way.
     x[x == "FALSE\n"] = "FALSE"
 
     len <- length(x)
 
     ## Create vectors for price, size, type, time, id, and the mine
     ## indicator by sequentially extracting every sixth element.
+
+                                        #No idea what this is doing.
 
     price <- as.numeric(x[seq(4, len, 6)])
     size <- as.numeric(x[seq(5, len, 6)])
@@ -146,20 +163,24 @@
 
 }
 
-## Converts x to a time. x should be milliseconds since midnight
-## UTC. Returns as "H:M:S".
 
 .to.time <- function(x){
+
+    ## Converts x to a time. x should be milliseconds since midnight
+    ## UTC. Returns as "H:M:S".
+
+
     x <- as.POSIXct(x/1000, origin = "1970-1-1")
 
     return(format(x, format = "%H:%M:%S"))
 
 }
 
-## Converts x to milliseconds. x should be a string, e.g. "5:01:02"
-## means 5AM, 1 minute, 2 seconds.
 
 .to.ms <- function(x){
+
+    ## Converts x to milliseconds. x should be a string, e.g. "5:01:02"
+    ## means 5AM, 1 minute, 2 seconds.
 
     x <- strsplit(x, split = ":")[[1]]
     x <- ((as.numeric(x[1])) * 3600000
@@ -167,301 +188,5 @@
           + as.numeric(x[3]) * 1000)
 
     return(signif(x, 8))
-
-}
-
-.animate.seconds <- function(object, time, bounds, trade = NULL){
-
-    ## Create a list that will store the current orderbooks for each
-    ## time, as well as the variables that hold the y and x
-    ## limits. sub is for the subtitles.
-
-    n <- .get.time.row(object@file, time)
-
-    current.ob = .read.orders.multiple(object, n)
-    y.limits = c(Inf, 0)
-    max.size = 0
-
-    if(is.null(trade))
-        sub <- ""
-    else
-        sub <- paste("Start:", .to.time(time[1]), " Trade:",
-                     .to.time(trade[[2]]), " End:", .to.time(time[length(time)]))
-
-    ## Use a for loop to create all the current.ob and take the
-    ## smallest/biggest axes.
-
-    for(i in 1:length(n)){
-
-        ## Generate the object for the next time, put the current.ob
-        ## into our list, and put "" in the subtitle (no subtitles
-        ## until slow).
-
-        object@current.ob <- current.ob[[i]]
-
-        x <- .combine.size(object, 1)
-        mid <- mid.point(object)
-
-        ## Find the min ask and max bid price for this current.ob
-
-        ask <- x[x[["type"]] == "ASK",]
-        ask <- ask[ask$price < min(ask$price) + bounds,]
-
-        bid <- x[x[["type"]] == "BID",]
-        bid <- bid[bid$price > max(bid$price) - bounds,]
-
-        ## Check to see if the y limits are bigger/smaller than the
-        ## existing ones.
-
-        if(min(bid$price) < y.limits[1])
-            y.limits[1] <- min(bid$price)
-
-        if(max(ask$price) > y.limits[2])
-            y.limits[2] <- max(ask$price)
-
-        ## Find the max size for this current.ob
-
-        tmp.max.size <- max(x$size[x$price <= y.limits[2] & x$price >=
-                                   y.limits[1]])
-
-        ## Check to see if the x limits are bigger/smaller than the
-        ## existing ones.
-
-        if(tmp.max.size > max.size)
-            max.size <- tmp.max.size
-
-    }
-
-    ## Creating the x limits and tick locations
-
-    x.at <- pretty(c(0, max.size))
-    x.limits <- list(c(x.at[length(x.at)], 0),
-                     c(0, x.at[length(x.at)]))
-
-
-
-    ## Use a for-loop to create all the Trellis objects. Create a name
-    ## vector.
-
-    name <- vector()
-
-    for (i in 1:length(n)){
-
-        tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits, y.limits,
-                                  .to.time(time[i]), sub)
-
-        name[i] <- paste("y", i, sep = ".")
-        assign(paste("y", i, sep = "."), tmp.plot)
-
-    }
-
-    ## Save the names vector
-
-    name[length(name) + 1] = "name"
-    assign("name", name)
-
-
-    ## Save the Trellis objects.
-
-    tempfile <- tempfile()
-    otherfile <- object@animation[["msg"]]
-
-    object@animation <- list(sec = tempfile, msg = otherfile)
-
-    save(list = name, file = tempfile)
-
-    invisible(object)
-
-}
-
-.animate.orders <- function(object, n, bounds, trade = NULL){
-
-    ## Create a list that will store the current orderbooks for each
-    ## time, as well as the variables that hold the y and x
-    ## limits. sub is for the subtitles.
-
-    current.ob <- .read.orders.multiple(object, as.integer(n))
-
-    time <- vector()
-    y.limits <- c(Inf, 0)
-    max.size <- 0
-
-    ## Use a for loop to create all the current.ob and take the
-    ## smallest/biggest axes.
-
-    for(i in 1:length(n)){
-
-        object@current.ob <- current.ob[[i]]
-
-        time[i] <- max(current.ob[[i]]$time)
-
-        x <- .combine.size(object, 1)
-        mid <- mid.point(object)
-
-        ## Find the min ask and max bid price for this current.ob
-
-        ask <- x[x[["type"]] == "ASK",]
-        ask <- ask[ask$price < min(ask$price) + bounds,]
-
-        bid <- x[x[["type"]] == "BID",]
-        bid <- bid[bid$price > max(bid$price) - bounds,]
-
-        ## Check to see if the y limits are bigger/smaller than the
-        ## existing ones.
-
-        if(min(bid$price) < y.limits[1])
-            y.limits[1] <- min(bid$price)
-
-        if(max(ask$price) > y.limits[2])
-            y.limits[2] <- max(ask$price)
-
-        ## Find the max size for this current.ob
-
-        tmp.max.size <- max(x$size[x$price < y.limits[2] & x$price >
-                                   y.limits[1]])
-
-        ## Check to see if the x limits are bigger/smaller than the
-        ## existing ones.
-
-        if(tmp.max.size > max.size)
-            max.size <- tmp.max.size
-
-    }
-
-    ## Creating the x limits and tick locations
-
-    x.at <- pretty(c(0, max.size))
-    x.limits <- list(c(x.at[length(x.at)], 0),
-                     c(0, x.at[length(x.at)]))
-
-    ## Create subtitles
-
-    if(is.null(trade))
-        sub <- ""
-    else
-        sub <- paste("Start:", .to.time(time[1]), " Trade:",
-                     .to.time(trade[[2]]), " End:", .to.time(time[length(time)]))
-
-
-    ## Use a for-loop to create all the Trellis objects and create
-    ## name vector.
-
-    name = vector()
-
-    for (i in 1:length(n)){
-
-
-        tmp.plot <- .animate.plot(current.ob[[i]], x.at, x.limits, y.limits,
-                                  .to.time(time[i]), sub)
-
-        name[i] <- paste("y", i, sep = ".")
-        assign(paste("y", i, sep = "."), tmp.plot)
-
-    }
-
-    ## Save the names vector
-
-    name[length(name) + 1] = "name"
-    assign("name", name)
-
-
-    ## Save the Trellis objects.
-
-    tempfile <- tempfile()
-    otherfile <- object@animation[["sec"]]
-
-    object@animation <- list(sec = otherfile, msg = tempfile)
-
-    save(list = name, file = tempfile)
-
-    invisible(object)
-
-}
-
-## Midpoint Return, automatically finds the midpoint return for the
-## selected message row number for a vector of time in seconds,
-## e.g. c(5, 10, 60, 120) means find the midpoint return for 5s, 10s,
-## 1 min, 2 min after the trade.
-
-.midpoint.return <- function(object, trdprice, trdrow, trdtime, time){
-
-    ## Time is in seconds so multiply it to find milliseconds
-
-    time <- time * 1000
-
-    ## Pull out current time and add it to time
-
-    time <- trdtime + time
-
-    ## Find rows for time
-
-    n <- .get.time.row(object@file, time)
-
-    ## Append n to the trade row
-
-    n <- append(trdrow, n)
-
-    ## Get the order book at the rows desired.
-
-    x <- .read.orders.multiple(object, n)
-
-    ## Get the midpoint when the trade happens
-
-    object@current.ob <- x[[1]]
-
-    startmidpt <- mid.point(object)
-
-    ## Loop through and calculate midpoints at the other times
-
-    midpoints <- vector()
-
-    for(i in 2:length(n)){
-
-        object@current.ob <- x[[i]]
-        midpoints[i - 1] <- mid.point(object)
-    }
-
-    ## If startmidpt > trdprice then it was a buy, otherwise a
-    ## short. Calculate returns accordingly.
-
-    if(startmidpt > trdprice)
-        return(list(round(midpoints - trdprice, 3), startmidpt))
-    else
-        return(list(round(trdprice - midpoints, 3), startmidpt))
-}
-
-## Trade weighted average price for the vector of times given the
-## order number and a vector of times (like above).
-
-.twap.return <- function(object, trdprice, trdtime, time, startmidpt){
-
-    trade.data <- object@trade.data
-
-    ## Time is in seconds so multiply it to find milliseconds
-
-    time <- time * 1000
-
-    ## Pull out current time and add it to time
-
-    time <- trdtime + time
-
-    twap <- vector()
-
-    for(i in 1:length(time)){
-
-        temp <- trade.data[trade.data$time >= trdtime &
-                           trade.data$time <= time[i],]
-
-        twap[i] = sum(temp$price * temp$size)/sum(temp$size)
-
-    }
-
-    ## If startmidpt > trdprice then it was a buy, otherwise a
-    ## short. Calculate returns accordingly.
-
-    if(startmidpt > trdprice)
-        return(round(twap - trdprice, 3))
-    else
-        return(round(trdprice - twap, 3))
 
 }

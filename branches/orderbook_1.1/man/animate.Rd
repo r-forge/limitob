@@ -1,3 +1,6 @@
+% This seems hacky. Shouldn't a lot of this be in separate files?
+% Also, why the need for two aliases for, sat, load.animation?
+
 \name{animate.function}
 
 \alias{animate,orderbook-method}
@@ -31,22 +34,22 @@ animate(object, by = "sec", start = NULL, end = NULL, pause = 0.25,
 
 }
 \arguments{
-  \item{object}{ Object of class \code{"orderbook"}
+  \item{object}{ Object of class \code{orderbook}
   }
   \item{from}{
     The start time of the animation in the form
-    \code{"HH:MM:SS"}.
+    \code{HH:MM:SS}.
   }
   \item{to}{
     The end time of the animation in the form
-    \code{"HH:MM:SS"}.
+    \code{HH:MM:SS}.
   }
   \item{fps}{
     The number of frames per second, i.e. the number of \code{orderbook}
     objects to generate for each second if \code{by = "sec"}.
   }
   \item{by}{
-    Either \code{"sec"} or \code{"msg"}.
+    Either \code{sec} or \code{msg}.
   }
   \item{bounds}{
     Pennies above (below) the best bid (ask) to display.
@@ -90,12 +93,11 @@ once--one for messages and one for seconds.
 
   }
 \value{
-  Prints Trellis objects.
+  Displays a series of Trellis plots, creating an animation.
 }
 \examples{
 library(orderbook)
-filename <- system.file("extdata", "sample.txt",
-                        package = "orderbook")
+filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- load.next.trade(ob)
 animate(ob)

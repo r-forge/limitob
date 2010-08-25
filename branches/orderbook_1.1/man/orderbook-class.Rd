@@ -19,6 +19,8 @@
 \alias{reset,orderbook-method}
 \alias{[,orderbook,character-method}
 
+% All this duplication is hacky!
+
 \alias{bid.price.levels}
 \alias{ask.price.levels}
 \alias{total.price.levels}
@@ -40,6 +42,9 @@ an orderbook}
 \section{Objects from the class}{
   Objects can be created by calls to the function \code{orderbook}
 }
+
+% Is this proper formatting for slots? I think we should delete the
+% \code and the :.
 
 \section{Slots}{
   \describe{
@@ -72,6 +77,8 @@ an orderbook}
   }
 }
 
+% Is this the way that cool people handle methods? I doubt it.
+% No need for \code for :.
 
 \section{Methods}{
   \describe{
@@ -133,8 +140,7 @@ an orderbook}
 \examples{
 library(orderbook)
 
-filename <- system.file("extdata", "sample.txt",
-                        package = "orderbook")
+filename <- system.file("extdata", "sample.txt", package = "orderbook")
 
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, 500)
@@ -142,5 +148,8 @@ ob <- read.orders(ob, 500)
 show(ob)
 summary(ob)
 display(ob)
+
+% Too short! Show us all the methods. Give us a tour.
+
 }
 \keyword{classes}

@@ -1,3 +1,5 @@
+% A bad name for this function.
+
 \name{initialize.trades}
 
 \alias{initialize.trades,orderbook-method}
@@ -24,9 +26,7 @@ initialize.trades(object, time = c(5, 300))
 }
 \examples{
 library(orderbook)
-filename <- system.file("extdata", "sample.txt",
-                        package = "orderbook")
-
+filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- initialize.trades(ob)
 }

@@ -1,3 +1,6 @@
+% Really don't like having trader as an argument.
+% Should get that information from the input file.
+
 \name{orderbook}
 \alias{orderbook}
 \title{Creating an Object of Class Orderbook}
@@ -16,6 +19,8 @@
 
   }
 }
+
+% What is an "orderbook data.frame" below?
 
 \details{This function should be used to initially create the orderbook
   function. If you have an orderbook data.frame from a previous session,

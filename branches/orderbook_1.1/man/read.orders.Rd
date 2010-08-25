@@ -1,3 +1,7 @@
+% Good that an important function has its own .Rd file.
+
+% n and t are bad argument names
+
 \name{read.order.function}
 \alias{read.orders,orderbook-method}
 \alias{read.time,orderbook-method}
@@ -12,7 +16,7 @@ read.orders(object, n = 1000)
 read.time(object, t)
 }
 \arguments{
-  \item{object}{ Object of class \code{"orderbook"}}
+  \item{object}{ Object of class \code{orderbook}}
   \item{n}{An integer.}
   \item{t}{A time in HH:MM:SS format.}
 }
@@ -27,9 +31,7 @@ read.time(object, t)
 }
 \examples{
 library(orderbook)
-filename <- system.file("extdata", "sample.txt",
-                        package = "orderbook")
-
+filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, 100)
 ob <- read.time(ob, "9:30:00")

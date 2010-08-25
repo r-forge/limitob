@@ -2,15 +2,18 @@
 \alias{orderbook-package}
 \docType{package}
 \title{
-Analyze and visualize orderbook data.
+Analyze and visualize orderbook data
 }
 \description{
 The orderbook package provides functions for exploring and visualizing
 orderbook data. For example, we may want to study an orderbook
-immediately before a trade occurs orvisualize the change of an orderbook
+immediately before a trade occurs or visualize the change of an orderbook
 over time as the price level fluctuates. The insights from this sort of
 analysis can help in researching short-term trading strategies.
 }
+
+% Is this the standard way that folks present this information?
+
 \details{
 \tabular{ll}{
 Package: \tab orderbook\cr
@@ -21,6 +24,8 @@ Depends: \tab R (>= 2.3.0), methods, grid, lattice\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
+
+% What is this?
 
 Index:
 \preformatted{

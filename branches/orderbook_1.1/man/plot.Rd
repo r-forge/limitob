@@ -7,6 +7,10 @@
 \title{plot}
 \description{Plotting the orderbook.}
 \usage{
+
+% What does the special \S4method tag do here?
+% Should we be using it elsewhere?
+
 \S4method{plot}{orderbook}(x, bounds = 0.1, n = 10, type = "n")
 }
 \arguments{
@@ -29,9 +33,7 @@
 }
 \examples{
 library(orderbook)
-filename <- system.file("extdata", "sample.txt",
-                        package = "orderbook")
-
+filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, n = 1000)
 plot(ob)

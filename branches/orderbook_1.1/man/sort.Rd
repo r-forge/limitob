@@ -4,17 +4,15 @@
 \alias{sort}
 
 \title{sort}
-\description{Sorting
-  order
-  book trades.  }
+\description{Sorting orderbook trades.}
 
 \usage{
 \S4method{sort}{orderbook}(x, by, decreasing = TRUE)
 }
 
 \arguments{
-    \item{x}{ Object of class \code{orderbook}}
-    \item{by}{ The name of a column in \code{my.trades}.}
+    \item{x}{Object of class \code{orderbook}}
+    \item{by}{The name of a column in \code{my.trades}.}
     \item{decreasing}{A \code{boolean}.}
   }
 
@@ -27,9 +25,7 @@
 }
 \examples{
 library(orderbook)
-filename <- system.file("extdata", "sample.txt",
-                        package = "orderbook")
-
+filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, n = 1000)
 ob <- sort(ob, by = "time", decreasing = TRUE)

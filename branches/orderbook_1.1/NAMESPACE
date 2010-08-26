@@ -4,7 +4,9 @@ importFrom("graphics", plot)
 
 export(
        "orderbook",
-       "o.and.l"
+       "o.and.l",
+       "load.next.trade",
+       "load.previous.trade"
        )
 
 exportClasses(
@@ -29,7 +31,4 @@ exportMethods("read.orders",
               "initialize.trades",
 
               "load.animation",
-              "load.trade.animation",
-              "load.next.trade",
-              "load.previous.trade",
               "animate")

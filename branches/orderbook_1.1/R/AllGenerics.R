@@ -73,12 +73,6 @@ if(!isGeneric("load.animation"))
                                          by = "sec", bounds = 0.02)
                standardGeneric("load.animation"))
 
-if(!isGeneric("load.trade.animation"))
-    setGeneric("load.trade.animation", function(object, tradenum,
-                                                before = 30, after =
-                                                30, fps = 1, by = "both", bounds
-                                                = 0.02)
-               standardGeneric("load.trade.animation"))
 
 if(!isGeneric("animate"))
     setGeneric("animate", function(object, by = "sec", start = NULL,
@@ -90,17 +84,6 @@ if(!isGeneric("initialize.trades"))
     setGeneric("initialize.trades", function(object, time = c(5, 300))
                standardGeneric("initialize.trades"))
 
-if(!isGeneric("load.next.trade"))
-    setGeneric("load.next.trade", function(object, before = 30, after
-                                           = 30, fps = 1, by = "both",
-                                           bounds = 0.02)
-               standardGeneric("load.next.trade"))
-
-if(!isGeneric("load.previous.trade"))
-    setGeneric("load.previous.trade", function(object, before = 30, after
-                                           = 30, fps = 1, by = "both",
-                                           bounds = 0.02)
-               standardGeneric("load.previous.trade"))
 
 
 

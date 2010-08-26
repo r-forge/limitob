@@ -5,22 +5,20 @@
 
 \alias{animate,orderbook-method}
 \alias{load.animation,orderbook-method}
-\alias{load.trade.animation,orderbook-method}
-\alias{load.next.trade,orderbook-method}
-\alias{load.previous.trade,orderbook-method}
 
 \alias{animate}
 \alias{load.animation}
-\alias{load.trade.animation}
 \alias{load.next.trade}
 \alias{load.previous.trade}
+\alias{.load.trade.animation}
+
 
 \title{animate}
 \description{Animate the orderbook between two times}
 \usage{
 load.animation(object, from, to, fps = 1, by = "sec", bounds = 0.02)
 
-load.trade.animation(object, tradenum, before = 30, after = 30, fps = 1,
+.load.trade.animation(object, tradenum, before = 30, after = 30, fps = 1,
                      by = "both", bounds = 0.02)
 
 load.previous.trade(object, before = 30, after = 30, fps = 1, by =
@@ -80,16 +78,18 @@ animate(object, by = "sec", start = NULL, end = NULL, pause = 0.25,
     animation between those two times. The user can also create an
     animation between two row numbers in the input file.
 
-    \code{load.trade.animation} loads trade animations a specified number of
+    \code{.load.trade.animation} loads trade animations a specified number of
     seconds before or after the trade.
 
-    \code{load.next.trade} uses the \code{trade.index} to load the next
+    \code{.load.next.trade} uses the \code{trade.index} to load the next
   trade. Users can easily go through trades in order, or use \code{sort}
   to sort the trades and view them in a different
-  order. \code{load.previous.trade} decrements the \code{trade.index}.
+  order.
 
-\code{animate} plays the animation. Only two animations can be stored at
-once--one for messages and one for seconds.
+  \code{.load.previous.trade} decrements the \code{trade.index}.
+
+  \code{animate} plays the animation. Only two animations can be stored at
+  once--one for messages and one for seconds.
 
   }
 \value{

@@ -91,10 +91,8 @@ setMethod("load.animation",
           )
 
 
-setMethod("load.trade.animation",
-          signature(object = "orderbook"),
-          function(object, tradenum, before = 30, after = 30, fps = 1, by =
-                   "both", bounds = 0.02){
+.load.trade.animation <- function(object, tradenum, before = 30, after = 30, fps = 1, by =
+                                   "both", bounds = 0.02){
 
               ## Load trade animation given a trade number.
 
@@ -151,54 +149,50 @@ setMethod("load.trade.animation",
               invisible(object)
 
           }
-          )
+
 
 ## If these are only used by animation, then the names are bad. Also,
 ## aren't they almost identical?
 
-setMethod("load.next.trade",
-          signature(object = "orderbook"),
-          function(object, before = 30, after = 30, fps = 1, by =
-                   "both", bounds = .02){
+load.next.trade <- function(object, before = 30, after = 30, fps = 1, by =
+                             "both", bounds = .02){
 
-              ## Loads trade animation for the current trade index then increments
-              ## it by 1.
+    ## Loads trade animation for the current trade index then increments
+    ## it by 1.
 
-              object <- load.trade.animation(object,
-                                             object@trade.index,
-                                             before, after, fps, by,
-                                             bounds)
+    object <- .load.trade.animation(object,
+                                    object@trade.index,
+                                    before, after, fps, by,
+                                    bounds)
 
-              object@trade.index <- object@trade.index + 1
+    object@trade.index <- object@trade.index + 1
 
-              invisible(object)
-          }
-          )
+    invisible(object)
+}
 
 
-setMethod("load.previous.trade",
-          signature(object = "orderbook"),
-          function(object, before = 30, after = 30, fps = 1, by =
-                   "both", bounds = .02){
 
-              ## Loads trade animation for current trade index - 1 then decrements
-              ## it by 1.
+load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
+                                 "both", bounds = .02){
 
-              if(object@trade.index > 1){
+    ## Loads trade animation for current trade index - 1 then decrements
+    ## it by 1.
 
-                  object <- load.trade.animation(object,
-                                                 object@trade.index - 1,
-                                                 before, after, fps, by,
-                                                 bounds)
+    if(object@trade.index > 1){
 
-                  object@trade.index <- object@trade.index - 1
+        object <- .load.trade.animation(object,
+                                        object@trade.index - 1,
+                                        before, after, fps, by,
+                                        bounds)
 
-              }
+        object@trade.index <- object@trade.index - 1
 
-              invisible(object)
+    }
 
-              }
-              )
+    invisible(object)
+
+}
+
 
 
 ## We need to combine .animate.seconds and .animate.orders (which

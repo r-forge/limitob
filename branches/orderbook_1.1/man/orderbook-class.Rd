@@ -6,27 +6,15 @@
 \alias{summary,orderbook-method}
 \alias{best.bid,orderbook-method}
 \alias{best.ask,orderbook-method}
-\alias{bid.price.levels,orderbook-method}
-\alias{ask.price.levels,orderbook-method}
-\alias{total.price.levels,orderbook-method}
-\alias{bid.orders,orderbook-method}
-\alias{ask.orders,orderbook-method}
-\alias{total.orders,orderbook-method}
 \alias{mid.point,orderbook-method}
 \alias{inside.market,orderbook-method}
 \alias{spread,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
-\alias{[,orderbook,character-method}
+\alias{"[",orderbook,orderbook-method}
 
 % All this duplication is hacky!
 
-\alias{bid.price.levels}
-\alias{ask.price.levels}
-\alias{total.price.levels}
-\alias{bid.orders}
-\alias{ask.orders}
-\alias{total.orders}
 \alias{mid.point}
 \alias{inside.market}
 \alias{spread}
@@ -34,7 +22,7 @@
 \alias{best.ask}
 \alias{best.bid}
 \alias{reset}
-\alias{[}
+\alias{"["}
 
 \title{Class "orderbook"}
 \description{Functions for manipulating and extractiong information from
@@ -94,31 +82,13 @@ an orderbook}
     \item{summary}{\code{signature(object="orderbook")}: Prints a
       summary of the \code{orderbook} object.
     }
-    \item{[}{\code{signature(x = "orderbook", i = "character")}: Prints
+    \item{"["}{\code{signature(x = "orderbook", i = "character")}: Prints
       the orders at that price level.
     }
     \item{display}{\code{signature(object="orderbook")}: Prints by
       default the best 5 price levels and corresponding sizes for the bid
       and ask.
     }
-    \item{bid.price.levels}{\code{signature(object="orderbook")}: Returns
-      the number of bid price levels.
-    }
-    \item{ask.price.levels}{\code{signature(object="orderbook")}: Returns
-      the number of ask price levels.
-    }
-    \item{total.price.levels}{\code{signature(object="orderbook")}:
-      Returns the total number of price levels.
-    }
-    \item{bid.orders}{\code{signature(object="orderbook")}: Returns the
-      number of bids.
-   }
-   \item{ask.orders}{\code{signature(object="orderbook")}: Returns the
-     number of asks.
-   }
-   \item{total.orders}{\code{signature(object="orderbook")}: Returns the
-     total number of orders.
-   }
    \item{mid.point}{\code{signature(object="orderbook")}: Returns the
      midpoint between the best ask and the  best bid.
    }

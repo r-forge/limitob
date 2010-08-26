@@ -22,7 +22,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      ))
 
 
-## Is all this gibberish necessart.
+## Is all this gibberish necessary?
 
 if(!isGeneric("spread"))
     setGeneric("spread", function(object, ...) standardGeneric("spread"))
@@ -31,33 +31,14 @@ if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)
                standardGeneric("display"))
 
-if(!isGeneric("ask.price.levels"))
-    setGeneric("ask.price.levels", function(object, ...)
-               standardGeneric("ask.price.levels"))
-
-if(!isGeneric("bid.price.levels"))
-    setGeneric("bid.price.levels", function(object, ...)
-               standardGeneric("bid.price.levels"))
-
-if(!isGeneric("total.price.levels"))
-    setGeneric("total.price.levels", function(object, ...)
-               standardGeneric("total.price.levels"))
-
-if(!isGeneric("bid.orders"))
-    setGeneric("bid.orders", function(object, ...)
-               standardGeneric("bid.orders"))
-
-if(!isGeneric("ask.orders"))
-    setGeneric("ask.orders", function(object, ...)
-               standardGeneric("ask.orders"))
-
-if(!isGeneric("total.orders"))
-    setGeneric("total.orders", function(object, ...)
-               standardGeneric("total.orders"))
-
 if(!isGeneric("mid.point"))
     setGeneric("mid.point", function(object, ...)
                standardGeneric("mid.point"))
+
+if(!isGeneric("["))
+    setGeneric("[", function(x, i)
+               standardGeneric("["))
+
 
 ## Ought to be invisible.
 

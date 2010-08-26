@@ -1,9 +1,62 @@
 ## Need to think hard about the three different choices we have for
 ## functions: hidden, normal and methods. I *think* that methods
-## should only be used for true generics, like summary(), show() and
-## so on. I *think* that hiddens should only be used for functions
-## that the user should never call directly. Everything else should
-## just be a normal function.
+## should only be used for true generics, like plot(), summary(),
+## show() and so on. I *think* that hiddens should only be used for
+## functions that the user should never call directly. Everything else
+## should just be a normal function.
+
+setMethod("plot",
+          signature(x = "orderbook"),
+          function(x, bounds = 0.1, n = 10, type = "n"){
+
+              ## Plot calls helper plot methods. See orderbook.plot.R for more
+              ## details.
+
+              ## Check the type of plot the user wants then calls the
+              ## helper function. Most plot helper functions return a
+              ## Trellis object that we need to print.
+
+              if(isTRUE(type %in% "n")){
+
+                  ## Plots the size of the orders at each bid and ask
+                  ## independently.
+
+                  tmp <- .plot.ob(x, bounds)
+                  print(tmp)
+
+              } else if(isTRUE(type %in% "s")){
+
+                  ## Plots the size of each level of bid and ask
+                  ## together. ie. best bid and best ask are the same
+                  ## level.
+
+                  .plot.side.ob(x, n)
+
+              } else if(isTRUE(type %in% "o")){
+
+                  ## Plots the number of orders at each bid and ask.
+
+                  tmp <- .plot.orders.ob(x, bounds)
+                  print(tmp)
+
+              } else if(isTRUE(type %in% "sd")){
+
+                  ## Graphs the normalized price against normalized
+                  ## size to reflect a supply/demand curve.
+
+                  tmp <- .supply.demand.plot(x, bounds)
+                  print(tmp)
+
+              } else {
+
+                  print("Invalid type")
+
+              }
+          }
+          )
+
+
+
 
 .plot.ob <-function(object, bounds){
 
@@ -346,100 +399,6 @@
 
 
 
-.animate.plot <- function(x, x.at, x.limits, y.limits, time, sub){
-
-    ## This function is for plotting the Trellis objects used for
-    ## animation. Connection to methods?
-
-    ## Creating the data to be plotted. Basically take out the data
-    ## inbetween the two limits, adding and subtracting .001 because
-    ## there is numerical fuzziness.
-
-    ask <- x[x[["type"]] == "ASK",]
-    ask <- ask[ask$price < y.limits[2] + .001,]
-
-    bid <- x[x[["type"]] == "BID",]
-    bid <- bid[bid$price > y.limits[1] - .001,]
-
-    x <- do.call(rbind, list(ask, bid))
-
-    ## Order x by price
-
-    x <- x[order(x$price),]
-
-
-    ## Create a sequence of numbers from one y limit to the
-    ## other. Round because of numerical fuzziness.
-
-    price <- round(seq(y.limits[1], y.limits[2], .01), 2) # Better
-                                                          # way? Built
-                                                          # ins?
-                                                          # ggplot2?
-
-    ## Turn it into a column and merge it with x. This ensures that
-    ## every price level in x has something within it.
-
-    price <- cbind(price)
-    x <- merge(x, price, all.y = TRUE)
-
-    ## Order price and time
-
-    x$price <- as.ordered(x$price)
-    x$time <- as.ordered(x$time)
-
-    ## Ordering the levels so Bid comes before Ask.
-
-    x[["type"]] <- ordered(x[["type"]],
-                           levels = c("BID", "ASK"))
-
-    ## Creating the y-axis
-
-    ymin = y.limits[1] - .01
-    ybid.at <- (100 * (min(bid$price) - ymin)):(100 * (max(bid$price) - ymin))
-    ybid.at <- round(ybid.at)
-    yask.at <- (100 * (min(ask$price) - ymin)):(100 * (max(ask$price) - ymin))
-    yask.at <- round(yask.at)
-
-    new.yscale.components <- function(...) {
-        ans <- yscale.components.default(...)
-        ans$right <- ans$left
-
-        ans$left$ticks$at <- ybid.at
-        ans$left$labels$at <- ybid.at
-        ans$left$labels$labels <- formatC(price[ybid.at], format =
-                                          "f", digits = 2)
-
-        ans$right$ticks$at <- yask.at
-        ans$right$labels$at <- yask.at
-        ans$right$labels$labels <- formatC(price[yask.at], format =
-                                           "f", digits = 2)
-
-        ans
-    }
-
-    ## Actually plotting it.
-
-                                        # Comments, please!
-
-    tmp <- barchart(price ~ size | type, data = x,
-
-                    ylab = "Price", xlab = "Size (Shares)",
-                    groups = interaction(x$status, x$time),
-                    main = paste("Order Book", time, sep = " -- "),
-                    stack = TRUE, sub = sub,
-
-                    col = c("gray", "gray50", "blue", "red", "green"),
-
-
-                    border = "transparent",
-                    scale = list(x = list(relation = "free", at = x.at,
-                                 limits = x.limits, axs = "i", rot = 45),
-                    y = list(alternating = 3)),
-                    yscale.components = new.yscale.components
-                    )
-
-    invisible(tmp)
-}
 
                                         # Separate file.
 

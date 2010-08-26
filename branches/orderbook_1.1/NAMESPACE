@@ -3,7 +3,8 @@ useDynLib(orderbook, .registration = TRUE)
 importFrom("graphics", plot)
 
 export(
-       "orderbook"
+       "orderbook",
+       "o.and.l"
        )
 
 exportClasses(
@@ -19,12 +20,6 @@ exportMethods("read.orders",
               "summary",
               "[",
               "display",
-              "bid.price.levels",
-              "ask.price.levels",
-              "total.price.levels",
-              "bid.orders",
-              "ask.orders",
-              "total.orders",
               "mid.point",
               "inside.market",
               "spread",

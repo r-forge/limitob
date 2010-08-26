@@ -1,8 +1,7 @@
 library(orderbook)
 load("read.orders.time.test.RData")
 
-filename <- system.file("extdata", "sample.txt",
-                        package = "orderbook")
+filename <- system.file("extdata", "sample.txt", package = "orderbook")
 
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, 5000)
@@ -17,27 +16,27 @@ stopifnot(isTRUE(identical(25.86, best.ask(ob)[[1]])))
 
 ## Bid Price Levels
 
-stopifnot(isTRUE(identical(as.integer(54), bid.price.levels(ob))))
+stopifnot(isTRUE(identical(as.integer(54), o.and.l(ob, "bid", "levels"))))
 
 ## Ask Price Levels
 
-stopifnot(isTRUE(identical(as.integer(58), ask.price.levels(ob))))
+stopifnot(isTRUE(identical(as.integer(58), o.and.l(ob, "ask", "levels"))))
 
 ## Total Price Levels
 
-stopifnot(isTRUE(identical(as.integer(54+58), total.price.levels(ob))))
+stopifnot(isTRUE(identical(as.integer(54+58), o.and.l(ob, "all", "levels"))))
 
 ## Bid orders
 
-stopifnot(isTRUE(identical(104, bid.orders(ob))))
+stopifnot(isTRUE(identical(104, o.and.l(ob, "bid", "orders"))))
 
 ## Ask orders
 
-stopifnot(isTRUE(identical(135, ask.orders(ob))))
+stopifnot(isTRUE(identical(135, o.and.l(ob, "ask", "orders"))))
 
 ## Total orders
 
-stopifnot(isTRUE(identical(104+135, total.orders(ob))))
+stopifnot(isTRUE(identical(104+135, o.and.l(ob, "all", "orders"))))
 
 ## Midpoint
 

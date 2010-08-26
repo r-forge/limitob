@@ -31,9 +31,8 @@
 }
 \examples{
 library(orderbook)
-filename <- system.file("extdata", "sample.txt",
-                        package = "orderbook")
-ob = orderbook(file = filename)
+filename <- system.file("extdata", "sample.txt", package = "orderbook")
+ob <- orderbook(file = filename)
 }
 
 

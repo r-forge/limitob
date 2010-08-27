@@ -25,7 +25,7 @@ setMethod("summary",
 
               ## Retrieve the midpoint.
 
-              mid <- mid.point(object)[[1]]
+              mid <- mid.point(object)
 
               ## Subtract floor(mid) from midpoint. This basically
               ## just gets the decimal portion.

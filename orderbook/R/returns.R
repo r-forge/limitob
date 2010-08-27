@@ -1,6 +1,6 @@
+## Return calculations. Need some test cases. Should probably be
+## visible.
 
-                                        #Needs to be a visible
-                                        #function with a test case.
 
 .midpoint.return <- function(object, trdprice, trdrow, trdtime, time){
 

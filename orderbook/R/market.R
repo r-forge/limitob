@@ -76,12 +76,14 @@ best <- function(x, side){
 
 mid.point <- function(x){
 
-    ## Returns the midpoint value, which is just the simple average of the
-    ## best bid and ask.
+    ## Returns the midpoint value, which is just the simple average of
+    ## the best bid and ask. Note that we get rid of the names that
+    ## are associated with best(). Why would you ever want the hassle
+    ## of dealing with named vectors in something like this?
 
     stopifnot(class(x) == "orderbook")
 
-    return((best(x, side = "BID")[1] + best(x, side = "ASK")[1])/2)
+    return(as.numeric((best(x, side = "BID")[1] + best(x, side = "ASK")[1])/2))
 
 }
 

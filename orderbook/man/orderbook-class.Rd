@@ -6,7 +6,7 @@
 \alias{summary,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
-\alias{"[",orderbook,orderbook-method}
+\alias{"[",orderbook-method}
 
 % All this duplication is hacky! Several of these functions deserve
 % their own help files and own test case files. Dumping everything into

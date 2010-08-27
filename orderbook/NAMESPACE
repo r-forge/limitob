@@ -2,11 +2,17 @@ useDynLib(orderbook, .registration = TRUE)
 
 importFrom("graphics", plot)
 
+## I don't think I should be exporting all these. Or should I?
+## best.bid? This could just be a hidden function or something that,
+## in the package, I call explicitly --- using the :: syntax?
+
 export(
        "orderbook",
        "o.and.l",
        "load.next.trade",
-       "load.previous.trade"
+       "load.previous.trade",
+       "best.bid",
+       "best.ask"
        )
 
 exportClasses(
@@ -17,8 +23,6 @@ exportMethods("read.orders",
               "read.time",
 
               "show",
-              "best.bid",
-              "best.ask",
               "summary",
               "[",
               "display",

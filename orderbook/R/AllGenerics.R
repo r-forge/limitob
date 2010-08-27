@@ -22,37 +22,40 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      ))
 
 
-## Is all this gibberish necessary?
+## Some of these are plausible methods. Others . . .
 
-if(!isGeneric("spread"))
-    setGeneric("spread", function(object, ...) standardGeneric("spread"))
+## Also, why is show() not generic?
+
 
 if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)
                standardGeneric("display"))
-
-if(!isGeneric("mid.point"))
-    setGeneric("mid.point", function(object, ...)
-               standardGeneric("mid.point"))
 
 if(!isGeneric("["))
     setGeneric("[", function(x, i)
                standardGeneric("["))
 
 
-## Ought to be invisible.
+if(!isGeneric("initialize.trades"))
+    setGeneric("initialize.trades", function(object, time = c(5, 300))
+               standardGeneric("initialize.trades"))
+
+
+
+## Do any of these really need to be methods?
 
 if(!isGeneric("inside.market"))
     setGeneric("inside.market", function(object, invis = FALSE, ...)
                standardGeneric("inside.market"))
 
-if(!isGeneric("best.bid"))
-    setGeneric("best.bid", function(object, ...)
-			   standardGeneric("best.bid"))
+if(!isGeneric("spread"))
+    setGeneric("spread", function(object, ...) standardGeneric("spread"))
 
-if(!isGeneric("best.ask"))
-    setGeneric("best.ask", function(object, ...)
-	           standardGeneric("best.ask"))
+if(!isGeneric("mid.point"))
+    setGeneric("mid.point", function(object, ...)
+               standardGeneric("mid.point"))
+
+
 
 if(!isGeneric("reset"))
     setGeneric("reset", function(object)
@@ -66,8 +69,6 @@ if(!isGeneric("read.time"))
     setGeneric("read.time", function(object, t) #Why t?
                standardGeneric("read.time"))
 
-## Not sure that I like these argument names.
-
 if(!isGeneric("load.animation"))
     setGeneric("load.animation", function(object, from, to, fps = 1,
                                          by = "sec", bounds = 0.02)
@@ -79,11 +80,3 @@ if(!isGeneric("animate"))
                                    end = NULL, pause = 0.25, initPause
                                    = 2)
                standardGeneric("animate"))
-
-if(!isGeneric("initialize.trades"))
-    setGeneric("initialize.trades", function(object, time = c(5, 300))
-               standardGeneric("initialize.trades"))
-
-
-
-

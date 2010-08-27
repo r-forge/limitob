@@ -4,8 +4,6 @@
 
 \alias{show,orderbook-method}
 \alias{summary,orderbook-method}
-\alias{best.bid,orderbook-method}
-\alias{best.ask,orderbook-method}
 \alias{mid.point,orderbook-method}
 \alias{inside.market,orderbook-method}
 \alias{spread,orderbook-method}
@@ -72,12 +70,6 @@ an orderbook}
   \describe{
     \item{show}{\code{signature(object = "orderbook")}:
       Prints basic information about the \code{orderbook} object.
-    }
-    \item{best.bid}{\code{signature(object = "orderbook")}: Returns the
-      current best bid.
-    }
-    \item{best.ask}{\code{signature(object = "orderbook")}: Returns the
-      current best ask.
     }
     \item{summary}{\code{signature(object="orderbook")}: Prints a
       summary of the \code{orderbook} object.

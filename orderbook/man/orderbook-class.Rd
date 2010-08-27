@@ -4,22 +4,20 @@
 
 \alias{show,orderbook-method}
 \alias{summary,orderbook-method}
-\alias{mid.point,orderbook-method}
-\alias{inside.market,orderbook-method}
-\alias{spread,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
 \alias{"[",orderbook,orderbook-method}
 
 % All this duplication is hacky! Several of these functions deserve
 % their own help files and own test case files. Dumping everything into
-% misc.R for tests is hacky.
+% misc.R for tests is hacky. Why do we need to list, say, show() both
+% above (where we mention that it is a method) and below (where we
+% don't)? Perhaps because this allows a simple ?show to do what we want
+% because the R help system is smart?
 
-\alias{mid.point}
-\alias{inside.market}
-\alias{spread}
+\alias{show}
+\alias{summary}
 \alias{display}
-\alias{best}
 \alias{reset}
 \alias{"["}
 
@@ -82,17 +80,7 @@ an orderbook}
       default the best 5 price levels and corresponding sizes for the bid
       and ask.
     }
-   \item{mid.point}{\code{signature(object="orderbook")}: Returns the
-     midpoint between the best ask and the  best bid.
-   }
-   \item{inside.market}{\code{signature(object="orderbook")}:  Returns a
-     data frame with a row for the best ask and a row for the best bid. The
-     columns are price, size, and type.
-   }
-   \item{spread}{\code{signature(object="orderbook")}: Returns the
-     spread between the best ask and best bid .
-   }
-   \item{reset}{\code{signature(object="orderbook")}: Reset the
+    \item{reset}{\code{signature(object="orderbook")}: Reset the
      orderbook to its initial state.
    }
  }

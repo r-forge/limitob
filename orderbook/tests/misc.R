@@ -44,7 +44,7 @@ stopifnot(isTRUE(identical(25.825, round(mid.point(ob)[[1]], 3))))
 
 ## Inside.market
 
-test <- inside.market(ob, invis = TRUE)
+test <- inside.market(ob)
 
 stopifnot(isTRUE(identical(25.86, test[[1]])))
 stopifnot(isTRUE(identical(25.79, test[[2]])))

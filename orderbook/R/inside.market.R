@@ -1,36 +1,19 @@
-## Should inside.market really be a method? I don't see anything wrong
-## with having all these other functions use it.
+inside.market <- function(x){
 
-setMethod("inside.market",
-          signature(object = "orderbook"),
-          function(object, invis = FALSE, ...){
+    ## Returns a data frame with a row for the best ask and a row for the
+    ## best bid.  The columns are price, size, and type. Should this be structured differently?
 
-              ## Returns a data frame with a row for the best ask and a row for the
-              ## best bid.  The columns are price, size, and type.
+    stopifnot(class(x) == "orderbook")
 
-              ask <- best(object, side = "ASK")
-              bid <- best(object, side = "BID")
+    ask <- best(x, side = "ASK")
+    bid <- best(x, side = "BID")
 
-              ## If invis is TRUE it won't print but will return the
-              ## inside market object
+    ## Returns the inside market as an object
 
-              if(invis == FALSE){
-                  cat("Best Bid:          ",
-                      .prettify(bid["price"]), "\n")
-                  cat("Size:              ",
-                      .prettify(bid["size"], "s"), "\n \n")
-                  cat("Best Ask:          ",
-                      .prettify(ask["price"]), "\n")
-                  cat("Size:              ",
-                  .prettify(ask["size"], "s"), "\n")
-              }
+    invisible(rbind(ask, bid))
 
-              ## Returns the inside market as an object
+}
 
-              invisible(rbind(ask, bid))
-
-          }
-          )
                                         # Seems horribly redundant!
                                         # Just give inside.market an
                                         # argument which allows for
@@ -91,50 +74,45 @@ best <- function(x, side){
 
 
 
+mid.point <- function(x){
+
+    ## Returns the midpoint value, which is just the simple average of the
+    ## best bid and ask.
+
+    stopifnot(class(x) == "orderbook")
+
+    return((best(x, side = "BID")[1] + best(x, side = "ASK")[1])/2)
+
+}
 
 
 
-setMethod("mid.point",
-          signature(object = "orderbook"),
-          function(object, ...) {
+spread <- function(x){
 
-              ## Returns the midpoint value, which is just the simple average of the
-              ## best bid and ask.
-
-              return((best(object, side = "BID")[1] + best(object, side = "ASK")[1])/2)
-
-          }
-          )
-
-
-
-setMethod("spread",
-          signature(object = "orderbook"),
-          function(object, ...){
-
-              ## Returns the spread.
+    ## Returns the spread.
                                         # Combine with midpoint?
                                         # Test cases?
 
-              ## Gets best bid and best ask.
+    stopifnot(class(x) == "orderbook")
 
-              ask = best(object, side = "ASK")
-              bid = best(object, side = "BID")
+    ## Gets best bid and best ask.
 
-              ## If there are either no bids or no asks, then return
-              ## NA. Otherwise return the difference of the best ask
-              ## and best bid. Need an NA test case. Ought to be a
-              ## cleaner way to code this.
+    ask = best(x, side = "ASK")
+    bid = best(x, side = "BID")
 
-              if(is.na(ask) || is.na(bid)){
+    ## If there are either no bids or no asks, then return
+    ## NA. Otherwise return the difference of the best ask
+    ## and best bid. Need an NA test case. Ought to be a
+    ## cleaner way to code this.
 
-                  return(NA)
+    if(is.na(ask) || is.na(bid)){
 
-              } else{
+        return(NA)
 
-                  return(ask[["price"]] - bid[["price"]])
+    } else{
 
-              }
+        return(ask[["price"]] - bid[["price"]])
 
-          }
-          )
+    }
+
+}

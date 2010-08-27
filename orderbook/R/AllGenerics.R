@@ -44,18 +44,6 @@ if(!isGeneric("initialize.trades"))
 
 ## Do any of these really need to be methods?
 
-if(!isGeneric("inside.market"))
-    setGeneric("inside.market", function(object, invis = FALSE, ...)
-               standardGeneric("inside.market"))
-
-if(!isGeneric("spread"))
-    setGeneric("spread", function(object, ...) standardGeneric("spread"))
-
-if(!isGeneric("mid.point"))
-    setGeneric("mid.point", function(object, ...)
-               standardGeneric("mid.point"))
-
-
 
 if(!isGeneric("reset"))
     setGeneric("reset", function(object)

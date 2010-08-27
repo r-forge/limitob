@@ -11,7 +11,10 @@ export(
        "o.and.l",
        "load.next.trade",
        "load.previous.trade",
-       "best"
+       "best",
+       "inside.market",
+       "mid.point",
+       "spread"
        )
 
 exportClasses(
@@ -25,9 +28,6 @@ exportMethods("read.orders",
               "summary",
               "[",
               "display",
-              "mid.point",
-              "inside.market",
-              "spread",
               "reset",
               "sort",
               "plot",

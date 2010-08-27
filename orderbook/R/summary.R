@@ -43,11 +43,22 @@ setMethod("summary",
               cat("-----------------------------\n")
               cat("Inside market \n \n")
 
-              ## Calls inside.market function to print the inside
-              ## market.
+              ## Calls inside.market function and print out key
+              ## numbers by hand.
 
-              inside.market(object)   # Hmmmm. Does this (stupidly)
-                                      # drive inside.market() design?
+              z <- inside.market(object)
+
+              cat("Best Bid:          ",
+                  .prettify(z[rownames(z) %in% "bid", "price"]), "\n")
+              cat("Size:              ",
+                  .prettify(z[rownames(z) %in% "bid", "size"], "s"), "\n \n")
+              cat("Best Ask:          ",
+                  .prettify(z[rownames(z) %in% "ask", "price"]), "\n")
+              cat("Size:              ",
+                  .prettify(z[rownames(z) %in% "ask", "size"], "s"), "\n")
+
+              ## Final return
+
               cat("\n")
           }
           )

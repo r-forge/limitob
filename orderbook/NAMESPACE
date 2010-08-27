@@ -11,8 +11,7 @@ export(
        "o.and.l",
        "load.next.trade",
        "load.previous.trade",
-       "best.bid",
-       "best.ask"
+       "best"
        )
 
 exportClasses(

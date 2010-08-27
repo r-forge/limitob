@@ -85,8 +85,8 @@ setMethod("plot",
 
     ## Find best bid and best ask
 
-    bestbid <- best.bid(object)[[1]]
-    bestask <- best.ask(object)[[1]]
+    bestbid <- best(object, side = "BID")[[1]]
+    bestask <- best(object, side = "ASK")[[1]]
 
     ## Creating the x axis values.
 
@@ -319,8 +319,8 @@ setMethod("plot",
     max.price <- max(x[["price"]])
     midpoint <- mid.point(object)
 
-    bestbid <- best.bid(object)[[1]]
-    bestask <- best.ask(object)[[1]]
+    bestbid <- best(object, side = "BID")[[1]]
+    bestask <- best(object, side = "ASK")[[1]]
 
     ## Create x axes/limits.
 

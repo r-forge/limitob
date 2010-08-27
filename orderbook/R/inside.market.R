@@ -8,8 +8,8 @@ setMethod("inside.market",
               ## Returns a data frame with a row for the best ask and a row for the
               ## best bid.  The columns are price, size, and type.
 
-              ask <- best.ask(object)
-              bid <- best.bid(object)
+              ask <- best(object, side = "ASK")
+              bid <- best(object, side = "BID")
 
               ## If invis is TRUE it won't print but will return the
               ## inside market object
@@ -36,37 +36,44 @@ setMethod("inside.market",
                                         # argument which allows for
                                         # "bid", "ask" or "both."
 
-best.bid <- function(object, ...){
+best <- function(x, side){
 
-    ## Returns a vector with the price and size of the best bid at the
-    ## current order book state.
+    ## Returns a named vector with the price and size of the best bid
+    ## or ask in orderbook x. Perhaps ought to return this data in
+    ## some other fashion?
+
+    side <- toupper(side)
+    stopifnot(side %in% c("ASK", "BID"))
+    stopifnot(class(x) == "orderbook")
 
 
     ## Pull out current.ob into x.
 
-    x <- object@current.ob
+    x <- x@current.ob
 
-    ## Takes out the bids.
+    ## Takes out the correct side
 
-    x <- x[x[["type"]] == "BID",]
+    x <- x[x[["type"]] == side,]
 
-    ## Return -1 if x is empty, i.e. there are no bids.
+    if(nrow(x) == 0){
 
-                                        # Hate this. Ought to return
-                                        # NA.
-
-    if(identical(nrow(x), 0)){
-
-        return(-1)
+        return(NA)
 
     } else {
 
-        ## Gets indices for the best bid.
+        ## Gets indices for the best bid or ask. Is there some cooler
+        ## way of doing this? Only difference is max for bid and min
+        ## for ask.
 
-        index <- which(x[["price"]] == max(x[["price"]]))
+        if(side %in% "BID"){
+            index <- which(x[["price"]] == max(x[["price"]]))
+        }
+        else{
+            index <- which(x[["price"]] == min(x[["price"]]))
+        }
 
         ## Any of the indices would get us the best price, so we
-        ## just use the first one.
+        ## just use the first one. Better way?
 
         price <- x[["price"]][index[1]]
 
@@ -74,45 +81,15 @@ best.bid <- function(object, ...){
 
         size <- sum(x[["size"]][index])
 
-        ## Return named vector of the best bid price and
+        ## Return named vector of the best bid/ask price and
         ## total size at that price level.
 
         return(c(price = price, size = size))
     }
-}
-
-
-
-best.ask <- function(object, ...){
-
-    ## Returns a vector with the price and size of the best ask at the
-    ## current order book state. See comments above. Code is identical
-    ## except we find min instead of max price.
-
-                                        # What a hack! Only three
-                                        # letters are differennt!
-
-                                        # Easy enough to combine these.
-
-    x <- object@current.ob
-
-    x <- x[x[["type"]] == "ASK",]
-
-    if(identical(nrow(x), 0)){
-
-        return(-1)
-
-    } else {
-
-        index <- which(x[["price"]] == min(x[["price"]]))
-
-        price <- x[["price"]][index[1]]
-        size <- sum(x[["size"]][index])
-
-        return(c(price = price, size = size))
-    }
 
 }
+
+
 
 
 
@@ -124,7 +101,7 @@ setMethod("mid.point",
               ## Returns the midpoint value, which is just the simple average of the
               ## best bid and ask.
 
-              return((best.bid(object)[1] + best.ask(object)[1])/2)
+              return((best(object, side = "BID")[1] + best(object, side = "ASK")[1])/2)
 
           }
           )
@@ -141,14 +118,15 @@ setMethod("spread",
 
               ## Gets best bid and best ask.
 
-              ask = best.ask(object)
-              bid = best.bid(object)
+              ask = best(object, side = "ASK")
+              bid = best(object, side = "BID")
 
               ## If there are either no bids or no asks, then return
-              ## NA. Otherwise return the difference of the bestask
-              ## and best bid.
+              ## NA. Otherwise return the difference of the best ask
+              ## and best bid. Need an NA test case. Ought to be a
+              ## cleaner way to code this.
 
-              if(ask[["price"]] == -1 | bid[["price"]] == -1){
+              if(is.na(ask) || is.na(bid)){
 
                   return(NA)
 

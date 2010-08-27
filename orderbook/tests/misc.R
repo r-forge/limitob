@@ -8,11 +8,11 @@ ob <- read.orders(ob, 5000)
 
 ## Best bid
 
-stopifnot(isTRUE(identical(25.79, best.bid(ob)[[1]])))
+stopifnot(isTRUE(identical(25.79, best(ob, side = "BID")[[1]])))
 
 ## Best ask
 
-stopifnot(isTRUE(identical(25.86, best.ask(ob)[[1]])))
+stopifnot(isTRUE(identical(25.86, best(ob, side = "ASK")[[1]])))
 
 ## Bid Price Levels
 

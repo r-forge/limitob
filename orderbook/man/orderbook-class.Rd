@@ -11,14 +11,15 @@
 \alias{reset,orderbook-method}
 \alias{"[",orderbook,orderbook-method}
 
-% All this duplication is hacky!
+% All this duplication is hacky! Several of these functions deserve
+% their own help files and own test case files. Dumping everything into
+% misc.R for tests is hacky.
 
 \alias{mid.point}
 \alias{inside.market}
 \alias{spread}
 \alias{display}
-\alias{best.ask}
-\alias{best.bid}
+\alias{best}
 \alias{reset}
 \alias{"["}
 

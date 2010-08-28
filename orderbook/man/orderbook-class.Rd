@@ -6,7 +6,11 @@
 \alias{summary,orderbook-method}
 \alias{display,orderbook-method}
 \alias{reset,orderbook-method}
-\alias{"[",orderbook-method}
+\alias{[,orderbook,character,ANY,ANY-method}
+
+% Figured out this last one using promptMethod("[") No idea why it is
+% different from the others. Perhaps they should be changed and the
+% below deleted?
 
 % All this duplication is hacky! Several of these functions deserve
 % their own help files and own test case files. Dumping everything into
@@ -19,7 +23,6 @@
 \alias{summary}
 \alias{display}
 \alias{reset}
-\alias{"["}
 
 \title{Class "orderbook"}
 \description{Functions for manipulating and extractiong information from
@@ -28,8 +31,8 @@ an orderbook}
   Objects can be created by calls to the function \code{orderbook}
 }
 
-% Is this proper formatting for slots? I think we should delete the
-% \code and the :.
+% The formatting for the Slots is the same that Matrix uses. Still seems
+% weird to me.
 
 \section{Slots}{
   \describe{
@@ -62,8 +65,8 @@ an orderbook}
   }
 }
 
-% Is this the way that cool people handle methods? I doubt it.
-% No need for \code for :.
+% Again, the format here is the same as in Matrix. Still looks
+% weird. Note that Matrix does not show [ as a method.
 
 \section{Methods}{
   \describe{
@@ -73,8 +76,10 @@ an orderbook}
     \item{summary}{\code{signature(object="orderbook")}: Prints a
       summary of the \code{orderbook} object.
     }
-    \item{"["}{\code{signature(x = "orderbook", i = "character")}: Prints
-      the orders at that price level.
+    \item{\code{signature(x = "orderbook", i = "character", j = "ANY", drop = "ANY")}}{
+      Prints the orders at that price level.
+    }
+    \item{"["}{\code{signature(x = "orderbook", i = "character", j = "ANY", drop = "ANY")}:
     }
     \item{display}{\code{signature(object="orderbook")}: Prints by
       default the best 5 price levels and corresponding sizes for the bid

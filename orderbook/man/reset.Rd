@@ -23,18 +23,18 @@ reset(x)
   David Kane
 }
 \note{
-Only used by read.time() and read.orders().
+Only used by read.time() and read.messages().
 }
 
 
 \seealso{
-\code{\link{read.time}} and \code{\link{read.orders}}
+\code{\link{read.time}} and \code{\link{read.messages}}
 }
 \examples{
 library(orderbook)
 filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
-ob <- read.orders(ob, 500)
+ob <- read.messages(ob, 500)
 x <- reset(ob)
 }
 \keyword{misc}

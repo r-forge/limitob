@@ -25,7 +25,7 @@
   and asks. If \code{type = "n"} then the orderbook will be plotted with
   price levels on the y-axis, and size on the x-axis. \code{type = "o"}
   is similar, except the number of orders for each price level are
-  plotted. \code{type = "sd"} makes a plot that shows the supply and 
+  plotted. \code{type = "sd"} makes a plot that shows the supply and
   demand curves of the order book.
   }
 \value{
@@ -35,7 +35,7 @@
 library(orderbook)
 filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
-ob <- read.orders(ob, n = 1000)
+ob <- read.messages(ob, n = 1000)
 plot(ob)
 plot(ob, type = "o")
 plot(ob, type = "sd")

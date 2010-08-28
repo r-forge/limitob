@@ -210,7 +210,7 @@ load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
 
     n <- .get.time.row(object@file, time)
 
-    current.ob = .read.orders.multiple(object, n)
+    current.ob = .read.messages.multiple(object, n)
     y.limits = c(Inf, 0)
     max.size = 0
 
@@ -318,7 +318,7 @@ load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
     ## time, as well as the variables that hold the y and x
     ## limits. sub is for the subtitles.
 
-    current.ob <- .read.orders.multiple(object, as.integer(n))
+    current.ob <- .read.messages.multiple(object, as.integer(n))
 
     time <- vector()
     y.limits <- c(Inf, 0)

@@ -111,7 +111,7 @@ midpoint.return <- function(x, trdprice, trdrow, trdtime, time){
 
     ## Get the order book at the rows desired.
 
-    y <- .read.orders.multiple(x, n)
+    y <- .read.messages.multiple(x, n)
 
     ## Get the midpoint when the trade happens
 

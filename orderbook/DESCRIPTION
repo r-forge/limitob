@@ -4,14 +4,18 @@ Title: Orderbook: A package for working with limit orders
 Depends: R (>= 2.11.0), methods, lattice, grid, hash
 Version: 1.1
 Date: 2010-08-25
-Author: Andrew Liu, David Kane, Khanh Nguyen
+Author: Andrew Liu, David Kane
 Maintainer: Andrew Liu <Andrew.T.Liu@williams.edu>
-Description: Functions for visualizing and retrieving data for
-	     the state of an orderbook at a particular period in time.
+Description: Functions for working with orderbook data. An electronic
+	     limit order book is a collection of limit orders, most
+	     commonly seen at stock exchanges. A limit order is an
+	     offer to buy or sell stock at a specific price. The set
+	     of all limit orders for a give stock make up the
+	     orderbook. The orderbook package provides tools for
+	     creating objects of class orderbook as well as
+	     printing/plotting/summarizing those orderbooks. See the
+	     package vignette for more details.
 License: GPL (>= 2)
 LazyLoad: yes
-Repository: R-Forge
+ZipData: No
 Repository/R-Forge/Project: limitob
-Repository/R-Forge/Revision: 157
-Date/Publication: 2010-08-15 08:36:41
-Packaged: 2010-08-16 01:26:09 UTC; andy

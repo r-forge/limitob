@@ -36,14 +36,15 @@ if(!isGeneric("["))
     setGeneric("[", function(x, i)
                standardGeneric("["))
 
-## Do any of these really need to be methods?
+## Do any of these really need to be methods? Should at least combine
+## read.messages and read.time into a single function.
 
-if(!isGeneric("read.orders"))
-    setGeneric("read.orders", function(object, n = 1000) #Why that default?
-               standardGeneric("read.orders"))
+if(!isGeneric("read.messages"))
+    setGeneric("read.messages", function(object, n)
+               standardGeneric("read.messages"))
 
 if(!isGeneric("read.time"))
-    setGeneric("read.time", function(object, t) #Why t?
+    setGeneric("read.time", function(object, time) #Why t?
                standardGeneric("read.time"))
 
 if(!isGeneric("load.animation"))

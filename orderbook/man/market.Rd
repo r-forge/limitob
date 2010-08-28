@@ -44,7 +44,7 @@ David Kane
 library(orderbook)
 filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
-ob <- read.orders(ob, n = 1000)
+ob <- read.messages(ob, n = 1000)
 inside.market(ob)
 o.and.l(ob, side = "BID", type = "orders")
 best(ob, side = "ASK")

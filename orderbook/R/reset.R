@@ -2,7 +2,7 @@ reset <- function(x){
 
     ## Clears current.ob from orderbook x. Does not clear trade data,
     ## my trades, or trade.index. Hmmmm. Necessary? Only used by
-    ## read.time and read.orders.
+    ## read.time and read.messages.
 
     stopifnot(class(x) == "orderbook")
 

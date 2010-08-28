@@ -2,26 +2,26 @@
 
 % n and t are bad argument names
 
-\name{read.order.function}
-\alias{read.orders,orderbook-method}
+\name{read.functions}
+\alias{read.messages,orderbook-method}
 \alias{read.time,orderbook-method}
 
-\alias{read.orders}
+\alias{read.messages}
 \alias{read.time}
 
 \title{read.order}
 \description{Read messages into the object.}
 \usage{
-read.orders(object, n = 1000)
-read.time(object, t)
+read.messages(object, n)
+read.time(object, time)
 }
 \arguments{
-  \item{object}{ Object of class \code{orderbook}}
+  \item{object}{Object of class \code{orderbook}}
   \item{n}{An integer.}
-  \item{t}{A time in HH:MM:SS format.}
+  \item{time}{A time in HH:MM:SS format.}
 }
 \details{The orderbook keeps track of its current position within the
-  data file. The \code{read.orders} function will read and
+  data file. The \code{read.messages} function will read and
   process the next n messages from the input file. The \code{read.time}
   function will process all messsages in the input file before the
   specified time.
@@ -33,7 +33,7 @@ read.time(object, t)
 library(orderbook)
 filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
-ob <- read.orders(ob, 100)
+ob <- read.messages(ob, 100)
 ob <- read.time(ob, "9:30:00")
 }
 \keyword{file}

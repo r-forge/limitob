@@ -17,7 +17,7 @@
   }
 
   \details{This method sorts \code{my.trades} by one of the
-  columns. This is useful after running \code{initialize.trades} for
+  columns. This is useful after running \code{trade.returns} for
   sorting by midpoint or trade weighted average price returns.
 }
 \value{
@@ -27,7 +27,7 @@
 library(orderbook)
 filename <- system.file("extdata", "sample.txt", package = "orderbook")
 ob <- orderbook(file = filename)
-ob <- read.orders(ob, n = 1000)
+ob <- read.messages(ob, n = 1000)
 ob <- sort(ob, by = "time", decreasing = TRUE)
 }
 \keyword{methods}

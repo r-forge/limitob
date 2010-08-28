@@ -94,10 +94,12 @@
     return(as.numeric(x[2]))
 }
 
+## Why do we need these special helper functions? Could they just be
+## integrated into the spot where they are called.
 
-.read.orders.c <- function(ob, n){
+.read.messages.c <- function(ob, n){
 
-    ## .read.orders.c generates the orderbook at a specified number of
+    ## .read.messages.c generates the orderbook at a specified number of
     ## messages.
 
     x <- .Call("readOrders", as.character(ob@file), as.integer(n))
@@ -111,13 +113,13 @@
 
 }
 
-.read.orders.multiple <- function(ob, n){
+## Is this version necessary/useful?
 
-    ## read.orders.multiple does what the above does, but returns a list
-    ## with the orderbook at each row number specified
+.read.messages.multiple <- function(ob, n){
 
-                                        # Do we really need to methods
-                                        # like this?
+    ## read.messages.multiple does what the above does, but returns a
+    ## list with the orderbook at each row number specified. Ought to
+    ## change the name of the C code.
 
     x <- .Call("readOrdersMultiple", as.character(ob@file), as.integer(n))
     x <- lapply(x, .update)

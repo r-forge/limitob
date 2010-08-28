@@ -5,7 +5,7 @@ library(orderbook)
 filename <- system.file("extdata", "sample.txt", package = "orderbook")
 
 ob <- orderbook(file = filename)
-ob <- read.orders(ob, 500)
+ob <- read.messages(ob, 500)
 
 ## Best bid
 

@@ -3,9 +3,9 @@ useDynLib(orderbook, .registration = TRUE)
 importFrom("graphics", plot)
 
 ## I don't think I should be exporting all these. Or should I?
-## best.bid? This could just be a hidden function or something that,
-## in the package, I call explicitly --- using the :: syntax? Or maybe
-## there is a way to export everything by default?
+## inside.market? This could just be a hidden function or something
+## that, in the package, I call explicitly --- using the :: syntax? Or
+## maybe there is a way to export everything by default?
 
 export(
        "orderbook",
@@ -34,7 +34,7 @@ exportMethods(
               "sort",
               "plot",
 
-              "read.orders",
+              "read.messages",
               "read.time",
 
               "load.animation",

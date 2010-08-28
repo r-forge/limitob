@@ -4,7 +4,8 @@ importFrom("graphics", plot)
 
 ## I don't think I should be exporting all these. Or should I?
 ## best.bid? This could just be a hidden function or something that,
-## in the package, I call explicitly --- using the :: syntax?
+## in the package, I call explicitly --- using the :: syntax? Or maybe
+## there is a way to export everything by default?
 
 export(
        "orderbook",
@@ -14,24 +15,27 @@ export(
        "best",
        "inside.market",
        "mid.point",
-       "spread"
+       "spread",
+       "reset",
+       "trade.returns",
+       "midpoint.return",
+       "twap.return"
        )
 
 exportClasses(
               "orderbook"
               )
 
-exportMethods("read.orders",
-              "read.time",
-
+exportMethods(
               "show",
               "summary",
               "[",
               "display",
-              "reset",
               "sort",
               "plot",
-              "initialize.trades",
+
+              "read.orders",
+              "read.time",
 
               "load.animation",
               "animate")

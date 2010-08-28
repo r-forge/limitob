@@ -1,4 +1,3 @@
-                                        # Separate file.
 setMethod("display",
           signature(object = "orderbook"),
           function(object, n = 5, ...){

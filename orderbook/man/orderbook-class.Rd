@@ -2,37 +2,22 @@
 \docType{class}
 \alias{orderbook-class}
 
-\alias{show,orderbook-method}
-\alias{summary,orderbook-method}
-\alias{display,orderbook-method}
-\alias{reset,orderbook-method}
+% Might consider junking all this and just starting again with the
+% output of promptClass("orderbook") once we are done messing with the
+% orderbook class. Looking at the output of things lik promptMethod("[")
+% can also be useful. Also, more test cases!
+
 \alias{[,orderbook,character,ANY,ANY-method}
-
-% Figured out this last one using promptMethod("[") No idea why it is
-% different from the others. Perhaps they should be changed and the
-% below deleted?
-
-% All this duplication is hacky! Several of these functions deserve
-% their own help files and own test case files. Dumping everything into
-% misc.R for tests is hacky. Why do we need to list, say, show() both
-% above (where we mention that it is a method) and below (where we
-% don't)? Perhaps because this allows a simple ?show to do what we want
-% because the R help system is smart?
-
-\alias{show}
-\alias{summary}
-\alias{display}
-\alias{reset}
 
 \title{Class "orderbook"}
 \description{Functions for manipulating and extractiong information from
-an orderbook}
+  an orderbook}
 \section{Objects from the class}{
   Objects can be created by calls to the function \code{orderbook}
 }
 
-% The formatting for the Slots is the same that Matrix uses. Still seems
-% weird to me.
+% The formatting for the Slots is the same as what promptClass()
+% produces, but still seems weird to me.
 
 \section{Slots}{
   \describe{
@@ -65,39 +50,20 @@ an orderbook}
   }
 }
 
-% Again, the format here is the same as in Matrix. Still looks
-% weird. Note that Matrix does not show [ as a method.
+% Only show methods that are not documented in their own files.
 
 \section{Methods}{
   \describe{
-    \item{show}{\code{signature(object = "orderbook")}:
-      Prints basic information about the \code{orderbook} object.
-    }
-    \item{summary}{\code{signature(object="orderbook")}: Prints a
-      summary of the \code{orderbook} object.
-    }
-    \item{\code{signature(x = "orderbook", i = "character", j = "ANY", drop = "ANY")}}{
+    \item{"["}{\code{signature(x = "orderbook", i = "character", j = "ANY", drop = "ANY")}:
       Prints the orders at that price level.
     }
-    \item{"["}{\code{signature(x = "orderbook", i = "character", j = "ANY", drop = "ANY")}:
-    }
-    \item{display}{\code{signature(object="orderbook")}: Prints by
-      default the best 5 price levels and corresponding sizes for the bid
-      and ask.
-    }
-    \item{reset}{\code{signature(object="orderbook")}: Reset the
-     orderbook to its initial state.
-   }
  }
- }
-
+}
 
 
 \examples{
 library(orderbook)
-
 filename <- system.file("extdata", "sample.txt", package = "orderbook")
-
 ob <- orderbook(file = filename)
 ob <- read.orders(ob, 500)
 

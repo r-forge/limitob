@@ -24,8 +24,9 @@ setClass("orderbook", representation(current.ob   = "data.frame",
 
 ## Some of these are plausible methods. Others . . .
 
-## Also, why is show() not generic?
-
+## Also, why is show() not generic? What about summary() and plot()?
+## Why don't they need to be listed here? Do we need to list any of
+## these?
 
 if(!isGeneric("display"))
     setGeneric("display", function(object, n = 5, short = TRUE, ...)
@@ -35,19 +36,7 @@ if(!isGeneric("["))
     setGeneric("[", function(x, i)
                standardGeneric("["))
 
-
-if(!isGeneric("initialize.trades"))
-    setGeneric("initialize.trades", function(object, time = c(5, 300))
-               standardGeneric("initialize.trades"))
-
-
-
 ## Do any of these really need to be methods?
-
-
-if(!isGeneric("reset"))
-    setGeneric("reset", function(object)
-               standardGeneric("reset"))
 
 if(!isGeneric("read.orders"))
     setGeneric("read.orders", function(object, n = 1000) #Why that default?
@@ -61,7 +50,6 @@ if(!isGeneric("load.animation"))
     setGeneric("load.animation", function(object, from, to, fps = 1,
                                          by = "sec", bounds = 0.02)
                standardGeneric("load.animation"))
-
 
 if(!isGeneric("animate"))
     setGeneric("animate", function(object, by = "sec", start = NULL,

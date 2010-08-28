@@ -144,86 +144,12 @@ orderbook <- function(file, trader = TRUE) {
 
 
 
-
-                                        # Don't a lot of these methods
-                                        # belong in their own files,
-                                        # and with better help pages?
-
-setMethod("read.orders",
-          signature(object = "orderbook"),
-          function(object, n = 1000){
-
-              ## The following function reads the next n messages from the file from
-              ## the current location within the orderbook (file.index). Use
-              ## negative n to read previous messages. For example, typing
-              ## read.orders(object, 100) would read 100 rows of the input file.
-
-              stopifnot(is.numeric(n))
-
-              if(identical(n, 0)){
-
-                  ## If user types in 0 for n, do nothing and return
-                  ## object.
-
-                  return(object)
-
-              } else if(n > 0){
-
-                  ## If reading in a positive numver of orders, call
-                  ## the C routine using .read.orders.c.
-
-                  invisible(.read.orders.c(object, object@file.index +
-                                           n))
-
-              } else if(n < 0){
-
-                  ## Then reset the object and read in to
-                  ## object@file.index + n rows. Since n is negative
-                  ## we can add.
-
-                  n <- object@file.index + n
-                  object <- reset(object)
-                  invisible(.read.orders.c(object, n))
-
-              }
-
-          }
-          )
-
-setMethod("read.time",
-           signature(object = "orderbook"),
-           function(object, t){
-
-               ## Reads orders from the file until the time specified. For example,
-               ## read.time(object, "9:30:00") returns the order book at 9:30:00.
-
-               ## .get.time.row will return the row number of the
-               ## first message with time greater than or equal to
-               ## n. .to.ms converts n to milliseconds after midnight.
-
-               t <- .get.time.row(object@file, .to.ms(t))
-
-               ## Reset the object.
-
-               object <- reset(object)
-
-               ## Use read.orders to get to row n.
-
-               invisible(read.orders(object, t))
-
-          }
-          )
-
-
-
-
-                                        # Should use by.var. Check
-                                        # by.var in x@my.trades. Need
-                                        # this function? As a method?
-
 setMethod("sort",
           signature(x = "orderbook"),
           function(x, by, decreasing = TRUE){
+
+              ## Should use by.var. Check by.var in x@my.trades. Need
+              ## this function? As a method?
 
               ## Sort my.trades by a user specified column and resets the
               ## trade.index to 1.
@@ -239,27 +165,6 @@ setMethod("sort",
           }
           )
 
-
-setMethod("reset",
-          signature(object = "orderbook"),
-          function(object){
-
-              ## Clears current.ob, does not clear trade data, my trades, or
-              ## trade.index. Hmmmm. Necessary?
-
-              current.ob <- data.frame(numeric(0), numeric(0),
-                                       character(0), numeric(0), character(0))
-
-              names(current.ob) <- c("price", "size", "type", "time",
-                                     "id")
-
-              object@current.time <- 0
-              object@file.index <- 0
-              object@current.ob <- current.ob
-
-              invisible(object)
-          }
-          )
 
 
 
@@ -290,89 +195,4 @@ setMethod("[",
           }
           )
 
-                                        # Why not just a function?
-
-setMethod("initialize.trades",
-          signature(object = "orderbook"),
-          function(object, time = c(5, 300)){
-
-              ## Initialize Trades--calculate midpoint return/trade
-              ## weighted average price return for all trades in
-              ## my.trades. Takes the object as well as a vector of
-              ## time in seconds to decide the times for finding the
-              ## returns.
-
-              ## Get my trades.
-
-              mytrades <- object@my.trades
-
-              ## Create a list to store the trade returns.
-
-              tradereturns = list()
-
-              ## For each of my trades
-
-              for(i in 1:nrow(mytrades)){
-
-                  ## Find its row, price, and time within the data
-                  ## file
-
-                  trdrow <- mytrades$row[i]
-                  trdprice <- mytrades$price[i]
-                  trdtime <- mytrades$time[i]
-
-                  ## Given that information find the midpoint and twap
-
-                  midpt.ret <- .midpoint.return(object, trdprice,
-                                                trdrow, trdtime, time)
-
-                  tmp <- c(midpt.ret[[1]],
-                           .twap.return(object, trdprice, trdtime,
-                                        time, midpt.ret[[2]]))
-
-                  ## Put that vector into a list
-
-                  tradereturns[[i]] <- tmp
-              }
-
-              ## Turn the list into a matrix
-
-              tmp <- do.call(rbind, tradereturns)
-
-              ## Bind the returns with mytrades
-
-              mytrades <- cbind(mytrades, tmp)
-
-              ## Create a name vector and double the time vector (for
-              ## midpoint and twap)
-
-              names = vector()
-
-              ## Create column names for midpoint
-
-              for(i in 1:length(time)){
-                  names[i] = paste("midpoint", time[i], sep = ".")
-              }
-
-              ## Create column names for twap
-
-              for(i in (length(time) + 1):(length(time) * 2)){
-                  names[i] = paste("twap", time[i - length(time)], sep
-                       = ".")
-              }
-
-              ## Put the names on the data frame
-
-              names(mytrades) <- append(names(mytrades)[1:5], names)
-              rownames(mytrades) <- NULL
-
-              ## Put the new data frame into my trades
-
-              object@my.trades <- mytrades
-
-              ## Return the object
-
-              return(object)
-          }
-          )
 

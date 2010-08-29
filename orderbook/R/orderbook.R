@@ -2,6 +2,14 @@
 ## and the initialization (right word?) function. I think that
 ## everything else should go elsewhere.
 
+## To Do's: change current.ob to x or something simple. current.time
+## should be time. Where do we keep symbol? Probably deserves a slot
+## of its own.
+
+## Problems. Does load.next.trade() do what it is supposed to do?
+## Seems like both time and index are set to zero even though they
+## should not (?) be?
+
 setClass("orderbook", representation(current.ob   = "data.frame",
                                      current.time = "numeric",
                                      file         = "character",
@@ -21,8 +29,8 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                    file.index   = 0,
                    trade.data   = data.frame(),
                    my.trades    = data.frame(),
-                   animation    = list(sec = character(), msg =
-                   character()),
+                   animation    = list(sec = character(),
+                                       msg = character()),
                    trader       = FALSE,
                    trade.index  = 1
                    )

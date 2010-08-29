@@ -21,48 +21,6 @@
 }
 
 
-.combine.size <- function(object, bounds){
-
-                                        #object a good name?
-                                        #Functions should be visible.
-
-    ## Helper function that returns a data frame with the size aggregated
-    ## by price level and with data above 10% on either side of the
-    ## midpoint removed.  Takes an orderbook object as input. Returns
-    ## orderbook object with price, size, and type. Mainly needed for
-    ## plotting.
-
-
-    x <- object@current.ob #Hate that slot name.
-
-                                        #Ought to check that current.ob has these vars.
-
-    ## Save the midpoint
-
-    mid <- mid.point(object)
-
-    ## Removes rows 10% above and below the midpoint.
-
-    x <- x[x[["price"]] < mid*(1 + bounds) &
-           x[["price"]] > mid*(1 - bounds),]
-
-    ## Aggregate by price
-
-    x <- aggregate(x[["size"]], by = list(x[["price"]]), sum)
-
-    names(x) <- c("price", "size")
-
-    ## Rows with price above midpoint are ask, price below midpoint
-    ## are bid.
-
-    x$type[x[["price"]] > mid] <- "ASK"
-    x$type[x[["price"]] < mid] <- "BID"
-
-    return(x)
-}
-
-
-
 .get.time.row <- function(file, n){
 
     ## Returns the row number of the first order after the specified

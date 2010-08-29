@@ -1,10 +1,4 @@
-% Good that an important function has its own .Rd file.
-
-% n and t are bad argument names
-
 \name{read.functions}
-\alias{read.messages,orderbook-method}
-\alias{read.time,orderbook-method}
 
 \alias{read.messages}
 \alias{read.time}
@@ -27,7 +21,7 @@ read.time(object, time)
   specified time.
 }
 \value{
-  Return an object of class \code{orderbook}
+  Return an object of class \code{orderbook}.
 }
 \examples{
 library(orderbook)

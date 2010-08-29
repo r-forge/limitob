@@ -36,24 +36,3 @@ if(!isGeneric("["))
     setGeneric("[", function(x, i)
                standardGeneric("["))
 
-## Do any of these really need to be methods? Should at least combine
-## read.messages and read.time into a single function.
-
-if(!isGeneric("read.messages"))
-    setGeneric("read.messages", function(object, n)
-               standardGeneric("read.messages"))
-
-if(!isGeneric("read.time"))
-    setGeneric("read.time", function(object, time) #Why t?
-               standardGeneric("read.time"))
-
-if(!isGeneric("load.animation"))
-    setGeneric("load.animation", function(object, from, to, fps = 1,
-                                         by = "sec", bounds = 0.02)
-               standardGeneric("load.animation"))
-
-if(!isGeneric("animate"))
-    setGeneric("animate", function(object, by = "sec", start = NULL,
-                                   end = NULL, pause = 0.25, initPause
-                                   = 2)
-               standardGeneric("animate"))

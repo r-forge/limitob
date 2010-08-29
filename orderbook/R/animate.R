@@ -1,94 +1,93 @@
-## There is no (?) reason for all these to be methods, but maybe
-## animate() should be one . . .
+## To do: Delete duplicated code. Combine these together is a sensible
+## way.
 
-## To do: Get rid of the methods. Delete duplicated code. Combine
-## these together is a sensible way.
+animate <- function(object,
+                    by = "sec",
+                    start = NULL,
+                    end = NULL,
+                    pause = 0.25,
+                    initPause = 2){
 
-setMethod("animate",
-          signature(object = "orderbook"),
-          function(object, by = "sec", start = NULL, end = NULL, pause = 0.25, initPause = 2){
+    ## Animate is to be used in conjunction with
+    ## load.trade.animation or load.animation. After an
+    ## animation is created its location is stored in
+    ## object@animation. This function loads the animation
+    ## and uses a for loop to play through it.
 
-              ## Animate is to be used in conjunction with
-              ## load.trade.animation or load.animation. After an
-              ## animation is created its location is stored in
-              ## object@animation. This function loads the animation
-              ## and uses a for loop to play through it.
+    ## Load the trade animation stored in object@animation
+    ## according to type.
 
-              ## Load the trade animation stored in object@animation
-              ## according to type.
+    filename <- object@animation[[by]]
+    load(filename)
 
-              filename <- object@animation[[by]]
-              load(filename)
+    ## Remove "name" slot from the name vector.
 
-              ## Remove "name" slot from the name vector.
+    name <- name[-length(name)]
 
-              name <- name[-length(name)]
+    ## Initial pause
 
-              ## Initial pause
+    Sys.sleep(initPause)
 
-              Sys.sleep(initPause)
+    ## If start is null, then make it 1, otherwise its the
+    ## middle of name - start
 
-              ## If start is null, then make it 1, otherwise its the
-              ## middle of name - start
+    if(is.null(start))
+        start <- 1
+    else
+        start <- ceiling(length(name)/2) - start
 
-              if(is.null(start))
-                  start <- 1
-              else
-                  start <- ceiling(length(name)/2) - start
+    ## If end is null, then make it the length of name,
+    ## otherwise its the middle of name + start
 
-              ## If end is null, then make it the length of name,
-              ## otherwise its the middle of name + start
+    if(is.null(end))
+        end <- length(name)
+    else
+        end <- floor(length(name)/2) + end
 
-              if(is.null(end))
-                 end <- length(name)
-              else
-                 end <- floor(length(name)/2) + end
+    ## Loop through name to print all the objects.
 
-              ## Loop through name to print all the objects.
+    for(i in start:end){
 
-              for(i in start:end){
+        print(get(name[i]))
 
-                  print(get(name[i]))
+        ## Pause during each plot.
 
-                  ## Pause during each plot.
+        Sys.sleep(pause)
+    }
 
-                  Sys.sleep(pause)
-              }
+}
 
-          }
-          )
+load.animation <- function(object,
+                           from,
+                           to,
+                           fps = 1,
+                           by = "sec",
+                           bounds = 0.02){
 
+    ## Create Trellis objects that are used for the animation and save
+    ## them using tempfile(). Put the location of tempfile() in
+    ## orderbook@animation. Can view by message or seconds.
 
+    if(isTRUE(by %in% "sec")){
 
-setMethod("load.animation",
-          signature(object = "orderbook"),
-          function(object, from, to, fps = 1, by = "sec", bounds =
-                   0.02){
+        time <- seq(.to.ms(from), .to.ms(to), 1000/fps)
 
-              ## Create Trellis objects that are used for the animation and save
-              ## them using tempfile(). Put the location of tempfile() in
-              ## orderbook@animation. Can view by message or seconds.
+        ## Run helper function to do the actual creation of
+        ## the Trellis objects.
 
-              if(isTRUE(by %in% "sec")){
+        invisible(.animate.seconds(object, time, bounds))
 
-                  time <- seq(.to.ms(from), .to.ms(to), 1000/fps)
+    } else if(isTRUE(by %in% "msg")){
 
-                  ## Run helper function to do the actual creation of
-                  ## the Trellis objects.
+        ## Run helper function to do actual creation of the
+        ## Trellis objects.
 
-                  invisible(.animate.seconds(object, time, bounds))
+        invisible(.animate.orders(object, seq(from, to),
+                                  bounds))
 
-              } else if(isTRUE(by %in% "msg")){
+    }
+}
 
-                  ## Run helper function to do actual creation of the
-                  ## Trellis objects.
-
-                  invisible(.animate.orders(object, seq(from, to),
-                                            bounds))
-
-              }
-          }
-          )
 
 
 .load.trade.animation <- function(object, tradenum, before = 30, after = 30, fps = 1, by =
@@ -231,7 +230,7 @@ load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
 
         object@current.ob <- current.ob[[i]]
 
-        x <- .combine.size(object, 1)
+        x <- agg.price.levels(object, bounds = 1, kind = "shares")
         mid <- mid.point(object)
 
         ## Find the min ask and max bid price for this current.ob
@@ -253,7 +252,7 @@ load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
 
         ## Find the max size for this current.ob
 
-        tmp.max.size <- max(x$size[x$price <= y.limits[2] & x$price >=
+        tmp.max.size <- max(x$shares[x$price <= y.limits[2] & x$price >=
                                    y.limits[1]])
 
         ## Check to see if the x limits are bigger/smaller than the
@@ -333,7 +332,7 @@ load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
 
         time[i] <- max(current.ob[[i]]$time)
 
-        x <- .combine.size(object, 1)
+        x <- agg.price.levels(object, bounds = 1, kind = "shares")
         mid <- mid.point(object)
 
         ## Find the min ask and max bid price for this current.ob
@@ -355,8 +354,8 @@ load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
 
         ## Find the max size for this current.ob
 
-        tmp.max.size <- max(x$size[x$price < y.limits[2] & x$price >
-                                   y.limits[1]])
+        tmp.max.size <- max(x$shares[x$price < y.limits[2] & x$price >
+                                     y.limits[1]])
 
         ## Check to see if the x limits are bigger/smaller than the
         ## existing ones.

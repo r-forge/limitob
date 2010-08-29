@@ -22,7 +22,7 @@
 \section{Slots}{
   \describe{
     \item{\code{current.ob}:}{A \code{data.frame} containing the current state
-      of the orderbook.
+      of the orderbook.  % Hate this slot name.
     }
     \item{\code{current.time}:}{A \code{numeric} in milliseconds after
       midnight that indicates the time of \code{current.ob}.

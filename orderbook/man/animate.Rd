@@ -1,10 +1,8 @@
 % This seems hacky. Shouldn't a lot of this be in separate files?
 % Also, why the need for two aliases for, sat, load.animation?
 
-\name{animate.function}
+\name{animatation.functions}
 
-\alias{animate,orderbook-method}
-\alias{load.animation,orderbook-method}
 
 \alias{animate}
 \alias{load.animation}
@@ -32,14 +30,12 @@ animate(object, by = "sec", start = NULL, end = NULL, pause = 0.25,
 
 }
 \arguments{
-  \item{object}{ Object of class \code{orderbook}
+  \item{object}{Object of class \code{orderbook}
   }
-  \item{from}{
-    The start time of the animation in the form
+  \item{from}{The start time of the animation in the form
     \code{HH:MM:SS}.
   }
-  \item{to}{
-    The end time of the animation in the form
+  \item{to}{The end time of the animation in the form
     \code{HH:MM:SS}.
   }
   \item{fps}{
@@ -82,14 +78,14 @@ animate(object, by = "sec", start = NULL, end = NULL, pause = 0.25,
     seconds before or after the trade.
 
     \code{.load.next.trade} uses the \code{trade.index} to load the next
-  trade. Users can easily go through trades in order, or use \code{sort}
-  to sort the trades and view them in a different
-  order.
+    trade. Users can easily go through trades in order, or use \code{sort}
+    to sort the trades and view them in a different
+    order.
 
-  \code{.load.previous.trade} decrements the \code{trade.index}.
+    \code{.load.previous.trade} decrements the \code{trade.index}.
 
-  \code{animate} plays the animation. Only two animations can be stored at
-  once--one for messages and one for seconds.
+    \code{animate} plays the animation. Only two animations can be stored at
+    once--one for messages and one for seconds.
 
   }
 \value{

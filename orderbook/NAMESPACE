@@ -19,7 +19,12 @@ export(
        "reset",
        "trade.returns",
        "midpoint.return",
-       "twap.return"
+       "twap.return",
+       "read.messages",
+       "read.time",
+       "load.animation",
+       "animate",
+       "agg.price.levels"
        )
 
 exportClasses(
@@ -32,10 +37,4 @@ exportMethods(
               "[",
               "display",
               "sort",
-              "plot",
-
-              "read.messages",
-              "read.time",
-
-              "load.animation",
-              "animate")
+              "plot")

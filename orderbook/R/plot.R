@@ -1,45 +1,39 @@
-## Need to think hard about the three different choices we have for
-## functions: hidden, normal and methods. I *think* that methods
-## should only be used for true generics, like plot(), summary(),
-## show() and so on. I *think* that hiddens should only be used for
-## functions that the user should never call directly. Everything else
-## should just be a normal function.
+## Plotting is currently a mess. Get rid of the duplicate code. Split
+## these up into separate files? Make the hidden plot functions
+## visible to the user? How do I ensure that the help for plot is easy
+## to access? Should plot() be a generic or just a regular function?
 
 setMethod("plot",
           signature(x = "orderbook"),
-          function(x, bounds = 0.1, n = 10, type = "n"){
+          function(x, type = "n", bounds = 0.1, n = 10){
 
-              ## Plot calls helper plot methods. See orderbook.plot.R for more
-              ## details.
+              ## Plot calls helper plot methods.
+
+              stopifnot(type %in% c("n", "o", "sd", "s"))
 
               ## Check the type of plot the user wants then calls the
               ## helper function. Most plot helper functions return a
               ## Trellis object that we need to print.
 
-              if(isTRUE(type %in% "n")){
+              if(type %in% c("n", "o")){
 
                   ## Plots the size of the orders at each bid and ask
                   ## independently.
 
-                  tmp <- .plot.ob(x, bounds)
+                  tmp <- .plot.ob(x, type = type, bounds = bounds)
                   print(tmp)
 
-              } else if(isTRUE(type %in% "s")){
+              } else if(type %in% "s"){
 
                   ## Plots the size of each level of bid and ask
                   ## together. ie. best bid and best ask are the same
-                  ## level.
+                  ## level. Note the hack that this prints
+                  ## automatically and then messes with the
+                  ## plot. Ought to fix this.
 
                   .plot.side.ob(x, n)
 
-              } else if(isTRUE(type %in% "o")){
-
-                  ## Plots the number of orders at each bid and ask.
-
-                  tmp <- .plot.orders.ob(x, bounds)
-                  print(tmp)
-
-              } else if(isTRUE(type %in% "sd")){
+              } else if(type %in% "sd"){
 
                   ## Graphs the normalized price against normalized
                   ## size to reflect a supply/demand curve.
@@ -47,37 +41,43 @@ setMethod("plot",
                   tmp <- .supply.demand.plot(x, bounds)
                   print(tmp)
 
-              } else {
-
-                  print("Invalid type")
-
               }
           }
           )
 
 
-
-
-.plot.ob <-function(object, bounds){
+.plot.ob <-function(object, type, bounds){
 
     ## Plots the orderbook object at current time. Displays Bids on
     ## the left and Asks on the right with Price and Size on the Y-
-    ## and X-axes, respectively.  Only prices within 10% above and
-    ## below the midpoint value are shown.
+    ## and X-axes, respectively.  Only prices within bounds % above
+    ## and below the midpoint value are shown. type can be either "n"
+    ## or "o".
 
+    stopifnot(type %in% c("n", "o"))
 
-    ## Use combine size to find the total size at each price level. This
-    ## function returns a data frame. Also get the names for the columns.
+    if(type %in% c("o")){
 
-    x <- .combine.size(object, bounds)
+        x <-  agg.price.levels(object, bounds = bounds, kind = "orders")
+        var <- "orders"
+
+    } else{
+
+        ## Find the total size at each price level.
+
+        x <- agg.price.levels(object, bounds = bounds, kind = "shares")
+        var <- "shares"
+    }
 
     ## If there is nothing on the orderbook, stop
+
     stopifnot(nrow(x)>0)
+
 
     ## Maximum size, max/min price and difference between the max
     ## and min price for purposes of drawing the axes.
 
-    max.size <- max(x[["size"]])
+    max.size <- max(x[[var]])
 
     min.price <- min(x[["price"]])
     max.price <- max(x[["price"]])
@@ -136,13 +136,18 @@ setMethod("plot",
     ## on the left side of the plot.
 
     x[["type"]] <- ordered(x[["type"]], levels = c("BID",
-                                                  "ASK"))
+                                        "ASK"))
 
     ## Actually plotting it.
 
-    tmp <- xyplot(price~size|type, data = x,
+    ## x labels are (nicely) tilted when we have big numbers for
+    ## shares, but only (unecessarily) titled when we have small
+    ## numbers for orders. Did I cause this by getting rid of the
+    ## .plot.orders.on() hack?
 
-                  ylab = "Price", xlab = "Size (Shares)",
+    tmp <- xyplot(price ~ get(var) | type, data = x,
+
+                  ylab = "Price", xlab = var,
 
                   main = paste("Order Book",
                   .to.time(object@current.time), sep = " - "),
@@ -167,13 +172,20 @@ setMethod("plot",
 
 }
 
-## Plot top ask vs top bid, 2nd best ask vs 2nd best bid, etc.
+
 
 .plot.side.ob <-function(object, n){
 
+    ## Plot top ask vs top bid, 2nd best ask vs 2nd best bid, etc. Not
+    ## even sure that we care about this plot, although an animation using
+    ## it might be interesting . . . allowing one to see more directly
+    ## changes in orderbook balance.
+
+    ## Maybe change the scheme so that the bids are below the asks.
+
     ## Aggregate the size at each price level
 
-    x <- .combine.size(object, 1)
+    x <- agg.price.levels(object, bounds = 1, kind = "shares")
 
     ## Find the midpoint
 
@@ -186,15 +198,11 @@ setMethod("plot",
     ## take the first 1 to k, where k is the smaller of n (user
     ## specified) or the number of rows in ask (we don't want errors).
 
-    ask <- x[x[["type"]] == "ASK",]
-    k <- min(n, nrow(ask))
-    ask <- ask[1:k,]
+    ask <- tail(x[x$type == "ASK",], n = n)
 
     ## Create a bid data frame, we take bids from the bottom and up, since it is also sorted in ascending order.
 
-    bid <- x[x[["type"]] == "BID",]
-    k <- min(n, nrow(bid))
-    bid <- bid[(nrow(bid) - k + 1):nrow(bid),]
+    bid <- head(x[x$type == "BID",], n = n)
 
     ## Rbind them together.
 
@@ -205,9 +213,9 @@ setMethod("plot",
     ## but shares at 25.66 and 25.68. This creates an entry for all
     ## price levels between the max and min.
 
-    y <- data.frame(price = c(seq(ask[1,1], ask[1,1] + (n-1)/100, .01), # Better way to do this?
-                    seq(bid[nrow(bid),1],
-                        bid[nrow(bid),1] - (n-1)/100, -.01)),
+    y <- data.frame(price = c(seq(ask[nrow(ask), 1], ask[nrow(ask), 1] + (n - 1)/100, .01), # Better way to do this?
+                    seq(bid[1, 1],
+                        bid[1, 1] - (n - 1)/100, -.01)),
                     y = c(seq(n, 1, -1)))
 
     ## Remove numerical inaccuracies.
@@ -220,7 +228,7 @@ setMethod("plot",
 
     ## Setting x-axis limits and labels.
 
-    max.size <- ceiling(max(x[["size"]], na.rm = TRUE))
+    max.size <- ceiling(max(x$shares, na.rm = TRUE))
 
     x.at <- pretty(c(0, max.size))
     x.limits <- c(0, x.at[length(x.at)])
@@ -258,7 +266,7 @@ setMethod("plot",
 
     ## Actually plot it.
 
-    tmp <- barchart(y ~ size, data = x, groups = x$type, auto.key = TRUE,
+    tmp <- barchart(y ~ shares, data = x, groups = x$type, auto.key = TRUE,
                     ylab = "Bid Price Levels", xlab = "Size (Shares)",
                     main = "Order Book", par.settings = new.par.settings,
                     yscale.components = new.yscale.components,
@@ -271,7 +279,10 @@ setMethod("plot",
 
     plot(tmp)
 
-    ## Draw the second axis label.
+    ## Draw the second axis label. Total hack to print this and then
+    ## manipulate the plot! Very different from the other plotting
+    ## helper functions which just create a plot and pass it back for
+    ## printing.
 
     trellis.focus("panel", 1, 1, clip.off = TRUE, highlight = FALSE)
     grid.text("Ask Price Levels", x = 1.14, rot = 90)
@@ -279,143 +290,24 @@ setMethod("plot",
 
 }
 
-                                        # ARRRRGGGGHHHHHH!
 
-.plot.orders.ob <-function(object, bounds){
-
-    ## Same as plot.ob, except # of orders instead of shares at each
-    ## price level.
-
-    x <- object@current.ob
-
-    ## We only want data within our bounds
-
-    x <- x[(x[["price"]] < mid.point(object)*(1+bounds)
-            & x[["price"]] > mid.point(object)*(1-bounds)),]
-
-    ## Create data.frame with price level, number of orders, and type
-
-    ask <- x[x[["type"]] == "ASK",]
-    bid <- x[x[["type"]] == "BID",]
-
-    ask <- data.frame(table(ask[["price"]]))
-    bid <- data.frame(table(bid[["price"]]))
-
-    ask <- cbind(ask, rep("ASK", nrow(ask)))
-    bid <- cbind(bid, rep("BID", nrow(bid)))
-
-    names(ask) <- c("price", "Orders", "type")
-    names(bid) <- names(ask)
-
-    x <- rbind(ask, bid)
-    x[["price"]] <- as.numeric(levels(x[["price"]]))
-
-    ## Maximum orders, max/min price. and difference between the max
-    ## and min price for purposes of drawing the axes.
-
-    max.orders <- ceiling(max(x[["Orders"]]))
-
-    min.price <- min(x[["price"]])
-    max.price <- max(x[["price"]])
-    midpoint <- mid.point(object)
-
-    bestbid <- best(object, side = "BID")[[1]]
-    bestask <- best(object, side = "ASK")[[1]]
-
-    ## Create x axes/limits.
-
-    x.at <- pretty(c(0, max.orders))
-    x.limits <- list(c(x.at[length(x.at)], 0),
-                     c(0, x.at[length(x.at)]))
-
-    ## Creating the y axis values.
-
-    tmp.at <- c(pretty(c(min.price, max.price), n = 10), bestbid, bestask)
-    tmp.at <- sort(tmp.at)
-
-    yask.at <- tmp.at[tmp.at > midpoint]
-    ybid.at <- tmp.at[tmp.at < midpoint]
-
-    ## Remove y-axis labels if they are too close to the best bid or
-    ## best ask
-
-    space = (max.price - min.price)/20
-
-    if(yask.at[1] + space > yask.at[2])
-        yask.at = yask.at[-2]
-
-    if(ybid.at[length(ybid.at)] - space < ybid.at[length(ybid.at) - 1])
-        ybid.at = ybid.at[-(length(ybid.at) - 1)]
-
-    new.yscale.components <- function(...) {
-        ans <- yscale.components.default(...)
-        ans$right <- ans$left
-
-        ans$left$ticks$at <- ybid.at
-        ans$left$labels$at <- ybid.at
-        ans$left$labels$labels <- formatC(ybid.at, format = "f",
-                                          digits = 2)
-
-        ans$right$ticks$at <- yask.at
-        ans$right$labels$at <- yask.at
-        ans$right$labels$labels <- formatC(yask.at, format = "f",
-                                           digits = 2)
-        ans
-    }
-
-    ## Ordering the levels so Bid comes before Ask.
-
-    x[["type"]] <- ordered(x[["type"]],
-                           levels = c("BID", "ASK"))
-
-    ## Actually plotting it.
-
-    tmp <- xyplot(x[["price"]]~x[["Orders"]]|x[["type"]], data = x,
-
-                  ylab = "Price", xlab = "Number of Orders",
-
-                  main = paste("Order Book",
-                  .to.time(object@current.time), sep = " - "),
-
-                  scales = list(x = list(relation = "free",
-                                limits = x.limits,
-                                at = x.at,
-                                axs = "i"),
-                  y = list(alternating = 3)),
-
-                  yscale.components = new.yscale.components,
-
-                  panel = function(...){
-                      panel.xyplot(...)
-                      panel.lines(..., type = "H")
-                  }
-                  )
-
-    ## Return the Trellis object
-
-    invisible(tmp)
-
-}
-
-
-
-
-                                        # Separate file.
 
 .supply.demand.plot <- function(object, bounds){
 
     ## Plots normalized supply and demand for the order book following
     ## Cao.
 
-    ## Find the size at each price level using .combine.size.
+    ## Find the size at each price level.
 
-    x <- .combine.size(object, bounds)
+    x <- agg.price.levels(object, bounds = bounds, kind = "shares")
 
     ## Pull out all the asks.
 
     ask <- x[x$type == "ASK",]
+    ask <- ask[order(ask$price),]
 
-    ## Pull out all the bids and sort the price by decreasing order.
+    ## Pull out all the bids. Note the bids have been sorted correctly
+    ## by agg.price.levels but we resort anyway.
 
     bid <- x[x$type == "BID",]
     bid <- bid[order(bid$price, decreasing = TRUE),]
@@ -433,8 +325,8 @@ setMethod("plot",
     ## Normalize the sizes by dividing the cumulative size at each
     ## price level by the total size on the side.
 
-    ask$size <- cumsum(ask$size)/sum(ask$size)
-    bid$size <- cumsum(bid$size)/sum(bid$size)
+    ask$shares <- cumsum(ask$shares)/sum(ask$shares)
+    bid$shares <- cumsum(bid$shares)/sum(bid$shares)
 
     ## Rbind it all together.
 
@@ -447,7 +339,7 @@ setMethod("plot",
 
     ## Cast size and price as numeric.
 
-    x$size <- as.numeric(x$size)
+    x$shares <- as.numeric(x$shares)
     x$price <- as.numeric(x$price)
 
     ## Define the x and y limits/labels. This is done according to
@@ -463,9 +355,9 @@ setMethod("plot",
 
     ## Actually plot and return.
 
-    tmp <- xyplot(x$price ~ x$size, data = x, groups = x$type, type =
+    tmp <- xyplot(x$price ~ x$shares, data = x, groups = x$type, type =
                   "S", ylab = "Price (%)",
-                  xlab = "Size (%)", main = "Supply and Demand", sub =
+                  xlab = "Shares (%)", main = "Supply and Demand", sub =
                   .to.time(object@current.time),
                   scales = list(
 

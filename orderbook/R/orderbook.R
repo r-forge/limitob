@@ -21,7 +21,13 @@ setClass("orderbook", representation(current.ob   = "data.frame",
                                      trade.index  = "numeric"
                                      ),
 
-         ## Orderbook class. Shouldn't we have more documentation.
+         ## Orderbook class. We need a lot more documentation? Why
+         ## these slots? What do they do? What other schemes did we
+         ## consider? What might we want to change soon?
+
+         ## Key big picture decision concerns how much we calculate
+         ## ahead of time and how much we only calculate if the user
+         ## asks for it.
 
          prototype(current.ob   = data.frame(),
                    current.time = 0, # Use first time in file.
@@ -40,6 +46,9 @@ setClass("orderbook", representation(current.ob   = "data.frame",
 ## (messages) placed for one stock on a given day.  In order to
 ## recreate the order book at a given time, all messages up to that
 ## point are incorporated.
+
+## We need to revisit the
+
 
 orderbook <- function(file, trader = TRUE) {
 

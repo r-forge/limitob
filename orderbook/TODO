@@ -1,2 +1,62 @@
-- write examples
-- vignette
+-------------
+Andy
+
+Revisit animation. Documentation needs to be better. Code should
+be *much* faster. Try not to mess around with the slots on the
+orderbook class until we talk about it. When creating an animation,
+figure out the start time. Then load the orderbook to that
+moment. Then process new messages into that orderbook, modifying it in
+place. Write out plots on whatever the desired schedule is. This may
+require some new methods (and slots?) in the orderbook. Something like:
+
+ob <- iterate(ob, sec = 2)
+
+would take an orderbook (which has already been processed to row n in
+the input file) and then process the next two seconds worth of
+messages, giving us a new orderbook which is just two seconds
+later. Similarly,
+
+ob <- iterate(ob, msg = 5)
+
+would do the same thing, but in "msg time," not clock time. Once you
+have those functions, it becomes easy (?!) to create a loop which
+iterates through either time or msgs, writes out a plot at each
+moment, until it gets to the end. Then, the animation just loops
+through those plots.
+
+Needless to say, we want these functions to be very fast.
+
+Also, where is the format of the input file documented? I know we
+discuss this (quickly!) in the vignette, but this should also be
+spelled out clearly in the code and the help pages. We may want to
+revisit this format.
+
+-------------
+Andrew L
+
+Look at returns.R. See extensive discussion in that file. We need
+several new functions, the lowest level ones have no necessary
+connection to orderbook objects. Conceptually, I should be able to
+calculate the midpoint return for
+
+-------------
+Andrew B
+
+You should start by familiarizing yourself with SVN (first three
+chapters of Red Bean book) and then downloading the source from
+R-forge. You will start out as a user. Can you get all the parts of
+the package to work for you? Do the animations play? Can you
+understand all the code?
+
+I suspect that your first substantive project wil involve working with
+the BATS data, but more on that later.
+
+-------------
+David
+
+Revisit the class design. What should the slots be called? Do we
+really need all of them? What should the format of the input data be?
+We should probably provide a way to read data from BATS directly.
+
+Start playing with the bats data. We should start a new project at
+R-forge called "bats."

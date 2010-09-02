@@ -1,6 +1,64 @@
 ## Return calculations. Need some test cases. Should probably be
 ## visible.
 
+## Problems with this code: 1) The functions do too much. Each one
+## ought to be broken up into separate parts.
+
+## 2) Everything depends on input from an orderbook object. That is
+## too hard for test cases and debugging. Instead, there should be two
+## low level functions: midpoint.ret.df and twap.ret.df. Each of these
+## takes a data frame (or two) as its inputs. It checks to make sure
+## that those data frames have all the information they need. Then it
+## calculates the appropriate return. (The df stands for data frame,
+## but maybe that is a silly name.)
+
+## Ideas: Both functions should be able to take input that consists of
+## only a singe trade or two. That makes test cases easy. But, they
+## also need to be handle hundreds of trades (probably passed in as a
+## data frame) so that we can use them in a production
+## setting. (Although keep in mind that, relative to the difficult
+## computational tasks in orderbook, these calculations are trivial.)
+
+## So, both functions take a data frame of trades. But they also need
+## to take a data frame of prices (or at least the mid point return
+## does). We need to think about where these returns come from and how
+## they are formatted. Again, we don't want to pass in an entire
+## orderbook. In fact, we will need other functions which do take an
+## orderbook object and, from that object, create the set of
+## information that is passed to the return calculation functions.
+
+## We need to worry about corner cases. (And we need to have test
+## cases which cover corner cases. For example, what happens if the
+## data we have ends at 4:00 PM, and we have a trade that occurs at
+## 3:59, and then we want to know the five minite mid.point return for
+## that trade? There is no right answer to this question, but the
+## functions need to discuss this explicitly and provide at least two
+## options for how to deal with this: First, return NA for any return
+## calculation which uses data we do not have. Second (and probably
+## the default) to provide a return for as much data as we have (in
+## this case, giving back the 1 minute return even thought the user
+## asks for the 5 minute return.
+
+## So: We have function(s) that take an orderbook object and return
+## the data that twap and midpoint returns need. We have functions
+## that take this data and calculate returns. Then we have larger
+## "wrapper" functions (similar to what we have now) that take an
+## orderbook object, use these helper functions, and return an otrder
+## book object with new data in the my.trades slot (if that is where
+## this sort of stuff ought to go).
+
+## Another topic. We need summary functions that use trade data to
+## tell us more about an orderbook. How much trading was done? How
+## profitable was that? This sort of information might also go in
+## summary(), at least when the orderbook is of type trader.
+
+## Note how "return" is calculated here. Not the normal way, but in
+## pennies. In other words, a one penny move in a $10 stock makes us
+## as much money as a one penny move in a $40 stock even though the
+## return in the second is much less. In HFT land, the equity you
+## needed to take the position is (almost) irrelevant. Anyway, we want
+## our return functions to have options for working both ways.
+
 trade.returns <-function(x, time = c(5, 300)){
 
     ## Initialize Trades--calculate midpoint return/trade

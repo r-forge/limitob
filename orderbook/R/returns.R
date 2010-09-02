@@ -1,8 +1,10 @@
 ## Return calculations. Need some test cases. Should probably be
 ## visible.
 
-## Problems with this code: 1) The functions do too much. Each one
-## ought to be broken up into separate parts.
+## Problems with this code:
+
+## 1) The functions do too much. Each one ought to be broken up into
+## separate parts.
 
 ## 2) Everything depends on input from an orderbook object. That is
 ## too hard for test cases and debugging. Instead, there should be two
@@ -11,6 +13,15 @@
 ## that those data frames have all the information they need. Then it
 ## calculates the appropriate return. (The df stands for data frame,
 ## but maybe that is a silly name.)
+
+## The test cases for these functions should NOT use the same data
+## that is in out standard sample, at least as a first pass. That data
+## is too complex and confusing. Instead, you should construct an
+## input file BY HAND that is very simple, sort of like the example
+## that is used in the vignette. This would just have a handful of
+## limit orders, cancellations and trades. But it will be maximally
+## easy for anyone to see what is going on. Then, use this orderbook
+## as input to calculate various returns.
 
 ## Ideas: Both functions should be able to take input that consists of
 ## only a singe trade or two. That makes test cases easy. But, they
@@ -58,6 +69,7 @@
 ## return in the second is much less. In HFT land, the equity you
 ## needed to take the position is (almost) irrelevant. Anyway, we want
 ## our return functions to have options for working both ways.
+
 
 trade.returns <-function(x, time = c(5, 300)){
 

@@ -2,6 +2,7 @@
 ## these up into separate files? Make the hidden plot functions
 ## visible to the user? How do I ensure that the help for plot is easy
 ## to access? Should plot() be a generic or just a regular function?
+## Why do we need to export anything from the graphics package?
 
 setMethod("plot",
           signature(x = "orderbook"),

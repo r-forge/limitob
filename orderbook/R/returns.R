@@ -87,7 +87,16 @@ trade.returns <-function(x, time = c(5, 300)){
 
     tradereturns = list()
 
-    ## For each of my trades
+    ## For each of my trades.
+
+    ## Arrgg. This code is ugly. You don't want to loop through every
+    ## trade unless you really have to. Instead, process all the
+    ## trades as a group. (We should save fixing this for the end of
+    ## the process.)
+
+    ## And, if looping is necessary, allocate all the necessary space
+    ## at the beginning (whether in a list of data frame) rather than
+    ## extending the object each time through.
 
     for(i in 1:nrow(mytrades)){
 

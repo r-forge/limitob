@@ -30,7 +30,7 @@ setClass("orderbook", representation(current.ob   = "data.frame",
          ## asks for it.
 
          prototype(current.ob   = data.frame(),
-                   current.time = 0, # Use first time in file.
+                   current.time = 0,
                    file		= character(),
                    file.index   = 0,
                    trade.data   = data.frame(),
@@ -47,7 +47,8 @@ setClass("orderbook", representation(current.ob   = "data.frame",
 ## recreate the order book at a given time, all messages up to that
 ## point are incorporated.
 
-## We need to revisit the
+## We need to revisit the way that the orderbook iterates through
+## time.
 
 
 orderbook <- function(file, trader = TRUE) {

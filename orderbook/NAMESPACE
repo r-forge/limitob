@@ -1,38 +1,16 @@
+## What does this line accomplish?
+
 useDynLib(orderbook, .registration = TRUE)
 
 importFrom("graphics", plot)
 
-## I don't think I should be exporting all these. Or should I?
-## inside.market? This could just be a hidden function or something
-## that, in the package, I call explicitly --- using the :: syntax? Or
-## maybe there is a way to export everything by default?
+## Anything wrong with exporting all the non-hidden functions?
 
-export(
-       "orderbook",
-       "o.and.l",
-       "load.next.trade",
-       "load.previous.trade",
-       "best",
-       "inside.market",
-       "mid.point",
-       "spread",
-       "reset",
-       "trade.returns",
-       "midpoint.return",
-       "twap.return",
-       "read.messages",
-       "read.time",
-       "load.animation",
-       "animate",
-       "agg.price.levels"
-       )
+exportPattern("^[^\\.]")
 
-exportClasses(
-              "orderbook"
-              )
+exportClasses("orderbook")
 
-exportMethods(
-              "show",
+exportMethods("show",
               "summary",
               "[",
               "display",

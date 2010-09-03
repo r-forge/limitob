@@ -31,13 +31,27 @@ discuss this (quickly!) in the vignette, but this should also be
 spelled out clearly in the code and the help pages. We may want to
 revisit this format.
 
+Also, do we really need both readOrders.c and readOrdersMultiple.c? I
+realize (and agree) that we need some c code, but we want that c code
+to be as simple and contained as possible.
+
+In that vein, do we need retrieveTimeRow.c? It has been a *long* time
+since I programmed in C. But, first, I would have thought that this
+does more or less the same thing as readOrders, so we can just give
+the former another argument. (I am also having trouble figuring out
+how this function works. Comments, please.) Second, even to the extent
+that we need a separate function, wouldn't an R function go almost as
+fast?
+
 -------------
 Andrew L
 
 Look at returns.R. See extensive discussion in that file. We need
 several new functions, the lowest level ones have no necessary
 connection to orderbook objects. Conceptually, I should be able to
-calculate the midpoint return for
+calculate the midpoint return without worrying about an orderbook
+object. The tricky part, obviously, is dealing with time in a sensible
+fashion.
 
 -------------
 Andrew B
@@ -48,15 +62,94 @@ R-forge. You will start out as a user. Can you get all the parts of
 the package to work for you? Do the animations play? Can you
 understand all the code?
 
-I suspect that your first substantive project wil involve working with
-the BATS data, but more on that later.
+The first real project would be to add some test cases for spread(),
+inside.market(), best() and some of the other basic functions. What do
+these functions do with NA data? (They should produce something
+sensible.) Once they do, we need test cases which check that behavior.
 
 -------------
 David
 
 Revisit the class design. What should the slots be called? Do we
-really need all of them? What should the format of the input data be?
-We should probably provide a way to read data from BATS directly.
+really need all of them?
 
-Start playing with the bats data. We should start a new project at
-R-forge called "bats."
+0) Rename "current.ob" to "x". "current.time" should be, at least,
+just "time." And perhaps it ought to be a date-time. We certainly want
+to be able to tell the user what date it is. (Conclusion: date-time,
+probably posixCt).
+
+1) Definately need a slot for symbol. That info needs to be in the
+summary and plots.
+
+2) "file" and "file.index" are well named and well designed, at least
+if they allow for easy iteration through the file.
+
+3) I guess that "trader" is OK, although I dislike the name. It
+certainly seems like an orderbook with my trades will be quite
+different than an orderbook without my trades, so different that we
+need a slot to distinguish between the two cases, and thus make things
+easier for summary() et al.
+
+4) I leave "animation" to Andy for now. Animations certainly merit a
+slot of their own and using a list to capture all the necessary
+information makes sense.
+
+5) I don't understand how "trade.data", my.trades and trade.index
+interact with each other. My *sense* is that trade information should
+all go in a single slot with a data frame in it. Let's wait for Andrew
+to fix some of the underlying trade code before revisiting this.
+
+6) When initially creating an orderbook, use first time in file for
+current.time even if we have not processed any of the orders in the
+file as of yet.
+
+What should the format of the input data be?
+
+1) I guess that demanding symbol is wasteful, but perhaps it is still
+a good idea. That makes filling in the symbol slot easy. Given that
+all users will need to create the input file by hand anyway, there is
+little cost to having them include symbol.
+
+2) Why should time be in milliseconds since midnight? I know that this
+is what we use, but other (potential) users do not have the data to
+this granularity. And some other data, like BATS, comes in with
+nano-second accuracy. We want to be that accurate if the data
+allows. Having a human readable time of some kind might be useful.
+
+3) What about date? We certainly want to know that. We could make the
+time column include an entire date, but that seems crazy. Perhaps we
+need a header row in the file that would, at least, give symbol and
+date. (Maybe other stuff as well, like exchange or time zone? These
+could (all?) be optional.)
+
+4) Perhaps we should spell out the first column, or at least allow for
+ADD in place of A, CANCEL in place of C and so on. (Needless to say,
+we need lots of error checking on the input file. I bet we don't have
+any now.) I like that we require BID and ASK in the
+
+5) Is there a widely used XML format, perhaps related to FIX that we
+might either require or support? I doubt that we want to go this way,
+at least until we study up on BATS, INET, EDGE and so on. But it is
+worth knowing a lot more about this.
+
+6) What is this "a" and "b" stuff in the last column? I am confused.
+
+7) Using TRUE/FALSE for whether or not a trade is ours is
+excessive. First, TRUE is too long. T is enough, or M(y). Second, I am
+not sure we need to list T and F. If we don't put a T, then we assume
+that the trade is not ours.
+
+8) price and size seem fine.
+
+9) Didn't we used to have at least two input examples, one with our
+trades and one without? We should probably have 4 or 5 sample files,
+including a couple of very simple ones that are easy for test cases.
+
+
+BATS:
+We should probably provide a way to read data from BATS
+directly. Start playing with the bats data. We should start a new
+project at R-forge called "bats." Andy will send me a day's worth of
+bats data when he gets to school. Ought to make it three (consecutive)
+day's worth, as long as we are going to the trouble of sending it. We
+should also put this somewhere that everyone can see it.

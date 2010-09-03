@@ -1,4 +1,12 @@
-## read.test.R: Tests for read.messages and read.time functions
+## read.test.R: Tests for read.messages and read.time functions.
+
+## Comments: (Feel free to delete these as the tests are redone.)
+## First, we need some simple test cases that we have checked by hand
+## to ensure that they work, something with an input file that just
+## contains a dozen or so rows. Second, we need to check each output
+## object after each command is given. Running read.messages(ob, -5)
+## and then read.messages(ob, 5) WITHOUT CHECKING THE INTERMEDIATE
+## OBJECT does not really test anything.
 
 library(orderbook)
 load("read.test.RData")

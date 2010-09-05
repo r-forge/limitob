@@ -94,10 +94,6 @@ trade.returns <-function(x, time = c(5, 300)){
     ## trades as a group. (We should save fixing this for the end of
     ## the process.)
 
-    ## And, if looping is necessary, allocate all the necessary space
-    ## at the beginning (whether in a list of data frame) rather than
-    ## extending the object each time through.
-
     for(i in 1:nrow(mytrades)){
 
         ## Find its row, price, and time within the data
@@ -117,6 +113,10 @@ trade.returns <-function(x, time = c(5, 300)){
                              time, midpt.ret[[2]]))
 
         ## Put that vector into a list
+
+        ## If looping is necessary, allocate all the necessary space
+        ## at the beginning (whether in a list of data frame) rather
+        ## than extending the object each time through.
 
         tradereturns[[i]] <- tmp
     }

@@ -8,7 +8,7 @@
 #include <stddef.h>
 
 //this means that the longest order needs to be less than 100
-//characters, probably true since there are a lot of characters
+//characters, which is true
 
 #define MAX_LEN 20
 
@@ -41,33 +41,43 @@ struct order *smallob = NULL;
 cancel *head = NULL;
 
 //add order function
-int addOrder(int i)
+int addOrder(char *str, int i)
 {
     char *token, *ptr;
     cancel *r;
     struct order *s, *t;
-
+    Rprintf("%s\n", str);
     //allocate memory for order
     s = malloc(sizeof(struct order));
+    
+    //"0th" token is the order type
+    token = strtok(str, DELIMITERS);
+    Rprintf("%s,", token);
+
 
     //first token is time
     token = strtok(NULL, DELIMITERS);
+    Rprintf("%s,", token);
     strcpy(s->time, token);
 
     //second token is id
     token = strtok(NULL, DELIMITERS);
+    Rprintf("%s,", token);
     strcpy(s->id, token);
 
     //third token is price
     token = strtok(NULL, DELIMITERS);
+    Rprintf("%s,", token);
     strcpy(s->price, token);
 
     //fourth token is size
     token = strtok(NULL, DELIMITERS);
+    Rprintf("%s,", token);
     strcpy(s->size, token);
 
     //fifth token is type
     token = strtok(NULL, DELIMITERS);
+    Rprintf("%s,", token);
     strcpy(s->type, token);
 
     //sixth token is status
@@ -78,6 +88,7 @@ int addOrder(int i)
 	*ptr = '\0';
 
     strcpy(s->status, token);
+    Rprintf("%s", token);
 
     /*special feature--if you add something with the same ID, it will
       replace the order. that way we don't need to worry about having
@@ -85,6 +96,8 @@ int addOrder(int i)
       different order size. if the order is from the original order
       book (ob), then delete * the order and read it with the same
       timestamp. return the ID * of the order */
+
+    Rprintf("finding in ob\n");
 
     //here we check to see if ID is already in the order book
     HASH_FIND(hh1, ob, s->id, strlen(s->id), t);
@@ -97,12 +110,18 @@ int addOrder(int i)
 	HASH_ADD(hh2, smallob, id, strlen(s->id), s);
 
 	r = (cancel*)malloc(sizeof(cancel));
+
 	strcpy(r->id, s->id);
 
 	//add ID as a cancel ID
 	LL_APPEND(head, r);
+	Rprintf("found");
+
 	return ++i;
     }
+
+    Rprintf("finding in smallob\n");
+
 
     //check to see if its in the other order book
     HASH_FIND(hh2, smallob, s->id, strlen(s->id), t);
@@ -111,9 +130,11 @@ int addOrder(int i)
 
 	/* if this order is just in the messages we are working with
 	   replace the size and be done with it*/
+      
+      strcpy(t->size, s->size);
+      free(s);
 
-	strcpy(t->size, s->size);
-	free(s);
+      Rprintf("found");
 
     } else {
 
@@ -126,11 +147,15 @@ int addOrder(int i)
 }
 
 //cancel order
-int cancelOrder(int i)
+int cancelOrder(char *str, int i)
 {
     char *token, *ptr;
     cancel *r;
     struct order *s;
+
+    //"0th" token is the order type
+    token = strtok(str, DELIMITERS);
+    Rprintf("%s,", token);
 
     //time token
     token = strtok(NULL, DELIMITERS);
@@ -174,11 +199,15 @@ int cancelOrder(int i)
 
 //replace order
 
-int replaceOrder(int i)
+int replaceOrder(char *str, int i)
 {
     char *token, *ptr;
     cancel *r;
     struct order *s, *t;
+
+    //"0th" token is the order type
+    token = strtok(str, DELIMITERS);
+    Rprintf("%s,", token);
 
     //token is time
     token = strtok(NULL, DELIMITERS);
@@ -245,23 +274,24 @@ SEXP iterateOrdersOB(void)
     PROTECT(tempob = allocVector(STRSXP, nrow * ncol));
 
     for(s = ob; s != NULL; s = s->hh1.next){
+      Rprintf("%s,%s,%s,%s,%s,%s\n", s->time, s->id, s->type, s->price, s->size, s->status);
 
-	j = 0;
-
-	//set time, then ID, type, price, size, status
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->time));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->id));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->type));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->price));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->size));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->status));
-
-	++i;
+      j = 0;
+      
+      //set time, then ID, type, price, size, status
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->time));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->id));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->type));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->price));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->size));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->status));
+      
+      ++i;
     }
 
     //setting the dimensions
@@ -281,33 +311,37 @@ SEXP iterateOrdersOB(void)
 SEXP iterateOrdersSmall(void)
 {
     struct order *s;
-    int i = 0, j = 0, ncol, nrow;
+    int i = 0, j, ncol, nrow;
     SEXP tempob, dim;
 
     nrow = HASH_CNT(hh2, smallob);
     ncol = 6;
 
+    Rprintf("%d\n", nrow);
+
     //allocate vector of characters (strings)
     PROTECT(tempob = allocVector(STRSXP, nrow * ncol));
 
-    for(s = smallob; s != NULL; s = s->hh1.next){
+    for(s = smallob; s != NULL; s = s->hh2.next){
+      j = 0;
+      Rprintf("%s,%s,%s,%s,%s,%s\n", s->time, s->id, s->type, s->price, s->size, s->status);
 
-	//set time, then ID, type, price, size, status
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->time));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->id));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->type));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->price));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->size));
-
-	SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->status));
-
-	++i;
+      //set time, then ID, type, price, size, status
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->time));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->id));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->type));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->price));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->size));
+      
+      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->status));
+      
+      ++i;
     }
-
+    
     //setting the dimensions
     PROTECT(dim = allocVector(INTSXP, 2));
     INTEGER(dim)[0] = nrow;
@@ -368,7 +402,7 @@ SEXP readMessages(SEXP filename, SEXP Rrows)
 
     FILE *f;
     char str[100];
-    char *token, *strcp;
+    char *token, strcp[100];
     int *rows;
     int i = 1, j, n, len = 0;
     SEXP retList, obList, cancelList;
@@ -393,44 +427,66 @@ SEXP readMessages(SEXP filename, SEXP Rrows)
     //Build the initial order book until rows[0]
 
     while(i <= rows[0] && fgets(str, 100, f) != NULL){
-	strcp = strdup(str);
-	token = strtok(strcp, DELIMITERS);
+      
+      Rprintf("%d\n", i);
+      strcpy(strcp, str);
+      token = strtok(strcp, DELIMITERS);
+      
+      if(strcmp(token, "A") == 0){
+	Rprintf("%c\n", 'A');
+	addOrder(str, 0);
+      }else if(strcmp(token, "C") == 0){
+	cancelOrder(str, 0);
+	Rprintf("%c\n", 'C');
 
-	if(strcmp(token, "A") == 0)
-	    addOrder(0);
-	else if(strcmp(token, "C") == 0)
-	    cancelOrder(0);
-	else if(strcmp(token, "R") == 0)
-	    replaceOrder(0);
-
-	++i;
+      }else if(strcmp(token, "R") == 0){
+	replaceOrder(str, 0);
+	Rprintf("%c\n", 'R');
+      }
+      
+      ++i;
     }
 
     //put this into the obList
     SET_VECTOR_ELT(obList, 0, iterateOrdersOB());
 
     for(j = 1; j < n; j++){
-	HASH_CLEAR(hh2, smallob);
 
-	while(i <= rows[j] && fgets(str, MAX_LEN, f) != NULL){
-	    strcp = strdup(str);
-	    token = strtok(strcp, DELIMITERS);
-	    
-	    if(strcmp(token, "A") == 0)
-		len += addOrder(len);
-	    else if(strcmp(token, "C") == 0)
-		len += cancelOrder(len);
-	    else if(strcmp(token, "R") == 0)
-		len += replaceOrder(len);
+      HASH_CLEAR(hh2, smallob);
 
-	    free(strcp);
-	    ++i;
-	}
+      Rprintf("%d\n", j);
 
-	SET_VECTOR_ELT(obList, j, iterateOrdersSmall());
-	SET_VECTOR_ELT(cancelList, j, iterateCancels(len));
+
+      while(i <= rows[j] && fgets(str, 100, f) != NULL){
+
+	Rprintf("%d\n", i);
+
+	strcpy(strcp, str);
+
+	token = strtok(strcp, DELIMITERS);
 	
+	if(strcmp(token, "A") == 0){
+	  Rprintf("%c\n", 'A');
+
+	  len = addOrder(str, len);
+	}else if(strcmp(token, "C") == 0){
+	  Rprintf("%c\n", 'C');
+
+	  len = cancelOrder(str, len);
+	} else if(strcmp(token, "R") == 0){
+	  Rprintf("%c\n", 'T');
+	  len = replaceOrder(str, len);
+	}
+	
+	++i;
+      }
+      
+      SET_VECTOR_ELT(obList, j, iterateOrdersSmall());
+      SET_VECTOR_ELT(cancelList, j, iterateCancels(len));
+      
     }
+
+    fclose(f);
 
     clearHash();
 
@@ -439,7 +495,6 @@ SEXP readMessages(SEXP filename, SEXP Rrows)
 
     UNPROTECT(3);
 
-    fclose(f);
     return retList;
 }
 

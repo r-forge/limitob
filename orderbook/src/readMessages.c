@@ -1,11 +1,20 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <stdio.h>
-#include "uthash.h"
-#include "utlist.h"
+#include <glib.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
+
+/* compiler commands 
+
+   gcc -I/usr/share/R/include
+   -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -fpic
+   -std=gnu99 -O3 -pipe -g -c readMessages.c -o readMessages.o
+
+   gcc -shared -o readMessages.so readMessages.o -L/usr/lib64/R/lib
+   -lR -lglib-2.0 */
+
 
 //this means that the longest order needs to be less than 100
 //characters, which is true
@@ -15,11 +24,11 @@
 //its comma delimited
 #define DELIMITERS ","
 
-typedef struct cancel{
-    char id[MAX_LEN];
-    struct cancel *next;
-} cancel;
+/*declaring our hash tables, ob is the hash table that stores
+  everything, smallob just stores everything between the last time we
+  put everything into the R structure */
 
+//this is our order structure
 struct order
 {
     char id[MAX_LEN];
@@ -28,379 +37,246 @@ struct order
     char time[MAX_LEN];
     char price[MAX_LEN];
     char size[MAX_LEN];
-    UT_hash_handle hh1, hh2;
 };
 
-//this is used for the initial build
-struct order *ob = NULL;
 
-//this is used for holding later orders
-struct order *smallob = NULL;
-
-//list for holding the cancels
-cancel *head = NULL;
-
-//add order function
-int addOrder(char *str, int i)
+//add order function, returns 1 if an order from the main order book was replaced, 0 otherwise
+GSList *addOrder(char *str, GHashTable *ob, GHashTable *smallob, GSList *cancels)
 {
-    char *token, *ptr;
-    cancel *r;
-    struct order *s, *t;
-    //Rprintf("%s\n", str);
-    //allocate memory for order
-    s = malloc(sizeof(struct order));
+
+  char *token, *ptr;
+  struct order *s, *t;
+  
+  //allocate memory for order
+  s = g_malloc(sizeof(struct order));
+  
+  //"0th" token is the order type
+  token = strtok(str, DELIMITERS);
+  
+  //first token is time
+  token = strtok(NULL, DELIMITERS);
+  strcpy(s->time, token);
+  
+  //second token is id
+  token = strtok(NULL, DELIMITERS);
+  strcpy(s->id, token);
+
+  //third token is price
+  token = strtok(NULL, DELIMITERS);
+  strcpy(s->price, token);
+
+  //fourth token is size
+  token = strtok(NULL, DELIMITERS);
+  strcpy(s->size, token);
+  
+  //fifth token is type
+  token = strtok(NULL, DELIMITERS);
+  strcpy(s->type, token);
+
+  //sixth token is status
+  token = strtok(NULL, DELIMITERS);
+  
+  // trim the newline
+  if((ptr = strchr(token, '\n')) != NULL)
+    *ptr = '\0';
+  
+  strcpy(s->status, token);
+  
+  // See if this ID is already in the main order book
+  
+  t = (struct order *)g_hash_table_lookup(ob, s->id);
+  //if its in the order book this "add" was actually a "replace"
+  if(t){
+    // so replace the size
+    strcpy(t->size, s->size);
     
-    //"0th" token is the order type
-    token = strtok(str, DELIMITERS);
-    //Rprintf("%s,", token);
-
-
-    //first token is time
-    token = strtok(NULL, DELIMITERS);
-    //Rprintf("%s,", token);
-    strcpy(s->time, token);
-
-    //second token is id
-    token = strtok(NULL, DELIMITERS);
-    //Rprintf("%s,", token);
-    strcpy(s->id, token);
-
-    //third token is price
-    token = strtok(NULL, DELIMITERS);
-    //Rprintf("%s,", token);
-    strcpy(s->price, token);
-
-    //fourth token is size
-    token = strtok(NULL, DELIMITERS);
-    //Rprintf("%s,", token);
-    strcpy(s->size, token);
-
-    //fifth token is type
-    token = strtok(NULL, DELIMITERS);
-    //Rprintf("%s,", token);
-    strcpy(s->type, token);
-
-    //sixth token is status
-    token = strtok(NULL, DELIMITERS);
-
-    // trim the newline
-    if((ptr = strchr(token, '\n')) != NULL)
-	*ptr = '\0';
-
-    strcpy(s->status, token);
-    //Rprintf("%s\n", token);
-
-    /*special feature--if you add something with the same ID, it will
-      replace the order. that way we don't need to worry about having
-      a "replace" message--we can just have add messages with
-      different order size. if the order is from the original order
-      book (ob), then delete * the order and read it with the same
-      timestamp. return the ID * of the order */
-
-    Rprintf("finding in ob\n");
-
-    //here we check to see if ID is already in the order book
-    HASH_FIND(hh1, ob, s->id, strlen(s->id), t);
-    Rprintf("finding in ob\n");
-
-    if(t){
-        //we want to keep the original timestamp
-	strcpy(s->time, t->time);
-
-	//add the order current hash
-	HASH_ADD(hh2, smallob, id, strlen(s->id), s);
-
-	r = (cancel*)malloc(sizeof(cancel));
-
-	strcpy(r->id, s->id);
-
-	//add ID as a cancel ID
-	LL_APPEND(head, r);
-	//Rprintf("found");
-
-	return ++i;
-    }
-
-    //check to see if its in the other order book
-    Rprintf("finding in smallob\n");
+    //add the pointer to the old order to the current hash
+    g_hash_table_insert(smallob, t->id, t);
     
-    HASH_FIND(hh2, smallob, s->id, strlen(s->id), t);
-    Rprintf("finding in smallob\n");
-	
-    if(t){
-
-	/* if this order is just in the messages we are working with
-	   replace the size and be done with it*/
-      
-      strcpy(t->size, s->size);
-      free(s);
-
-      //Rprintf("found");
-
-    } else {
-
-	/* if it wasn't found then add it to both hashes */
-	HASH_ADD(hh1, ob, id, strlen(s->id), s);
-	HASH_ADD(hh2, smallob, id, strlen(s->id), s);
-    }
-
-    return i;
+    //add to cancels
+    cancels = g_slist_prepend(cancels, g_strdup(s->id));
+    
+    //free this order
+    free(s);
+    
+    return cancels;
+  }
+  
+  //if its not in the main order book check to see if its in the small order book
+  
+  t = (struct order *)g_hash_table_lookup(smallob, s->id);
+  
+  //if its in the small order book then its a replace for one of those orders
+  if(t){
+    
+    // replace the size and free
+    strcpy(t->size, s->size);
+    free(s);
+    
+    //if it wasn't in either order book, add it to both
+  } else {
+    
+    g_hash_table_insert(ob, s->id, s);
+    g_hash_table_insert(smallob, s->id, s);
+    
+  }
+  
+  return cancels;
 }
 
 //cancel order
-int cancelOrder(char *str, int i)
+GSList *cancelOrder(char *str, GHashTable *ob, GHashTable *smallob, GSList *cancels)
 {
-    char *token, *ptr;
-    cancel *r;
-    struct order *s;
+  
+  char *token, *ptr;
+  struct order *s;
+  
+  //"0th" token is the order type
+  token = strtok(str, DELIMITERS);
 
-    //"0th" token is the order type
-    token = strtok(str, DELIMITERS);
-    //Rprintf("%s,", token);
-
-    //time token
-    token = strtok(NULL, DELIMITERS);
-
-    //id token
-    token = strtok(NULL, DELIMITERS);
-
-    // Get rid of the new line character
-
-    if((ptr = strchr(token, '\n')) != NULL)
-	*ptr = '\0';
-
-    //find the ID
-    HASH_FIND(hh2, smallob, token, strlen(token), s);
-
-    if(s){
-	HASH_DELETE(hh2, smallob, s);
-
-	HASH_FIND(hh1, ob, token, strlen(token), s);
-	HASH_DELETE(hh1, ob, s);
-
-	free(s);
-	return i;
-    }
-
-    HASH_FIND(hh1, ob, token, strlen(token), s);
-
-    if(s){
-	r = (cancel*)malloc(sizeof(cancel));
-	strcpy(r->id, s->id);
-
-	HASH_DELETE(hh1, ob, s);
-	free(s);
-
-	LL_APPEND(head, r);
-	return ++i;
-    }
+  //time token
+  token = strtok(NULL, DELIMITERS);
+  
+  //id token
+  token = strtok(NULL, DELIMITERS);
+  
+  // Get rid of the new line character
+  
+  if((ptr = strchr(token, '\n')) != NULL)
+    *ptr = '\0';
+  
+  //remove from the small order book, auto frees value
+  if(g_hash_table_steal(smallob, token)){
+    g_hash_table_remove(ob, token);
+  } else {
     
-    return i;
+    //append to cancel list
+    cancels = g_slist_prepend(cancels, g_strdup(token));
+
+  }
+
+  return cancels;
 }
 
 //replace order
-
-int replaceOrder(char *str, int i)
+GSList *replaceOrder(char *str, GHashTable *ob, GHashTable *smallob, GSList *cancels)
 {
-    char *token, *ptr;
-    cancel *r;
-    struct order *s, *t;
 
-    //"0th" token is the order type
-    token = strtok(str, DELIMITERS);
-    //Rprintf("%s,", token);
+  char *token, *ptr, *id;
+  struct order *s;
+  
+  //"0th" token is the order type
+  token = strtok(str, DELIMITERS);
+  
+  //token is time
+  token = strtok(NULL, DELIMITERS);
 
-    //token is time
-    token = strtok(NULL, DELIMITERS);
+  //token is id
+  id = strtok(NULL, DELIMITERS);
+  
+  //find ID in small hash
+  s = (struct order *)g_hash_table_lookup(smallob, id);
+  
+  //token is size
+  token = strtok(NULL, DELIMITERS);
+  
+  // Get rid of the new line character
+  if((ptr = strchr(token, '\n')) != NULL)
+    *ptr = '\0';
+  
+  //if its in the small order book
+  if(s){
+    //replace size and return
+    strcpy(s->size, token);
+    
+    return cancels;
+    
+  } 
+  
+  //if its not in the small one, then find it in the big one
+  s = (struct order *)g_hash_table_lookup(ob, id);
+  
+  if(s){
+    //replace size
+    strcpy(s->size, token);
+    
+    //add to small hash
+    g_hash_table_insert(smallob, id, s);
+    
+    //append to cancel list
+    cancels = g_slist_prepend(cancels, g_strdup(id));
 
-    //token is id
-    token = strtok(NULL, DELIMITERS);
-
-    //find ID in  both  hashes
-    HASH_FIND(hh1, ob, token,  strlen(token), s);
-    HASH_FIND(hh2, smallob, token,  strlen(token), t);
-
-    //token is size
-    token = strtok(NULL, DELIMITERS);
-
-    // Get rid of the new line character
-    if((ptr = strchr(token, '\n')) != NULL)
-	*ptr = '\0';
-
-    //if its in the main  hash
-    if(s){
-
-	//replace size
-	strcpy(s->size, token);
-
-	//add it to the small one, correct size
-	HASH_ADD(hh2, smallob, id, strlen(s->id), s);
-
-	r = (cancel*)malloc(sizeof(cancel));
-	strcpy(r->id, s->id);
-
-	//return the ID
-	LL_APPEND(head, r);
-	return ++i;
-
-    } else if(t){
-
-	//replace  size
-	strcpy(t->size, token);
-
-	r = (cancel*)malloc(sizeof(cancel));
-	strcpy(r->id, t->id);
-
-	//return ID
-	LL_APPEND(head, r);
-	return ++i;
-    }
-
-
-    return i;
+    return cancels;
+  }
 }
 
 //iterate through all active orders and create a matrix
 
-SEXP iterateOrdersOB(void)
+SEXP iterateOrders(GHashTable *hash)
 {
-    struct order *s;
-    int i = 0, j, ncol, nrow;
-    SEXP tempob, dim;
+  GHashTableIter iter;
+  char *key;
+  struct order *value;
+  int i = 0, j, ncol, nrow;
+  SEXP tempob, dim;
 
-    nrow = HASH_CNT(hh1, ob);
-    ncol = 6;
+  nrow = g_hash_table_size(hash);
+  ncol = 6;
 
-    //allocate vector of characters (strings)
-    PROTECT(tempob = allocVector(STRSXP, nrow * ncol));
+  //allocate vector of characters (strings)
+  PROTECT(tempob = allocVector(STRSXP, nrow * ncol));
 
-    for(s = ob; s != NULL; s = s->hh1.next){
-      //Rprintf("%s,%s,%s,%s,%s,%s\n", s->time, s->id, s->type, s->price, s->size, s->status);
+  //create an iterator
 
-      j = 0;
-      
-      //set time, then ID, type, price, size, status
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->time));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->id));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->type));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->price));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->size));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->status));
-      
-      ++i;
-    }
+  g_hash_table_iter_init(&iter, hash);
 
-    //setting the dimensions
-    PROTECT(dim = allocVector(INTSXP, 2));
-    INTEGER(dim)[0] = nrow;
-    INTEGER(dim)[1] = ncol;
+  while(g_hash_table_iter_next(&iter, (gpointer)&key, (gpointer)&value)){
 
-    //turning it into a matrix
-    setAttrib(tempob, R_DimSymbol, dim);
+    j = 0;
     
-    UNPROTECT(2);
-
-    return tempob;
-
-}
-
-SEXP iterateOrdersSmall(void)
-{
-    struct order *s;
-    int i = 0, j, ncol, nrow;
-    SEXP tempob, dim;
-
-    nrow = HASH_CNT(hh2, smallob);
-    ncol = 6;
-
-    //Rprintf("%d\n", nrow);
-
-    //allocate vector of characters (strings)
-    PROTECT(tempob = allocVector(STRSXP, nrow * ncol));
-
-    for(s = smallob; s != NULL; s = s->hh2.next){
-      j = 0;
-      //Rprintf("%s,%s,%s,%s,%s,%s\n", s->time, s->id, s->type, s->price, s->size, s->status);
-
-      //set time, then ID, type, price, size, status
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->time));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->id));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->type));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->price));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->size));
-      
-      SET_STRING_ELT(tempob, i + nrow*j++, mkChar(s->status));
-      
-      ++i;
-    }
+    //set time, then ID, type, price, size, status
+    SET_STRING_ELT(tempob, i + nrow*j++, mkChar(value->time));
     
-    //setting the dimensions
-    PROTECT(dim = allocVector(INTSXP, 2));
-    INTEGER(dim)[0] = nrow;
-    INTEGER(dim)[1] = ncol;
-
-    //turning it into a matrix
-    setAttrib(tempob, R_DimSymbol, dim);
+    SET_STRING_ELT(tempob, i + nrow*j++, mkChar(value->id));
     
-    UNPROTECT(2);
-
-    return tempob;
-
-}
-
-//delete everything in the hash
-
-
-void clearHash(void)
-{
-    struct order *s;
-
-    while(ob){
-	s = ob;
-	HASH_DELETE(hh1, ob, s);
-	free(s);
-    }
+    SET_STRING_ELT(tempob, i + nrow*j++, mkChar(value->type));
+      
+    SET_STRING_ELT(tempob, i + nrow*j++, mkChar(value->price));
     
-}
-
-void clearCancels(void)
-{
-
-  cancel *r, *tmp;
-
-  LL_FOREACH_SAFE(head, r, tmp){
-    LL_DELETE(head, r);
-    free(r);
+    SET_STRING_ELT(tempob, i + nrow*j++, mkChar(value->size));
+    
+    SET_STRING_ELT(tempob, i + nrow*j++, mkChar(value->status));
+    
+    ++i;
   }
+  
+  //setting the dimensions
+  PROTECT(dim = allocVector(INTSXP, 2));
+  INTEGER(dim)[0] = nrow;
+  INTEGER(dim)[1] = ncol;
+  
+  //turning it into a matrix
+  setAttrib(tempob, R_DimSymbol, dim);
+  
+  UNPROTECT(2);
+  
+  return tempob;
+  
 }
 
-SEXP iterateCancels(int len)
+SEXP iterateCancels(GSList *cancels)
 {
-    cancel *r, *tmp;
-    SEXP cancelVec;
-    int i = 0;
-    
-    PROTECT(cancelVec = allocVector(STRSXP, len));
+  GSList *iterator = NULL;
+  SEXP cancelVec;
+  int i;
+  
+  PROTECT(cancelVec = allocVector(STRSXP, g_slist_length(cancels)));
 
-    LL_FOREACH_SAFE(head, r, tmp){
-      //Rprintf("%s\n", r->id);
-      SET_STRING_ELT(cancelVec, i, mkChar(r->id));
-      ++i;
-      
-      LL_DELETE(head, r);
-      free(r);
-    }
-    UNPROTECT(1);
-    return cancelVec;
+  for(i = 0, iterator = cancels; iterator; ++i, iterator = iterator->next)
+    SET_STRING_ELT(cancelVec, i, mkChar(iterator->data));
+  
+  UNPROTECT(1);
+  return cancelVec;
 }
 
 	
@@ -417,8 +293,11 @@ SEXP readMessages(SEXP filename, SEXP Rrows)
     char str[100];
     char *token, strcp[100];
     int *rows;
-    int i = 1, j, n, len;
+    int i = 1, j, n;
     SEXP retList, obList, cancelList;
+    GHashTable *ob = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
+    GHashTable *smallob = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
+    GSList *cancels = NULL;
 
     rows = INTEGER(Rrows);
     n = length(Rrows);
@@ -441,70 +320,54 @@ SEXP readMessages(SEXP filename, SEXP Rrows)
 
     while(i <= rows[0] && fgets(str, 100, f) != NULL){
       
-      //Rprintf("%s\n", str);
       strcpy(strcp, str);
       token = strtok(strcp, DELIMITERS);
       
       if(strcmp(token, "A") == 0){
-	//Rprintf("%c\n", 'A');
-	addOrder(str, 0);
-      }else if(strcmp(token, "C") == 0){
-	cancelOrder(str, 0);
-	//Rprintf("%c\n", 'C');
-
-      }else if(strcmp(token, "R") == 0){
-	replaceOrder(str, 0);
-	//Rprintf("%c\n", 'R');
-      }
+	addOrder(str, ob, smallob, cancels);
+      } else if(strcmp(token, "C") == 0)
+	cancelOrder(str, ob, smallob, cancels);
+      else if(strcmp(token, "R") == 0)
+	replaceOrder(str, ob, smallob, cancels);
       
       ++i;
     }
 
     //put this into the obList
-    SET_VECTOR_ELT(obList, 0, iterateOrdersOB());
-
-    //clear cancels
-    clearCancels();
+    SET_VECTOR_ELT(obList, 0, iterateOrders(ob));
 
     for(j = 1; j < n; j++){
-      len = 0;
-      HASH_CLEAR(hh2, smallob);
-
-      //Rprintf("%d\n", j);
-
+      
+      g_slist_free(cancels);
+      cancels = NULL;
+      g_hash_table_steal_all(smallob);
+      
       while(i <= rows[j] && fgets(str, 100, f) != NULL){
-	//Rprintf("%s\n", str);
-	//Rprintf("%d\n", len);
 
 	strcpy(strcp, str);
 
 	token = strtok(strcp, DELIMITERS);
 	
-	if(strcmp(token, "A") == 0){
-	  //Rprintf("%c\n", 'A');
-
-	  len = addOrder(str, len);
-	}else if(strcmp(token, "C") == 0){
-	  //Rprintf("%c\n", 'C');
-
-	  len = cancelOrder(str, len);
-	} else if(strcmp(token, "R") == 0){
-	  //Rprintf("%c\n", 'T');
-	  len = replaceOrder(str, len);
-	}
+	if(strcmp(token, "A") == 0)
+	  cancels = addOrder(str, ob, smallob, cancels);
+	else if(strcmp(token, "C") == 0)
+	  cancels = cancelOrder(str, ob, smallob, cancels);
+	else if(strcmp(token, "R") == 0)
+	  cancels = replaceOrder(str, ob, smallob, cancels);
+	
 	
 	++i;
       }
       
-      SET_VECTOR_ELT(obList, j, iterateOrdersSmall());
-      SET_VECTOR_ELT(cancelList, j, iterateCancels(len));
+      SET_VECTOR_ELT(obList, j, iterateOrders(smallob));
+      SET_VECTOR_ELT(cancelList, j, iterateCancels(cancels));
       
     }
 
     fclose(f);
 
-    HASH_CLEAR(hh2, smallob);
-    clearHash();
+    g_hash_table_steal_all(smallob);
+    g_hash_table_steal_all(ob);
 
     SET_VECTOR_ELT(retList, 0, obList);
     SET_VECTOR_ELT(retList, 1, cancelList);

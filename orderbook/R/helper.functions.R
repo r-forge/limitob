@@ -150,3 +150,25 @@
     return(signif(x, 8))
 
 }
+
+.convert.to.df <- function(x){
+
+  return(data.frame(time = as.integer(x[,1]), id = x[,2], type =
+                    as.factor(x[,3]), price = as.numeric(x[,4]), size
+                    = as.integer(x[,5]), status = as.factor(x[,6]),
+                    stringsAsFactors = FALSE))
+
+}
+
+.price.limits <- function(x, type){
+
+  if(type %in% x$type){
+    if(type %in% "ASK")
+      return(min(x$price[x$type == type]))
+    else if(type %in% "BID")
+      return(max(x$price[x$type == type]))
+  } else if(type %in% "ASK")
+    return(Inf)
+  else if(type %in% "BID")
+    return (-Inf)
+}

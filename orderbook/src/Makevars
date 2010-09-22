@@ -1,0 +1,2 @@
+PKG_CPPFLAGS = -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0
+PKG_LIBS = -lglib-2.0

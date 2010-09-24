@@ -1,0 +1,2 @@
+PKG_CPPFLAGS = -I"c:/glib/include/glib-2.0" -I"c:/glib/lib/glib-2.0/include"
+PKG_LIBS =-L"c:/glib/lib" -lglib-2.0

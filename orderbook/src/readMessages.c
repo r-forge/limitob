@@ -129,7 +129,6 @@ GSList *cancelOrder(char *str, GHashTable *ob, GHashTable *smallob, GSList *canc
 {
   
   char *token, *ptr;
-  struct order *s;
   
   //"0th" token is the order type
   token = strtok(str, DELIMITERS);
@@ -206,8 +205,9 @@ GSList *replaceOrder(char *str, GHashTable *ob, GHashTable *smallob, GSList *can
     //append to cancel list
     cancels = g_slist_prepend(cancels, g_strdup(id));
 
-    return cancels;
   }
+  
+  return cancels;
 }
 
 //iterate through all active orders and create a matrix

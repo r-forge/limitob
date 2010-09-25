@@ -90,14 +90,11 @@ GSList *addOrder(char *str, GHashTable *ob, GHashTable *smallob, GSList *cancels
     // so replace the size
     strcpy(t->size, s->size);
     
-    //add the pointer to the old order to the current hash
-    g_hash_table_insert(smallob, t->id, t);
+    //add the new order to smallob
+    g_hash_table_insert(smallob, s->id, s);
     
     //add to cancels
     cancels = g_slist_prepend(cancels, g_strdup(s->id));
-    
-    //free this order
-    free(s);
     
     return cancels;
   }

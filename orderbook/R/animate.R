@@ -202,40 +202,49 @@ load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
 
   orders <- temp[[1]]
   cancels <- temp[[2]]
-  
+
   if(is.null(trade))
-    sub <- ""
+    sub <-  paste("Start:", .to.time(.get.row.time(object@file, rows[1])),
+                 " End:", .to.time(.get.row.time(object@file, rows[length(rows)])))
   else
     sub <- paste("Start:", .to.time(.get.row.time(object@file, rows[1])),
                  " Trade:", .to.time(trade[[2]]),
                  " End:", .to.time(.get.row.time(object@file, rows[length(rows)])))
 
-  ## turn orders into data frame, for now i don't know how to change
-  ## names, so time is X1, ID is x2, type is X3, price is X4, size is
-  ## X5, status is X6
+  ## Use .convert.to.df (in helper.functions.R) to turn everything
+  ## into a data frame
 
   orders <- lapply(orders, .convert.to.df)
 
-  ## Find y.limits
+  ## Find y.limits (also in helper.functions.R). .price.limits will
+  ## return the lowest ask and highest bid for each element in orders.
 
   bestasks <- sapply(orders, .price.limits, "ASK")
-  
+
   bestbids <- sapply(orders, .price.limits, "BID")
 
-  ## Currently assume constant 1 penny spread
-  
+  ## Currently assume constant 1 penny spread. We take the lowest ask
+  ## and subtract a penny and the bounds, and make that our bottom
+  ## bound. Then take the highest bid, add a penny and the bounds, and
+  ## make that our upper bound. There is probably a better way to do
+  ## this.
+
   y.limits <- c(min(bestasks) - 0.01 - bounds, max(bestbids) + 0.01 + bounds)
 
-  ## Find x limits
-  
+  ## Find x limits. Right now I just combine all the orders without
+  ## taking cancellations into account, use agg.price.levels, get rid
+  ## of the price levels outside of the bounds we just figured out in
+  ## price.limits, then take the max size. There needs to be a better
+  ## way to do this.
+
   temp <- do.call("rbind", orders)
 
   temp <- agg.price.levels.temp(temp, "shares")
 
   x.at <- pretty(c(0, max(temp$shares[temp$price < y.limits[2] &
                                       temp$price > y.limits[1]])))
-                 
-  
+
+
   x.limits <- list(c(x.at[length(x.at)], 0),
                    c(0, x.at[length(x.at)]))
 
@@ -243,46 +252,65 @@ load.previous.trade <- function(object, before = 30, after = 30, fps = 1, by =
   name <- vector()
 
   ## Do the first part of the loop once
-  
+
   temp <- orders[[1]]
+
+  ## Plot orders[[1]]
+
   tmp.plot <- .animate.plot(temp, x.at, x.limits, y.limits,
                               .to.time(max(temp$time)), sub)
+
+  ## Put "y.1" into the name vector, and rename tmp.plot to "y.1"
+
   name[1] <- paste("y", 1, sep = ".")
   assign(paste("y", 1, sep = "."), tmp.plot)
-  
+
+  ## Do the rest of the loop
+
   for(i in 2:length(orders)){
-    temp <- temp[(!temp$id %in% cancels[[i]]),]
-    temp <- do.call("rbind", list(temp, orders[[i]]))
-    tmp.plot <- .animate.plot(temp, x.at, x.limits, y.limits,
-                              .to.time(max(orders[[i]]$time)), sub)
-    name[i] <- paste("y", i, sep = ".")
-    assign(paste("y", i, sep = "."), tmp.plot)
+
+      ## Remove the cancels
+
+      temp <- temp[(!temp$id %in% cancels[[i]]),]
+
+      ## Add the new orders
+      temp <- do.call("rbind", list(temp, orders[[i]]))
+
+      ## Plot
+
+      tmp.plot <- .animate.plot(temp, x.at, x.limits, y.limits,
+                                .to.time(max(orders[[i]]$time)), sub)
+
+      ## Put "y.i" into the name vector, and rename tmp.plot to "y.i"
+
+      name[i] <- paste("y", i, sep = ".")
+      assign(paste("y", i, sep = "."), tmp.plot)
 
   }
 
   ## Save the names vector
-  
+
   name[length(name) + 1] = "name"
   assign("name", name)
-  
-  
+
+
   ## Save the Trellis objects.
-  
+
   tempfile <- tempfile()
   otherfile <- object@animation[["sec"]]
-  
+
   object@animation <- list(sec = otherfile, msg = tempfile)
-  
+
   save(list = name, file = tempfile)
-  
+
   invisible(object)
-  
+
 }
 
 
-  
-  
-  
+
+
+
 ## We need to combine .animate.seconds and .animate.orders (which
 ## ought to be called .animate.messages). Perhaps .animate would work
 ## for the combined, with a type argument. Key differences seem to

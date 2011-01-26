@@ -134,11 +134,12 @@ Total Orders:              2,487
 \end{Schunk}
 
 We read in the first 10,000 messages then \texttt{show} the object.
-The current time is 9:35:02 AM. The message index indicates which row
-in the data file the object has read through. The display also shows
-that there are 631 bids and 1,856 asks outstanding, for a total of
-2,487 orders. This indicates that many earlier orders have been
-removed through either cancels or trades.
+The current time is 9:35:02 AM. This is the time of the last message
+read. The message index indicates which row in the data file the
+object has read through. The display also shows that there are 631
+bids and 1,856 asks outstanding, for a total of 2,487 orders. This
+indicates that many earlier orders have been removed through either
+cancels or trades.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -293,8 +294,8 @@ side.
 
 \pkg{orderbook} has methods for creating new \texttt{orderbook}
 objects at specified clock times of interest. \texttt{read.time}
-returns an \texttt{orderbook} object at the first message after the
-specified time. For example, this returns the \texttt{orderbook}
+returns an \texttt{orderbook} object that has read all messages before
+the specified time. For example, this returns the \texttt{orderbook}
 object at 9:30:00.
 
 
@@ -327,10 +328,12 @@ Total Orders:              153
 
 \section{Data}
 
-Most brokers and exchanges have their own format for transmitting raw
-order data to customers, so it would be unfeasible for us to write
-scripts to automatically process all data formats. Consequently, raw
-data for an \texttt{orderbook} object must be in the following form:
+Data files should contain all messages for one stock on a single
+trading day. Most brokers and exchanges have their own format for
+transmitting raw message data to customers, so it would be unfeasible
+for us to write scripts to automatically process all data
+formats. Consequently, raw data for an \texttt{orderbook} object must
+be in the following form:
 
 \begin{verbatim}
 type,time,id,price,size,type,status
@@ -348,7 +351,7 @@ a Replace the next column is the new size, while for Add and Trade a
 column for price comes before the size column. Add messages also have
 the type of order (BID/ASK) in the sixth column. The optional seventh
 (sixth) column is \texttt{TRUE} if the order (trade) belongs to the
-user, and \texttt{FALSE} otehrwise. This allows the user to create
+user, and \texttt{FALSE} otherwise. This allows the user to create
 plots that show the time priority of his own orders. If the column is
 omitted, the first line of the data file should be \texttt{type, time,
   id, price, size, type} and not include \texttt{status}.
@@ -457,12 +460,14 @@ middle y-axis. Note the red order--this is an order marked
 
 \section{Simulation}
 
-\pkg{orderbook} supports adding, replacing, and cancelling orders. Add
-orders require the price, size, and type (ASK/BID) of the limit
-order. Time and ID are optional, and will default to the maximum time
-+ 1 and the maximum ID + 1. Replace messages require the new size and
-ID. Cancel orders only require ID. In addition, market orders can be
-issued to the order book. Market orders require size and side
+Simulating and modelling the intraday decisions of traders is a topic
+of active research in behavioral finance and
+economics. \pkg{orderbook} supports adding, replacing, and cancelling
+orders. Add orders require the price, size, and type (ASK/BID) of the
+limit order. Time and ID are optional, and will default to the maximum
+time + 1 and the maximum ID + 1. Replace messages require the new size
+and ID. Cancel orders only require ID. In addition, market orders can
+be issued to the order book. Market orders require size and side
 (BUY/SELL).
 
 \begin{Schunk}

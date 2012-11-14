@@ -5,7 +5,7 @@ Depends: R (>= 2.11.0), methods, lattice, grid
 Version: 1.1
 Date: 2010-08-25
 Author: Andrew Liu, David Kane
-Maintainer: Andrew Liu <Andrew.T.Liu@williams.edu>
+Maintainer: Andrew Liu <Andrew.T.Liu@gmail.com>
 Description: Functions for working with orderbook data. An electronic
 	     limit order book is a collection of limit orders, most
 	     commonly seen at stock exchanges. A limit order is an

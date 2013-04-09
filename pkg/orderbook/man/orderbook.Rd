@@ -5,15 +5,12 @@
   Create an orderbook object from input data.
 }
 \usage{
- ob <- orderbook(file, trader = FALSE)
+ ob <- orderbook(file)
 }
 
 \arguments{
   \item{file}{ Object of class \code{"character"} specifying the
     location of the data file.}
-  \item{trader}{Object of class \code{"logical"} indicating whether or
-  not the order book should read user orders and executions from the data.
-
   }
 }
 

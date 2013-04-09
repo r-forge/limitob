@@ -5,13 +5,12 @@
   Create an orderbook object from input data.
 }
 \usage{
- ob <- orderbook(file)
+ orderbook(file)
 }
 
 \arguments{
   \item{file}{ Object of class \code{"character"} specifying the
-    location of the data file.}
-  }
+    location of the data file.} 
 }
 
 \details{This function should be used to initially create the orderbook
@@ -25,7 +24,7 @@
 library(orderbook)
 filename <- system.file("extdata", "sample.txt",
                         package = "orderbook")
-ob = orderbook(file = filename)
+ob <- orderbook(file = filename)
 }
 
 

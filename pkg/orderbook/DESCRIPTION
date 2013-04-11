@@ -2,7 +2,7 @@ Package: orderbook
 Type: Package
 Title: Orderbook visualization/Charting software
 Depends: R (>= 2.15.0), methods, graphics, lattice, hash, grid
-Version: 1.1
+Version: 1.03
 Date: 2013-04-09
 Author: Andrew Liu, Khanh Nguyen, David Kane
 Maintainer: Andrew Liu <andrew.tsutse.liu@gmail.com>
